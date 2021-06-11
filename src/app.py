@@ -16,6 +16,7 @@ from obj_detector.utils.utils import load_classes, rescale_boxes, non_max_suppre
 # PyQt5
 from PyQt5 import QtCore, QtWidgets, QtGui
 from window import Ui_MainWindow
+#import qdarkgraystyle
 
 import cv2
 
@@ -232,6 +233,9 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication([])
 
     window = mainWindow()
+
+    #app.setStyleSheet(qdarkgraystyle.load_stylesheet())
+
     window.show()
     
     app.exec_()

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numba
 
 # updated sp noise
-@numba.jit(nopython=True, parallel=True)
+#@numba.jit(nopython=True, parallel=True)
 def saltAndPapper_noise(image, prob=0.01):
     output = np.zeros(image.shape,np.uint8)
     thres = 1 - prob 
