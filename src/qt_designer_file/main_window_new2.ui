@@ -23,7 +23,7 @@
    <property name="styleSheet">
     <string notr="true"/>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_6">
+   <layout class="QHBoxLayout" name="horizontalLayout_7">
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
@@ -87,6 +87,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButton_9">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(78, 154, 6);</string>
+          </property>
           <property name="text">
            <string>Next</string>
           </property>
@@ -105,7 +108,7 @@
        </layout>
       </widget>
       <widget class="QWidget" name="page_2">
-       <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,6,1,1,1,1">
+       <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,6,1,1,0,1">
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
@@ -211,11 +214,25 @@
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_6">
-          <property name="text">
-           <string>Next</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QPushButton" name="pushButton_6">
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(78, 154, 6);</string>
+            </property>
+            <property name="text">
+             <string>Next</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_10">
+            <property name="text">
+             <string>Back</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QPushButton" name="pushButton_7">
@@ -341,6 +358,13 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_11">
+          <property name="text">
+           <string>Back</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushButton_8">
