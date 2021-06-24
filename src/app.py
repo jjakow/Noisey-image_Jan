@@ -109,7 +109,7 @@ class mainWindow(QtWidgets.QMainWindow):
 
         self.ui.horizontalSlider.valueChanged.connect(lambda: self.ui.label_7.setText(str(self.ui.horizontalSlider.value() / 100)))
 
-        self.ui.listWidget.currentItemChanged.connect(self.change_selection)
+        #self.ui.listWidget.currentItemChanged.connect(self.change_selection)
 
         self.default_img()
 
