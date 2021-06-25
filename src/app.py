@@ -118,7 +118,7 @@ class mainWindow(QtWidgets.QMainWindow):
 
     def default_img(self):
         #self.ui.original.setPixmap(QtGui.QPixmap(currPath+"../imgs/dog.jpg"))
-        self.open_file(currPath+"../imgs/dog.jpg")
+        self.open_file(currPath+"../imgs/100FACES.jpg")
 
     def open_file(self, fileName = None):
         if(fileName == None):
