@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5 import uic
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, Qt
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QObject, QThread, pyqtSignal, QSize, Qt
+from PyQt5.QtGui import QPixmap, QIcon, QImage
 from src.mplwidget import MplWidget
 import matplotlib.pyplot as plt
 from multiprocessing import Value
@@ -299,7 +299,7 @@ class ExperimentWorker(QObject):
                                 _img = aug(_img, request_param=aug.args[j])
                                 dets = self.config.model.run(_img)
                                 self.writeDets(dets, new_sub_dir, imgPath)
-
+                                
                             self.logProgress.emit('\tProgress: (%i/%i)'%(i,len(self.config.imagePaths)))
                             self.progress.emit(i)
                             if self.config.labelType != 'coco':
@@ -498,6 +498,8 @@ class ExperimentDialog(QDialog):
         self.currentIdx = 0
         self.currentArgIdx = 0
         self.currentGraphIdx = 0
+        self.currentImg = None
+
         # total amount of garphs, arguments, augmentations
         self.totalGraphs = 1
         self.totalArgIdx = 0
@@ -517,6 +519,7 @@ class ExperimentDialog(QDialog):
         self.previewForward.clicked.connect( lambda: self.changeOnImageButton(1) ) # increase index by one
         self.previewBack_3.clicked.connect(lambda: self.changeOnImageAugButton(-1) )
         self.previewForward_3.clicked.connect(lambda: self.changeOnImageAugButton(1) )
+        self.previewImage.clicked.connect(lambda: self.showImage())
         #self.forwardGraph.clicked.connect(lambda: self.changeOnGraphButton(1))
         #self.backGraph.clicked.connect(lambda: self.changeOnGraphButton(-1))
 
@@ -599,6 +602,27 @@ class ExperimentDialog(QDialog):
         self.refreshImageResults(0)
         self.refreshGraphResults(0)
 
+    def showImage(self):
+
+        # Convert the image from Pixmap to Image
+        img = QImage(self.currentImg)
+
+        img.save('test.jpg', 'jpg')
+
+        # Read in the image with opencv and show the image
+        img = cv2.imread('test.jpg')
+
+        width = int(img.shape[1] * 5)
+        height = int(img.shape[0] * 5)
+        dim = (width, height)  
+
+        resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+
+        cv2.imshow('Image', resized)
+
+        # Delete the temp file
+        os.remove('test.jpg') 
+
     def refreshImageResults(self,i):
         augPosition = self.augComboBox.currentIndex()
         if self.config.isCompound:
@@ -623,7 +647,9 @@ class ExperimentDialog(QDialog):
         self.afterExpThread.start()
 
     def updateImage(self, img):
-        self.previewImage.setPixmap(img)
+        self.currentImg = img
+        self.previewImage.setIcon(QIcon(img))
+        self.previewImage.setIconSize(QSize(500,500))
 
     def updateGraph(self, ax_list):
         fig, ax = ax_list
@@ -675,7 +701,7 @@ class ExperimentDialog(QDialog):
             self.currentGraphIdx += i
             self.label_4.setText(str(self.currentGraphIdx+1))
             self.refreshGraphResults(self.currentGraphIdx)
-    
+
     def closeEvent(self, event):
         with self.threadDone.get_lock():
             if not self.threadDone.value:

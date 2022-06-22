@@ -1,7 +1,6 @@
 '''
 Run this script against the folder from the experiment
 at ./src/data/tmp/runs/...
-
 example: python makeBetterGraph.py --folder src/data/tmp/runs/exp_28/
 '''
 
