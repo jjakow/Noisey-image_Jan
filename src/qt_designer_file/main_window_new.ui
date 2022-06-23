@@ -161,7 +161,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_3">
+           <widget class="QPushButton" name="defaultButton">
             <property name="layoutDirection">
              <enum>Qt::LeftToRight</enum>
             </property>
@@ -171,7 +171,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_4">
+           <widget class="QPushButton" name="pushButton_3">
             <property name="styleSheet">
              <string notr="true">background-color: rgb(239, 41, 41);</string>
             </property>
