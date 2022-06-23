@@ -36,7 +36,9 @@ def main(config, image, patch_size, size) -> None:
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    detect(cfg, image, patch_size, show_stats=size)
+    img = detect(cfg, image, patch_size, show_stats=size)
+
+    return img
 
 def detect(cfg: Namespace, image, patch_size, show_stats=False, resize=False) -> None:
     assert cfg.checkpoint not in [None, ""]
@@ -111,11 +113,11 @@ def detect(cfg: Namespace, image, patch_size, show_stats=False, resize=False) ->
 
     _name1 = str(exp_dir/f"out/custom_pre.png")
     _name2 = str(exp_dir/f"out/custom.png")
-    print(_name1, _name2)
 
     cv2.imwrite(_name1, image)
     cv2.imwrite(_name2, out)
 
+    return out
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -132,4 +134,4 @@ if __name__ == "__main__":
 
     image = cv2.imread(args.image)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    detect(cfg, image, args.patch, show_stats=args.size)
+    img = detect(cfg, image, args.patch, show_stats=args.size)

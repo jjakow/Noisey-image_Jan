@@ -908,15 +908,16 @@ class CompressiveAE(Model):
     def __init__(self, *network_config) -> None:
         super().__init__(*network_config)
 
-    def run(self, image, size=None):
+    def run(self, image, patch_size, size=None):
 
         # Run the detect.py script
-        detector.main(self.config, image, size)
+        self.img = detector.main(self.config, image, patch_size, size)
     
     def initialize(self, config):
     
-        # Intialize the configuraiton file
+        # Intialize the configuraiton file and img
         self.config = config
+        self.img = None
 
     def deinitialize(self):
         
@@ -924,13 +925,7 @@ class CompressiveAE(Model):
     
     def draw(self):
 
-        # Path to experiments folder
-        experiment = currPath + '/cae/experiments/testing/out/'
-
-        # Grab the image from the testing folder 
-        image = cv2.imread(experiment + 'custom.png')
-
-        return image
+        return self.img
 
     def draw_single_class(self):
 

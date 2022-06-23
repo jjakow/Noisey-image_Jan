@@ -343,6 +343,7 @@ class ExperimentResultWorker(QObject):
     finished = pyqtSignal()
     finishedImage = pyqtSignal(QPixmap)
     finishedGraph = pyqtSignal(list)
+    finishedCV = pyqtSignal(np.ndarray)
 
     def __init__(self, imagePath, config, expName, augPosition=None, argPosition=None) -> None:
         super(ExperimentResultWorker, self).__init__()
@@ -358,6 +359,7 @@ class ExperimentResultWorker(QObject):
         self.argPosition = argPosition # only used when aug's compounded
         self.parentPath = os.path.join(self.config.savePath, self.expName)
         self.folders = next(os.walk(self.parentPath))[1]
+        self.image = None
 
     def run(self):
         if self.config.isCompound:
@@ -423,6 +425,7 @@ class ExperimentResultWorker(QObject):
                 if d[1] > self.config.model.conf_thres: 
                     _img = cv2.rectangle(_img, (d[2], d[3]), (d[4], d[5]), (0,0,255), thickness=3)
 
+        self.finishedCV.emit(_img)
         self.finishedImage.emit(convertCV2QT(_img, 391, 231))
         self.finished.emit()
 
@@ -602,27 +605,6 @@ class ExperimentDialog(QDialog):
         self.refreshImageResults(0)
         self.refreshGraphResults(0)
 
-    def showImage(self):
-
-        # Convert the image from Pixmap to Image
-        img = QImage(self.currentImg)
-
-        img.save('test.jpg', 'jpg')
-
-        # Read in the image with opencv and show the image
-        img = cv2.imread('test.jpg')
-
-        width = int(img.shape[1] * 5)
-        height = int(img.shape[0] * 5)
-        dim = (width, height)  
-
-        resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
-
-        cv2.imshow('Image', resized)
-
-        # Delete the temp file
-        os.remove('test.jpg') 
-
     def refreshImageResults(self,i):
         augPosition = self.augComboBox.currentIndex()
         if self.config.isCompound:
@@ -642,12 +624,19 @@ class ExperimentDialog(QDialog):
         self.worker.finished.connect(self.afterExpThread.wait)
         self.worker.finished.connect(self.worker.deleteLater)
         self.worker.finishedImage.connect(self.updateImage)
+        self.worker.finishedCV.connect(self.updateCV)
         #self.afterExpThread.finished.connect(self.afterExpThread.deleteLater)
         #worker.progress.connect()
         self.afterExpThread.start()
 
+    def updateCV(self, cvImg):
+        self.currentImg = cvImg
+
+    def showImage(self):
+
+        cv2.imshow('Image', self.currentImg)
+
     def updateImage(self, img):
-        self.currentImg = img
         self.previewImage.setIcon(QIcon(img))
         self.previewImage.setIconSize(QSize(500,500))
 
