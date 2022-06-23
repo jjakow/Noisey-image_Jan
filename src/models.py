@@ -909,21 +909,17 @@ class CompressiveAE(Model):
         super().__init__(*network_config)
 
     def run(self, image, size=None):
-
         # Run the detect.py script
         detector.main(self.config, image, size)
     
     def initialize(self, config):
-    
         # Intialize the configuraiton file
         self.config = config
 
     def deinitialize(self):
-        
         pass
     
     def draw(self):
-
         # Path to experiments folder
         experiment = currPath + '/cae/experiments/testing/out/'
 

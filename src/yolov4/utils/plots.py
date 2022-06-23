@@ -20,7 +20,7 @@ from src.yolov4.utils.general import xywh2xyxy, xyxy2xywh
 from src.yolov4.utils.metrics import fitness
 
 # Settings
-matplotlib.use('Agg')  # for writing to files only
+#matplotlib.use('Agg')  # for writing to files only
 
 
 def color_list():
