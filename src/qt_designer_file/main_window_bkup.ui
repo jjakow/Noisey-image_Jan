@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>
+    <width>1195</width>
     <height>681</height>
    </rect>
   </property>
@@ -79,7 +79,7 @@
           <item>
            <widget class="QLabel" name="label_10">
             <property name="text">
-             <string>Segmentation</string>
+             <string>Uncompressed Detections</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -93,7 +93,7 @@
       <item row="2" column="1">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Noise Generator</string>
+         <string>Augmentation Generator</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -113,7 +113,7 @@
       <item row="3" column="2">
        <layout class="QGridLayout" name="gridLayout_2" columnstretch="0">
         <item row="3" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="5,4,2,2,1">
+         <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="5,4,4,2,2,1">
           <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
@@ -134,6 +134,16 @@
             </property>
             <property name="text">
              <string>Run model</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(0, 223, 255);</string>
+            </property>
+            <property name="text">
+             <string>Run preview</string>
             </property>
            </widget>
           </item>
@@ -202,6 +212,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="compoundAug">
+            <property name="text">
+             <string>Compound Augmentations</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QProgressBar" name="progressBar">
             <property name="enabled">
              <bool>true</bool>
@@ -213,118 +230,6 @@
              <number>0</number>
             </property>
            </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </item>
-      <item row="3" column="1">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Noise level:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSlider" name="horizontalSlider">
-            <property name="minimum">
-             <number>0</number>
-            </property>
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="singleStep">
-             <number>1</number>
-            </property>
-            <property name="pageStep">
-             <number>1</number>
-            </property>
-            <property name="value">
-             <number>1</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="doubleSpinBox">
-            <property name="decimals">
-             <number>0</number>
-            </property>
-            <property name="minimum">
-             <double>0.000000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>5000.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>1.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,1,1,2">
-          <item>
-           <widget class="QToolButton" name="toolButton">
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(138, 226, 52);</string>
-            </property>
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="popupMode">
-             <enum>QToolButton::MenuButtonPopup</enum>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextOnly</enum>
-            </property>
-            <property name="arrowType">
-             <enum>Qt::DownArrow</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton">
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(114, 159, 207);</string>
-            </property>
-            <property name="text">
-             <string>Apply noise</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>
@@ -397,7 +302,7 @@
           <item>
            <widget class="QLabel" name="label_11">
             <property name="text">
-             <string>Segmentation overlay</string>
+             <string>Augmented Detections</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -440,38 +345,91 @@
         </widget>
        </widget>
       </item>
-      <item row="3" column="0">
-       <layout class="QVBoxLayout" name="verticalLayout_8">
-        <item>
-         <widget class="QPushButton" name="pushButton_3">
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(114, 159, 207);</string>
-          </property>
-          <property name="text">
-           <string>Apply noise
-(all images)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_5">
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(114, 159, 207);</string>
-          </property>
-          <property name="text">
-           <string>Run model
-(all images)</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
       <item row="2" column="0">
        <widget class="QProgressBar" name="progressBar_2">
         <property name="value">
          <number>0</number>
         </property>
        </widget>
+      </item>
+      <item row="3" column="1">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <item>
+             <widget class="QListWidget" name="listAugs"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QPushButton" name="upListAug">
+              <property name="text">
+               <string>^</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="downListAug">
+              <property name="text">
+               <string>v</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="deleteListAug">
+              <property name="text">
+               <string>x</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_10">
+              <item>
+               <widget class="QPushButton" name="addAug">
+                <property name="text">
+                 <string>Add Augmentations</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="loadAug">
+                <property name="text">
+                 <string>Load Augmentations</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="saveAug">
+                <property name="text">
+                 <string>Save Augmentations</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_9"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="demoAug">
+              <property name="text">
+               <string>Demo Augmentation</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -482,8 +440,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>900</width>
-     <height>22</height>
+     <width>1195</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

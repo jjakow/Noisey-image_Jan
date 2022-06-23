@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './src/qt_designer_file/main_window_new.ui'
+# Form implementation generated from reading ui file '.\src\qt_designer_file\main_window_new.ui'
 #
 # Created by: PyQt5 UI code generator 5.9
 #
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1195, 681)
+        MainWindow.resize(1299, 681)
         MainWindow.setAutoFillBackground(False)
         MainWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -84,6 +84,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addWidget(self.pushButton)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem1)
+        self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_3.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.horizontalLayout_5.addWidget(self.pushButton_3)
         self.pushButton_4 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_4.setStyleSheet("background-color: rgb(239, 41, 41);")
         self.pushButton_4.setObjectName("pushButton_4")
@@ -94,8 +98,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.setStretch(1, 4)
         self.horizontalLayout_5.setStretch(2, 4)
         self.horizontalLayout_5.setStretch(3, 2)
-        self.horizontalLayout_5.setStretch(4, 2)
-        self.horizontalLayout_5.setStretch(5, 1)
+        self.horizontalLayout_5.setStretch(5, 2)
+        self.horizontalLayout_5.setStretch(6, 1)
         self.gridLayout_2.addLayout(self.horizontalLayout_5, 3, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -251,7 +255,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6.addLayout(self.gridLayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1195, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1299, 26))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -290,17 +294,18 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label_8.setText(_translate("MainWindow", "Original Image"))
-        self.label_10.setText(_translate("MainWindow", "Segmentation"))
+        self.label_10.setText(_translate("MainWindow", "Uncompressed Detections"))
         self.label_2.setText(_translate("MainWindow", "Augmentation Generator"))
         self.label.setText(_translate("MainWindow", "Models"))
         self.pushButton_2.setText(_translate("MainWindow", "Run model"))
         self.pushButton.setText(_translate("MainWindow", "Run preview"))
+        self.pushButton_3.setText(_translate("MainWindow", "Default"))
         self.pushButton_4.setText(_translate("MainWindow", "Exit"))
         self.label_3.setText(_translate("MainWindow", "Select a model:"))
         self.checkBox_2.setText(_translate("MainWindow", "Display result on a separate window"))
         self.compoundAug.setText(_translate("MainWindow", "Compound Augmentations"))
         self.label_9.setText(_translate("MainWindow", "Noisy"))
-        self.label_11.setText(_translate("MainWindow", "Overlay"))
+        self.label_11.setText(_translate("MainWindow", "Augmented Detections"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Items"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Images"))
         self.upListAug.setText(_translate("MainWindow", "^"))
