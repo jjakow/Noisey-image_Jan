@@ -920,7 +920,6 @@ class CompressiveAE(Model):
         self.img = None
 
     def deinitialize(self):
-        
         pass
     
     def draw(self):
