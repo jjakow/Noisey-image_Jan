@@ -22,22 +22,10 @@ logger = Logger(__name__, colorize=True)
 
 
 def main(config, image, patch_size, size) -> None:
-
     with open(config, "rt") as fp:
         cfg = Namespace(**yaml.safe_load(fp))
-
-    # If image is file path 
-    '''
-    if type(image) == str:
-        img = cv2.imread(image)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        detectImages(cfg, img, show_stats=size)
-    '''
-
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
     img = detect(cfg, image, patch_size, show_stats=size)
-
     return img
 
 def detect(cfg: Namespace, image, patch_size, show_stats=False, resize=False) -> None:
@@ -108,7 +96,6 @@ def detect(cfg: Namespace, image, patch_size, show_stats=False, resize=False) ->
     out = cv2.cvtColor(out, cv2.COLOR_BGR2RGB)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    print(pwh)
     out = out[pwh[0][1]:image.shape[0]+pwh[0][1], pwh[0][0]:image.shape[1]+pwh[0][0],:]
 
     _name1 = str(exp_dir/f"out/custom_pre.png")
@@ -118,20 +105,3 @@ def detect(cfg: Namespace, image, patch_size, show_stats=False, resize=False) ->
     cv2.imwrite(_name2, out)
 
     return out
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=str, required=True)
-    parser.add_argument("--image", type=str, required=True)
-    parser.add_argument("--size", action='store_true')
-    parser.add_argument("--patch", type=int, default=128)
-    parser.add_argument("--resize", action='store_true')
-    args = parser.parse_args()
-    
-    args.patch += args.patch % 2
-    with open(args.config, "rt") as fp:
-        cfg = Namespace(**yaml.safe_load(fp))
-
-    image = cv2.imread(args.image)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    img = detect(cfg, image, args.patch, show_stats=args.size)

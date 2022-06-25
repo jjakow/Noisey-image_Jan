@@ -2,11 +2,10 @@ import abc
 import os
 from pathlib import Path
 from pyexpat import model
+from types import SimpleNamespace
 from PyQt5.QtCore import QObject
 import os, csv, torch, scipy.io
 import numpy as np
-
-from src.yolov4.utils.torch_utils import select_device
 
 if __name__ == '__main__':
     import sys
@@ -46,6 +45,7 @@ from PIL import Image
 from src.detr.model import DETRdemo
 
 # import yolov4 stuff:
+from src.yolov4.utils.torch_utils import select_device
 import src.yolov4.detect as detect_v4
 from src.yolov4.models.models import Darknet
 from src.yolov4.models.models import load_darknet_weights
@@ -61,7 +61,10 @@ from src.yolov3.models.common import DetectMultiBackend
 import yaml
 
 # import compressive autoendcoding here:
-from src.cae.src import detect as detector
+from src.cae.src import detect as cae_detector
+from src.cae.src.data_loader import preprocess_single as cae_preprocess_single
+from src.cae.src.models.cae_32x32x32_zero_pad_bin import CAE
+
 # YOLOX imports:
 from src.yolox.yolox.data.datasets import COCO_CLASSES
 
@@ -907,36 +910,75 @@ class CompressiveAE(Model):
 
     def __init__(self, *network_config) -> None:
         super().__init__(*network_config)
+        self.checkpoint = network_config[0]
+        if torch.cuda.is_available():
+            device = "cuda"
+        else:
+            device = "cpu"
+        self.ns = SimpleNamespace(device=device, resize=False)
+        self.initialize()
 
     def run(self, image, patch_size, size=None):
+        with torch.no_grad():
+            # Run the detect.py script
+            image_shape = image.shape
+            img, patches, pad_img, pad, pwh = cae_preprocess_single(image, patch_size)
 
-        # Run the detect.py script
-        self.img = detector.main(self.config, image, patch_size, size)
+            if self.ns.device == "cuda":
+                patches = patches.cuda()
+
+            #out = T.zeros(6, 10, 3, 128, 128)
+            ps = patches.shape
+            out = torch.zeros(ps[1], ps[2], ps[0], ps[3], ps[4])
+
+            for i in range(pad[1]):
+                for j in range(pad[0]):
+                    x = patches[:, i, j, :, :]
+                    x = torch.unsqueeze(x, axis=0)
+                    if self.ns.resize:
+                        x = torch.nn.functional.interpolate(x, size=(128,128), mode='bilinear')
+                    if self.ns.device == "cuda":
+                        x.cuda()
+                    y = self.model(x)
+                    if self.ns.resize:
+                        y = torch.nn.functional.interpolate(y, size=(patch_size,patch_size), mode='bilinear')
+                    y = y[0]
+                    out[i, j] = y.data
+            
+            # save output
+            out = np.transpose(out, (0, 3, 1, 4, 2))
+            out = np.reshape(out, (pad_img[0], pad_img[1], 3))
+            out *= 255.0
+            out = out.clamp(0,255.0)
+            out = out.cpu().numpy()
+            out = out.astype(np.uint8)
+            #out = cv2.cvtColor(out, cv2.COLOR_BGR2RGB)
+            #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            out = out[pwh[0][1]:image.shape[0]+pwh[0][1], pwh[0][0]:image.shape[1]+pwh[0][0],:]
+        return out
     
-    def initialize(self, config):
-    
+    def initialize(self):
         # Intialize the configuraiton file and img
-        self.config = config
-        self.img = None
+        self.model = CAE(self.ns, check_size=False)
+        self.model.load_state_dict(torch.load(self.checkpoint))
+        self.model.eval()
+        if self.ns.device == "cuda":
+            self.model.cuda()
 
     def deinitialize(self):
         pass
     
     def draw(self):
-
-        return self.img
+        return -1
 
     def draw_single_class(self):
-
-        pass
+        return -1
 
     def outputFormat(self):
-        
-        pass
+        return -1
     
     def report_accuracy(self):
-        
-        pass
+        return -1
 
 _registry = {
     'Face Detection (YOLOv3)': YOLOv3(

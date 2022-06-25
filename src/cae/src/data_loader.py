@@ -7,8 +7,10 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 def preprocess_single(img, patch_size):
+    patch_size = int(patch_size)
     pad_w, pad_h = int(np.ceil(img.shape[1]/patch_size)), int(np.ceil(img.shape[0]/patch_size))
     leftover_w, leftover_h = ((pad_w*patch_size)-img.shape[1]), ((pad_h*patch_size)-img.shape[0])
+
     if leftover_w%2 != 0:
         w_1 = leftover_w//2
         w_2 = leftover_w-w_1
@@ -22,7 +24,7 @@ def preprocess_single(img, patch_size):
         h_1 = leftover_h//2
         h_2 = h_1
 
-    pad = ((h_1,h_2), (w_1,w_2), (0,0))
+    pad = ((round(h_1),round(h_2)), (round(w_1),round(w_2)), (0,0))
     img = np.pad(img, pad, mode="edge") / 255.0
     pad_img_new = img.shape
 

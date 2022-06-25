@@ -21,6 +21,8 @@ from src import models
 #import src.utils.images
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
+# Load the autoencoder with the configuration file
+cae_encoder = models.CompressiveAE( os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state') ) 
 
 def letterbox_image(image, size):
     '''
@@ -106,25 +108,6 @@ def gaussian_blur(image, parameter):
     output_image = cv2.GaussianBlur(image_copy, (parameter,parameter),0) # parameter is size of median kernel
     return output_image.astype('uint8')
 
-'''
-def gaussian_blur(image, kernel_size_factor, stdX=0, stdY=0, seed=-1):
-    if type(kernel_size_factor) == float or type(kernel_size_factor) == int:
-        w = int((kernel_size_factor*2)+1)
-        h = int((kernel_size_factor*2)+1)
-        blur_img = cv2.GaussianBlur(
-            image, (w, h), cv2.BORDER_DEFAULT, stdX, stdY)
-        return blur_img
-    if type(kernel_size_factor) == tuple:
-        if seed != -1:
-            np.random.seed(seed)
-        lower, upper = kernel_size_factor
-        random_size_factor = np.random.uniform(lower, upper)
-        w_r = (int(random_size_factor)*2)+1
-        h_r = (int(random_size_factor)*2)+1
-        blur_img = cv2.GaussianBlur(
-            image, (w_r, h_r), cv2.BORDER_DEFAULT, stdX, stdY)
-        return blur_img
-'''
 
 def jpeg_comp(image, quality):
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
@@ -132,16 +115,6 @@ def jpeg_comp(image, quality):
     if result is True:
         dec_img = cv2.imdecode(enc_img, 1)
         return dec_img
-
-def normal_comp(image, scale_factor):
-    original_shape = image.shape
-    width = int(image.shape[1] * scale_factor / 100)
-    height = int(image.shape[0] * scale_factor / 100)
-    dim = (width, height)
-    # resize image
-    resized_img = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
-    resized_img = cv2.resize(resized_img, (original_shape[1], original_shape[0]), interpolation=cv2.INTER_CUBIC) 
-    return resized_img
 
 def saltAndPapper_noise(image, prob=0.01):
     '''
@@ -419,30 +392,16 @@ def bilinear(image, percent):
     return final_img
 
 
-def cae(image, patches):
-    
-    encoder = models.CompressiveAE()   
-
-    # Load the autoencoder with the configuration file
-    encoder.initialize(currPath + '/cae/configs/test.yaml')
-
+def cae(image, patches):  
     # Run the autoencoder with the given image
-    encoder.run(image, patches)
-
-    # Get the encoded image
-    img = encoder.draw()
-
-    # Cut off half the image
-    #cutImg = img[0:img.shape[0], int(img.shape[1]/2):img.shape[1]]
-
-    return img
+    image = cae_encoder.run(image, patches)
+    return image
 
 augList = {
     "Intensity": {"function": dim_intensity, "default": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], "example":0.5},
     "Gaussian Noise": {"function": gaussian_noise, "default": [1,10,15,20,25,30,35,40,45,50,55,60], "example":25},
     "Gaussian Blur": {"function": gaussian_blur, "default": [3, 13, 23, 33, 43, 53, 63, 73, 83], "example":33},
     "JPEG Compression": {"function": jpeg_comp, "default": [100,75,50], "example":20},
-    "Normal Compression": {"function": normal_comp, "default": [20], "example":30},
     "Salt and Pepper": {"function": saltAndPapper_noise, "default": [x/100 for x in range(12)], "example":0.25},
     "Flip Axis": {"function": flipAxis, "default": [-1], "example": -1},
     "Fisheye": {"function": fisheye, "default": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], "example":0.4},
