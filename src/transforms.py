@@ -21,8 +21,12 @@ from src import models
 #import src.utils.images
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
+
 # Load the autoencoder with the configuration file
-cae_encoder = models.CompressiveAE( os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state') ) 
+cae_model_path = os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state')
+if os.path.exists(cae_model_path):
+    cae_encoder = models.CompressiveAE( os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state') ) 
+else: print("Cannot find %s"%(cae_model_path))
 
 def letterbox_image(image, size):
     '''

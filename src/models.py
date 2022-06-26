@@ -960,7 +960,7 @@ class CompressiveAE(Model):
     def initialize(self):
         # Intialize the configuraiton file and img
         self.model = CAE(self.ns, check_size=False)
-        self.model.load_state_dict(torch.load(self.checkpoint))
+        self.model.load_state_dict(torch.load(self.checkpoint, map_location=torch.device(self.ns.device)))
         self.model.eval()
         if self.ns.device == "cuda":
             self.model.cuda()
