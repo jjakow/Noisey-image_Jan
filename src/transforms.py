@@ -405,7 +405,7 @@ augList = {
     "Intensity": {"function": dim_intensity, "default": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], "example":0.5},
     "Gaussian Noise": {"function": gaussian_noise, "default": [1,10,15,20,25,30,35,40,45,50,55,60], "example":25},
     "Gaussian Blur": {"function": gaussian_blur, "default": [3, 13, 23, 33, 43, 53, 63, 73, 83], "example":33},
-    "JPEG Compression": {"function": jpeg_comp, "default": [100,75,50], "example":20},
+    "JPEG Compression": {"function": jpeg_comp, "default": [100,90,80,70,60,50,40,30,20,10], "example":20},
     "Salt and Pepper": {"function": saltAndPapper_noise, "default": [x/100 for x in range(12)], "example":0.25},
     "Flip Axis": {"function": flipAxis, "default": [-1], "example": -1},
     "Fisheye": {"function": fisheye, "default": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], "example":0.4},
@@ -417,7 +417,7 @@ augList = {
     "Alternate Mosaic": {"function": alternate_mosaic, "default":[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "example":2}, # 1x1 - 5x5
     "WebP Compression": {"function": webp_transform, "default": [10,25,50,75,100], "example":10},
     "Bilinear Resizing": {"function": bilinear, "default": [10,20,30,40,50,60,70,80,90,95], "example":25},
-    "Compressive Autoencoder": {"function": cae, "default": [16,32,64,128,256,512,1024], "example":16}
+    "Compressive Autoencoder": {"function": cae, "default": [140,148,156,164,172,180,188,196], "example":172}
 }
 
 class Augmentation:
@@ -846,6 +846,7 @@ class AugDialog(QDialog):
 
     def demoAug(self):
         mainAug.clear()
+        mainAug.append('Gaussian Blur')
         mainAug.append('Gaussian Noise')
         #mainAug.append('JPEG Compression')
         #mainAug.append('Salt and Pepper')

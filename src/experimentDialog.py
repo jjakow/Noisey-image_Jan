@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtWidgets import QDialog, QDesktopWidget, QApplication
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, QSize, Qt
 from PyQt5.QtGui import QPixmap, QIcon, QImage
@@ -634,7 +634,22 @@ class ExperimentDialog(QDialog):
 
     def showImage(self):
 
-        cv2.imshow('Image', self.currentImg)
+        img = self.currentImg
+
+        # Define the screen resolution
+        resolution = QDesktopWidget().screenGeometry()
+        screen_res = resolution.width(), resolution.height()
+        scale_width = screen_res[0] / img.shape[1]
+        scale_height = screen_res[1] / img.shape[0]
+        scale = min(scale_width * 0.75, scale_height * 0.75)
+
+        # Get the resized window height and width
+        window_width = int(img.shape[1] * scale)
+        window_height = int(img.shape[0] * scale)
+
+        cv2.namedWindow('Resized Window', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Resized Window', window_width, window_height)
+        cv2.imshow('Resized Window', img)
 
     def updateImage(self, img):
         self.previewImage.setIcon(QIcon(img))

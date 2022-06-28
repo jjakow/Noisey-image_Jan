@@ -102,9 +102,10 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.pushButton.clicked.connect(self.run_model)  
         self.ui.pushButton_2.clicked.connect(self.startExperiment)
         self.ui.pushButton_3.clicked.connect(quit)
-        #self.ui.compoundAug.setChecked(True)
+        #self.ui.pushButton_4.clicked.connect(self.default_img())
 
         # Augmentation Generator:
+        #self.ui.compoundAug.setChecked(True)
         self.ui.addAug.clicked.connect(self.addWindow.show)
         self.ui.demoAug.clicked.connect(self.addWindow.demoAug)
         self.ui.loadAug.clicked.connect(self.addWindow.__loadFileDialog__)
