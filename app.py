@@ -102,7 +102,7 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.pushButton.clicked.connect(self.run_model)  
         self.ui.pushButton_2.clicked.connect(self.startExperiment)
         self.ui.pushButton_3.clicked.connect(quit)
-        #self.ui.pushButton_4.clicked.connect(self.default_img())
+        self.ui.pushButton_4.clicked.connect(self.setToDefault)
 
         # Augmentation Generator:
         #self.ui.compoundAug.setChecked(True)
@@ -229,6 +229,7 @@ class mainWindow(QtWidgets.QMainWindow):
             items = self.ui.fileList.findItems(fileName, QtCore.Qt.MatchExactly)
             if len(items) > 0:
                 self.ui.statusbar.showMessage("File already opened", 3000)
+                continue
 
             new_item = QtWidgets.QListWidgetItem()
             new_item.setText(fileName)
@@ -491,7 +492,18 @@ class mainWindow(QtWidgets.QMainWindow):
         config = ExperimentConfig(mainAug, self.ui.compoundAug.isChecked(), imgPaths, _model, comboModelType, labels=self.labels, labelType=self.label_eval)
         self.experiment = ExperimentDialog(config)
         self.experiment.startExperiment()
-
+    
+    def setToDefault(self):
+        mainAug.clear()
+        mainAug.load('default_aug.txt')
+        self.addWindow.__applyConfig__()
+        self.addWindow.__updateViewer__()
+        self.ui.checkBox_2.setChecked(False)
+        self.ui.compoundAug.setChecked(False)
+        self.ui.comboBox.setCurrentIndex(0)
+        self.ui.original_2.clear()
+        self.ui.fileList.clear()
+        self.default_img()
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
