@@ -1,3 +1,4 @@
+from distutils.log import error
 import random
 import math
 import os
@@ -17,7 +18,7 @@ import numpy as np
 import time
 from PIL import Image
 from src.utils import images
-from src import models
+import src.models
 #import src.utils.images
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
@@ -25,7 +26,7 @@ currPath = str(Path(__file__).parent.absolute()) + '/'
 # Load the autoencoder with the configuration file
 cae_model_path = os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state')
 if os.path.exists(cae_model_path):
-    cae_encoder = models.CompressiveAE( os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state') ) 
+    cae_encoder = src.models.CompressiveAE( os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state') ) 
 else: print("Cannot find %s"%(cae_model_path))
 
 def letterbox_image(image, size):
@@ -551,7 +552,8 @@ class AugmentationPipeline():
         with open(filename, 'r') as f:
             content = list(map(str.strip, f.readlines()))
         self.clear()
-
+        # create list of errors which may arise
+        errIn = []
         # format: [title,# of parameters,*parameters,1,example]
         for _content in content:
             _content = _content.split(',')
@@ -562,13 +564,19 @@ class AugmentationPipeline():
                 params.append( float(_content[i+2]) )
             params = list(params)
             _example_buffer_loc = nargs+3 #+2 and +1 to get to 1
-            example = float(_content[_example_buffer_loc])
+            try: example = float(_content[_example_buffer_loc])
+            except ValueError: 
+                errIn.append(name)
+                continue
 
             if name in augList:
                 _aug  = Augmentation([name, augList[name]['function']], list(augList.keys()).index(name), [params, example], verbose=False)
                 mainAug.__pipeline__.append(_aug)
             else:
                 print("Augmentation name is not recognized! Ignoring this line")
+        
+        if errIn != []:
+            self.augLoadingError(errIn)
 
     def save(self, filename):
         if '.txt' not in filename[0]:
@@ -593,6 +601,20 @@ class AugmentationPipeline():
             if maxLen != len(aug.args):
                 return False, "Compounding augmentations require equal number of parameters for each active parameter. %s has mismatch of %i parameters"%(aug.title, len(aug.args))
         return True, ""
+    
+    def augLoadingError(self, errs: list):
+        print("Failed to convert file lines to array of floats")
+        errsStr = ''
+        for i in errs:
+            if i == errs[len(errs) - 1] and len(errs) != 1:
+                errsStr += ('and ' + i)
+            else: errsStr += (i + ', ')
+
+        errorBox = QMessageBox()
+        errorBox.setWindowTitle("Error")
+        errorBox.setIcon(QMessageBox.Critical)
+        errorBox.setText("At least one of the parameters of the file has an illegal character. Only numbers and commas should be used. Check the following augmentations: " + errsStr + ".")
+        x = errorBox.exec_()
 
     next = __next__ # python 2
 
@@ -746,11 +768,13 @@ class AugDialog(QDialog):
 
     # change mainAug to match selected items from GUI:
     def __applySelection__(self):
+        errsList = []
         # update the active item:
         cr = self.listWidget.currentRow()
         _payload = self.listWidget.item(cr).data(Qt.UserRole)
         _payload[1] = self.noiseRange.text()
         _payload[2] = self.exampleLine.text()
+        errorIn = None
         self.listWidget.item(cr).setData(Qt.UserRole, _payload)
 
         # get checks from listWidget:
@@ -762,31 +786,32 @@ class AugDialog(QDialog):
             _noiseRange = _payload[1]
             _example = _payload[2]
 
-            if _noiseRange != '':
-                try: _param = [float(i) for i in _noiseRange.split(',')]
-                except Exception as e: print("Failed to convert string to array of floats")
-                # probably do a signal here to update the UI
-            else: _param = None
+            try:
+                if _noiseRange != '':
+                    _param = [float(i) for i in _noiseRange.split(',')]
+                else: _param = None
 
-            if _example != '': 
-                try:
-                    _example = float(_payload[-1])
-                except Exception as e: print("Failed to convert example to number")
-            else: _example = None
+                if _example != '': 
+                        _example = float(_payload[-1])
+                else: _example = None
 
-            itemIndex = mainAug.index(listItem.text())
+                itemIndex = mainAug.index(listItem.text())
 
-            if listItem.checkState() and itemIndex == -1:
-                mainAug.append(listItem.text(), param=_param, example=_example)
-            elif listItem.checkState() and itemIndex != -1:
-                if not _param is None: mainAug.__pipeline__[itemIndex].setParam(_param)
-                if not _example is None: mainAug.__pipeline__[itemIndex].setExampleParam(_example)
-            elif not listItem.checkState(): # make more efficient later
-                for item in mainAug.__pipeline__:
-                    if item.title == listItem.text():
-                        mainAug.remove(listItem.text())
-                        break
+                if listItem.checkState() and itemIndex == -1:
+                    mainAug.append(listItem.text(), param=_param, example=_example)
+                elif listItem.checkState() and itemIndex != -1:
+                    if not _param is None: mainAug.__pipeline__[itemIndex].setParam(_param)
+                    if not _example is None: mainAug.__pipeline__[itemIndex].setExampleParam(_example)
+                elif not listItem.checkState(): # make more efficient later
+                    for item in mainAug.__pipeline__:
+                        if item.title == listItem.text():
+                            mainAug.remove(listItem.text())
+                            break
+            except ValueError:
+                print("Hello")
+                errsList.append(self.listWidget.item(i).text())
 
+        if errsList != []: self.augParameterError(errsList)
         self.__updateViewer__()
     
     def __updateViewer__(self):
@@ -851,6 +876,22 @@ class AugDialog(QDialog):
         #mainAug.append('JPEG Compression')
         #mainAug.append('Salt and Pepper')
         self.__updateViewer__()
+    
+    def augParameterError(self, errs: list):
+        print("failed to save noise value and/or example of augmentation(s)")
+        errsStr = ''
+        for i in errs:
+            if i == errs[len(errs) - 1] and len(errs) != 1:
+                errsStr += ('and ' + i)
+            elif len(errs) == 1: errsStr += i
+            else: errsStr += (i + ', ')
+
+        errorBox = QMessageBox()
+        errorBox.setWindowTitle("Error")
+        errorBox.setIcon(QMessageBox.Critical)
+        errorBox.setText("At least one of the augmentations has an illegal character in its parameters. Only numbers and commas should be used for a noise range, and only numbers should be used for an example. Check the following augmentations: " + errsStr + ".")
+        x = errorBox.exec_()
+
 
 # Augmentation holder:
 mainAug = AugmentationPipeline(augList)
