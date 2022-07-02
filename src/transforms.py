@@ -114,9 +114,13 @@ def gaussian_blur(image, parameter):
     return output_image.astype('uint8')
 
 
-def jpeg_comp(image, quality):
+def jpeg_comp(image, quality, return_encoded=False):
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     result, enc_img = cv2.imencode('.jpg', image, encode_param)
+    
+    if return_encoded:
+        return enc_img
+
     if result is True:
         dec_img = cv2.imdecode(enc_img, 1)
         return dec_img
@@ -352,7 +356,7 @@ def alternate_mosaic(image, num_slices):
     alt_mos_dict[num_slices] = new_image
     return new_image
 
-def webp_transform(image, quality=10):
+def webp_transform(image, quality=10, return_encoded=False):
     
     """
     Encodes the image using Webp image compression. 
@@ -367,11 +371,15 @@ def webp_transform(image, quality=10):
     
     encode_param = [int(cv2.IMWRITE_WEBP_QUALITY), quality]
     result, enc_img = cv2.imencode('.webp', image, encode_param)
+    
+    if return_encoded:
+        return enc_img
+
     if result is True:
         dec_img = cv2.imdecode(enc_img, 1)
         return dec_img
 
-def bilinear(image, percent):
+def bilinear(image, percent, return_encoded=False):
 
     """ 
     Uses bilinear interpolation to resize the image.
@@ -391,6 +399,7 @@ def bilinear(image, percent):
     new_height = int(orig_height * (percent / 100))
 
     new_img = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+    if return_encoded: return new_img
 
     final_img = cv2.resize(new_img, (orig_width, orig_height), interpolation=cv2.INTER_LINEAR)
 
