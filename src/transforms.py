@@ -4,6 +4,9 @@ import math
 import os
 from urllib import request
 from pathlib import Path
+import ffmpeg
+import tempfile
+import io
 from PyQt5.QtCore import QObject, pyqtSignal, Qt
 
 from numpy.lib.function_base import select
@@ -405,6 +408,32 @@ def bilinear(image, percent, return_encoded=False):
 
     return final_img
 
+def ffmpeg_h264_to_tmp_video(i0, quant_lvl):
+    #i0 = cv2.imread(input_file)
+    h,w,c = i0.shape
+    # encode into png (lossless):
+    i1 = cv2.imencode('.png', i0)[1]
+    io_buf = io.BytesIO(i1)
+    img_bytes = io_buf.getbuffer().tobytes()
+    i0_fp = tempfile.NamedTemporaryFile(delete=True, suffix=".png")
+    i0_fp.write(img_bytes)
+
+    fp = tempfile.NamedTemporaryFile(delete=True, suffix=".mp4")
+    output_file = fp.name
+    stream = ffmpeg.input(i0_fp.name)
+    stream = ffmpeg.output(stream, output_file, vcodec="libx264", qp=quant_lvl, vf="format=yuv444p,scale=%i:%i"%(w,h))
+    ffmpeg.run(stream, overwrite_output=True, quiet=True)
+
+    cap = cv2.VideoCapture(output_file)
+    # assuming one frame:
+    while(True):
+        ret, _frame = cap.read()
+        if not ret: break
+        else: frame = _frame
+    
+    i0_fp.close()
+    fp.close()
+    return frame
 
 def cae(image, patches):  
     # Run the autoencoder with the given image
@@ -427,9 +456,9 @@ augList = {
     "Alternate Mosaic": {"function": alternate_mosaic, "default":[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "example":2}, # 1x1 - 5x5
     "WebP Compression": {"function": webp_transform, "default": [10,25,50,75,100], "example":10},
     "Bilinear Resizing": {"function": bilinear, "default": [10,20,30,40,50,60,70,80,90,95], "example":25},
-    "Compressive Autoencoder": {"function": cae, "default": [140,148,156,164,172,180,188,196], "example":172}
+    "Compressive Autoencoder": {"function": cae, "default": [140,148,156,164,172,180,188,196], "example":172},
+    "Image H264": {"function": ffmpeg_h264_to_tmp_video, "default":[0,10,20,30,40,50,60,70,80,90,100], "example":60}
 }
-
 class Augmentation:
     """
     Creates and Add Augmentations
@@ -750,6 +779,8 @@ class AugDialog(QDialog):
         if currentItem == "Alternate Mosaic":
             self.info_label.setText("Alternate Mosaic slice the given image into n by n parts and generated the new image by shuffling those slices.")
         
+        if currentItem == "Image H264":
+            self.info_label.setText("Apply H264 compression on a single image (parameter is managed by a constant quantization parameter).")
 
     # change GUI to match mainAug
     def __applyConfig__(self):
