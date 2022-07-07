@@ -691,6 +691,20 @@ class AugDialog(QDialog):
             _item.setData(Qt.UserRole, [aug, "", ""]) # aug, parameters, example
             self.listWidget.addItem(_item)
     
+    def __reloadAugs__(self):
+        for i in range(self.listWidget.count()):
+            _payload = self.listWidget.item(i).data(Qt.UserRole)
+
+            strArgs = [str(k) for k in augList[self.listWidget.item(i).text()]["default"]]
+            parameters = ",".join(strArgs)
+            if self.listWidget.item(i).text() != " ":
+                _payload[1] = parameters
+                _payload[2] = str(augList[self.listWidget.item(i).text()]["example"])
+            self.listWidget.item(i).setData(Qt.UserRole, _payload)
+            if i == (self.listWidget.currentRow()):
+                self.noiseRange.setText(parameters)
+                self.exampleLine.setText(str(augList[self.listWidget.item(i).text()]["example"]))
+    
     def __loadInitialImage__(self):
         self._img = cv2.imread(self.defaultImage)
         h,w,_ = self._img.shape
@@ -852,9 +866,7 @@ class AugDialog(QDialog):
                         if item.title == listItem.text():
                             mainAug.remove(listItem.text())
                             break
-            except ValueError:
-                print("Hello")
-                errsList.append(self.listWidget.item(i).text())
+            except ValueError: errsList.append(self.listWidget.item(i).text())
 
         if errsList != []: self.augParameterError(errsList)
         self.__updateViewer__()
