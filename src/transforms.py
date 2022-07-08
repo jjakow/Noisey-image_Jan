@@ -435,6 +435,36 @@ def ffmpeg_h264_to_tmp_video(i0, quant_lvl):
     fp.close()
     return frame
 
+
+def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
+    #i0 = cv2.imread(input_file)
+    h,w,c = i0.shape
+    # encode into png (lossless):
+    i1 = cv2.imencode('.png', i0)[1]
+    io_buf = io.BytesIO(i1)
+    img_bytes = io_buf.getbuffer().tobytes()
+    i0_fp = tempfile.NamedTemporaryFile(delete=True, suffix=".png")
+    i0_fp.write(img_bytes)
+
+    fp = tempfile.NamedTemporaryFile(delete=True, suffix=".mp4")
+    output_file = fp.name
+    stream = ffmpeg.input(i0_fp.name)
+    if quant_lvl+3 > 51: quant_lvl = 51
+    else: quant_lvl += 3
+    stream = ffmpeg.output(stream, output_file, vcodec="libx265", pix_fmt="yuv444p", **{'x265-params':"qp=%i"%(quant_lvl)}) # the plus 3 is because of some weird ffmpeg offset thing... check the avg QP field of the ffmpeg output if u dont believe me
+    ffmpeg.run(stream, overwrite_output=True, quiet=False)
+
+    cap = cv2.VideoCapture(output_file)
+    # assuming one frame:
+    while(True):
+        ret, _frame = cap.read()
+        if not ret: break
+        else: frame = _frame
+    
+    i0_fp.close()
+    fp.close()
+    return frame
+
 def cae(image, patches):  
     # Run the autoencoder with the given image
     image = cae_encoder.run(image, patches)
@@ -457,7 +487,8 @@ augList = {
     "WebP Compression": {"function": webp_transform, "default": [10,25,50,75,100], "example":10},
     "Bilinear Resizing": {"function": bilinear, "default": [10,20,30,40,50,60,70,80,90,95], "example":25},
     "Compressive Autoencoder": {"function": cae, "default": [140,148,156,164,172,180,188,196], "example":172},
-    "Image H264": {"function": ffmpeg_h264_to_tmp_video, "default":[0,10,20,30,40,50,60,70,80,90,100], "example":60}
+    "Image H264": {"function": ffmpeg_h264_to_tmp_video, "default":[0,10,20,30,40,50,60,70,80,90,100], "example":60},
+    "Image H265": {"function": ffmpeg_h265_to_tmp_video, "default":[0,5,10,15,20,25,30,35,40,45,50], "example":45}
 }
 class Augmentation:
     """

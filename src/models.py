@@ -40,10 +40,6 @@ from timm.utils import AverageMeter, setup_default_logging
 from timm.models.layers import set_layer_config
 from torchvision import transforms
 
-# import detr stuff:
-from PIL import Image
-from src.detr.model import DETRdemo
-
 # import yolov4 stuff:
 from src.yolov4.utils.torch_utils import select_device
 import src.yolov4.detect as detect_v4
@@ -411,7 +407,8 @@ class EfficientDetV2(Model):
             scores[:, 1] = scores[:, 1] / self.inputTrans[self.CFG][0] * input.shape[0]
             scores[:, 2] = scores[:, 2] / self.inputTrans[self.CFG][1] * input.shape[1]
             scores[:, 3] = scores[:, 3] / self.inputTrans[self.CFG][0] * input.shape[0]
-            scores = scores.cpu()
+            if isinstance(scores, torch.Tensor):
+                scores = scores.cpu()
             return scores[np.where(scores[:,4] > self.conf_thres)]
 
     def deinitialize(self):
@@ -980,6 +977,197 @@ class CompressiveAE(Model):
     def report_accuracy(self):
         return -1
 
+class DETR(Model):
+    def __init__(self, *network_config) -> None:
+        #sys.path.append( os.path.join(os.getcwd(),'src/detr'))
+        import src.detr.datasets.transforms as T
+        
+        super().__init__(*network_config)
+        file_names = network_config[0]
+        self.classes = self.read_name_file(file_names)
+        self.isCOCO91 = True
+        self.device = 'cpu'
+        if torch.cuda.is_available(): self.device = 'cuda'
+
+        self.args = SimpleNamespace(
+            dataset_file='coco',
+            device=self.device,
+            hidden_dim=256,
+            dropout=0.1,
+            nheads=8,
+            num_queries=100,
+            pre_norm=False,
+            enc_layers=6,
+            dec_layers=6,
+            dim_feedforward=2048,
+            position_embedding="sine",
+            dilation=False,
+            backbone='resnet50',
+            frozen_weights=False,
+            clip_max_norm=0.1,
+            lr_drop=200,
+            epochs=300,
+            weight_decay=1e-4,
+            batch_size=1,
+            lr_backbone=1e-5,
+            lr=1e-4,
+            masks=False,
+            aux_loss=False,
+            set_cost_class=1,
+            set_cost_bbox=5,
+            set_cost_giou=2,
+            mask_loss_coef=1,
+            dice_loss_coef=1,
+            bbox_loss_coef=5,
+            giou_loss_coef=2,
+            eos_coef=0.1,
+        )
+        self.transform = T.Compose([
+            T.RandomResize([800], max_size=1333),
+            T.ToTensor(),
+            T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
+        self.complexOutput = False
+        self.conf_thres = 0.5
+
+    def read_name_file(self, filepath):
+        with open(filepath, 'r') as f:
+            contents = list(map(str.strip, f.readlines()))
+        return contents
+
+    def box_cxcywh_to_xyxy(self, x):
+        x_c, y_c, w, h = x.unbind(1)
+        b = [(x_c - 0.5 * w), (y_c - 0.5 * h),
+            (x_c + 0.5 * w), (y_c + 0.5 * h)]
+        return torch.stack(b, dim=1)
+
+    def rescale_bboxes(self, out_bbox, size):
+        img_w, img_h = size
+        b = self.box_cxcywh_to_xyxy(out_bbox)
+        scale_factor = torch.tensor([img_w, img_h, img_w, img_h], dtype=torch.float32)
+        if self.device == 'cuda':
+            scale_factor = scale_factor.cuda()
+        b = b * scale_factor
+        return b
+
+    def run(self, img):
+        from PIL import Image
+        import time
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        im = Image.fromarray(img)
+        img, _ = self.transform(im, {})
+        img = img.unsqueeze(0)
+
+        img_w, img_h = im.size
+        target_tensor = torch.Tensor([[img_w, img_h]])
+        if self.device == 'cuda': target_tensor = target_tensor.cuda()
+        # propagate through the model
+        with torch.no_grad():
+            img = img.cuda()
+            outputs = self.model(img)
+            #results = self.postprocess['bbox'](outputs, target_tensor)
+            #img_w, img_h = im.size
+            probas = outputs['pred_logits'].softmax(-1)[0, :, :-1]
+            keep = probas.max(-1).values > self.conf_thres
+            # convert boxes from [0; 1] to image scales
+            bboxes_scaled = self.rescale_bboxes(outputs['pred_boxes'][0, keep], im.size)
+            probs = probas[keep,:]
+            clses = torch.unsqueeze(torch.argmax(probs, axis=1), axis=1)
+            probs = probas[keep, torch.argmax(probs, axis=1)]
+            probs = torch.unsqueeze(probs, axis=1)
+            preds = torch.cat((bboxes_scaled, probs, clses), axis=1)
+            preds = preds.cpu()
+        return preds
+
+    def initialize(self):
+        from src.detr.models.detr import build
+        model_weights = torch.load("./src/detr/detr-r50-e632da11.pth", map_location=torch.device('cuda'))
+        tuple_model = build(self.args)
+        self.model = tuple_model[0]
+        self.model.load_state_dict(model_weights['model'])   
+        self.model.eval()
+        self.postprocess = tuple_model[-1]
+        print(self.postprocess)
+
+    def deinitialize(self):
+        del self.model
+        return 0
+
+    def draw(self, preds, im0, class_filter=None):
+        from src.yolox.yolox.utils.visualize import _COLORS
+        labels = {"all":[255,255,255]}
+        for i in range(preds.shape[0]):
+            bboxes = preds[i,:4].int().tolist()
+            #bboxes = preds[i,:4].int().tolist()
+            cls_id = preds[i,5].int()
+            score = preds[i,4]
+            label = self.classes[cls_id]
+            
+            color = (_COLORS[cls_id] * 255).astype(np.uint8).tolist()
+            text = '{}:{:.1f}%'.format(label, score * 100)
+            txt_color = (0, 0, 0) if np.mean(_COLORS[cls_id]) > 0.5 else (255, 255, 255)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+
+            if class_filter:
+                if class_filter != label:
+                    continue
+
+            txt_size = cv2.getTextSize(text, font, 0.4, 1)[0]
+            im0 = cv2.rectangle(im0, (bboxes[0], bboxes[1]), (bboxes[2], bboxes[3]), color, thickness=2)
+            txt_bk_color = (_COLORS[cls_id] * 255 * 0.7).astype(np.uint8).tolist()
+            im0 = cv2.rectangle(
+                im0,
+                (bboxes[0], bboxes[1] + 1),
+                (bboxes[0] + txt_size[0] + 1, bboxes[1] + int(1.5*txt_size[1])),
+                txt_bk_color,
+                -1
+            )
+            im0 = cv2.putText(im0, text, (bboxes[0], bboxes[1] + txt_size[1]), font, 0.4, txt_color, thickness=1)
+            if not label in labels:
+                labels[label] = [color[2], color[1], color[0]]
+
+        return {"dst":im0, "listOfNames":labels}
+
+    def draw_single_class(self, preds, im0, selected_class):
+        res = self.draw(preds, im0, class_filter=selected_class)
+        return {"overlay": res["dst"]}
+
+    def outputFormat(self):
+        return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
+
+    def report_accuracy(self, pred, gt, evalType='voc'):
+        """Function takes in prediction boxes and ground truth boxes and
+        returns the mean average precision (mAP) @ IOU 0.5 under VOC2007 criteria (default).
+        Args:
+            pred (list): A list of BoundingBox objects representing each detection from method
+            gt (list): A list of BoundingBox objects representing each object in the ground truth
+        Returns:
+            mAP: a number representing the mAP over all classes for a single image.
+        """        
+        if len(pred) == 0: return 0
+
+        allBoundingBoxes = BoundingBoxes()
+        evaluator = Evaluator()
+
+        # loop through gt:
+        for _gt in gt:
+            assert type(_gt) == BoundingBox, "_gt is not BoundingBox type. Instead is %s"%(str(type(_gt)))
+            allBoundingBoxes.addBoundingBox(_gt)
+
+        for _pred in pred:
+            assert type(_pred) == BoundingBox, "_gt is not BoundingBox type. Instead is %s"%(str(type(_pred)))
+            allBoundingBoxes.addBoundingBox(_pred)
+
+        #for box in allBoundingBoxes:
+        #    print(box.getAbsoluteBoundingBox(format=BBFormat.XYWH), box.getBBType()) 
+        if evalType == 'voc':
+            metrics = evaluator.GetPascalVOCMetrics(allBoundingBoxes)
+            print(metrics)
+        elif evalType == 'coco':
+            assert False
+        else: assert False, "evalType %s not supported"%(evalType) 
+        return metrics[0]['AP']
+
 _registry = {
     'Face Detection (YOLOv3)': YOLOv3(
          os.path.join(currPath, 'obj_detector/cfg', 'face.names'),
@@ -1001,12 +1189,12 @@ _registry = {
         os.path.join(currPath,'obj_detector', 'weights', 'yolov3.weights')
     ),
     'Object Detection (EfficientDetV2)': EfficientDetV2(
-        os.path.join(currPath, 'detr', 'cfg', 'coco.names'),
+        os.path.join(currPath, 'detr', 'datasets', 'coco.names'),
         'efficientdetv2_dt'
     ),
     'Object Detection (DETR)': DETR(
-        os.path.join(currPath, 'detr', 'cfg', 'coco.names'),
-        os.path.join(currPath, 'detr', 'weights', 'detr.weights')
+        os.path.join(currPath, 'detr', 'datasets', 'coco.names'),
+        #os.path.join(currPath, 'detr', 'weights', 'detr.weights')
     ),
     'Object Detection (YOLOv4)': YOLOv4(
         os.path.join(currPath, 'yolov4', 'data', 'coco.names'),

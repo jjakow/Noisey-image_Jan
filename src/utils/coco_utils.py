@@ -1,3 +1,8 @@
+import random 
+import torch
+import torchvision.transforms as T
+import torchvision.transforms.functional as F
+
 def coco80_to_coco91_class():  # converts 80-index (val2014) to 91-index (paper)
     # https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/
     # a = np.loadtxt('data/coco.names', dtype='str', delimiter='\n')
@@ -8,3 +13,72 @@ def coco80_to_coco91_class():  # converts 80-index (val2014) to 91-index (paper)
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34,
         35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
         64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90]
+
+
+def resize(image, target, size, max_size=None):
+    # size can be min_size (scalar) or (w, h) tuple
+
+    def get_size_with_aspect_ratio(image_size, size, max_size=None):
+        w, h = image_size
+        if max_size is not None:
+            min_original_size = float(min((w, h)))
+            max_original_size = float(max((w, h)))
+            if max_original_size / min_original_size * size > max_size:
+                size = int(round(max_size * min_original_size / max_original_size))
+
+        if (w <= h and w == size) or (h <= w and h == size):
+            return (h, w)
+
+        if w < h:
+            ow = size
+            oh = int(size * h / w)
+        else:
+            oh = size
+            ow = int(size * w / h)
+
+        return (oh, ow)
+
+    def get_size(image_size, size, max_size=None):
+        if isinstance(size, (list, tuple)):
+            return size[::-1]
+        else:
+            return get_size_with_aspect_ratio(image_size, size, max_size)
+
+    size = get_size(image.size, size, max_size)
+    rescaled_image = F.resize(image, size)
+
+    if target is None:
+        return rescaled_image, None
+
+    ratios = tuple(float(s) / float(s_orig) for s, s_orig in zip(rescaled_image.size, image.size))
+    ratio_width, ratio_height = ratios
+
+    target = target.copy()
+    if "boxes" in target:
+        boxes = target["boxes"]
+        scaled_boxes = boxes * torch.as_tensor([ratio_width, ratio_height, ratio_width, ratio_height])
+        target["boxes"] = scaled_boxes
+
+    if "area" in target:
+        area = target["area"]
+        scaled_area = area * (ratio_width * ratio_height)
+        target["area"] = scaled_area
+
+    h, w = size
+    target["size"] = torch.tensor([h, w])
+
+    if "masks" in target:
+        target['masks'] = interpolate(
+            target['masks'][:, None].float(), size, mode="nearest")[:, 0] > 0.5
+
+    return rescaled_image, target
+
+class RandomResize(object):
+    def __init__(self, sizes, max_size=None):
+        assert isinstance(sizes, (list, tuple))
+        self.sizes = sizes
+        self.max_size = max_size
+
+    def __call__(self, img, target=None):
+        size = random.choice(self.sizes)
+        return resize(img, target, size, self.max_size)

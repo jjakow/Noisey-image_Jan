@@ -76,7 +76,7 @@ class DownloadWorker(QObject):
                 self.progress.emit(0)
         request = urllib.request.urlretrieve(host, save_path, callback)
 
-    def downloadDETRWeights(self, save_path, host='https://dl.fbaipublicfiles.com/detr/detr_demo-da2a99e9.pth'):
+    def downloadDETRWeights(self, save_path, host='https://dl.fbaipublicfiles.com/detr/detr-r50-e632da11.pth'):
         self.progress.emit(0)
         self.logProgress.emit('Downloading DETR weights from %s\n'%(host))
         def callback(blocknum, blocksize, totalsize):
@@ -122,9 +122,9 @@ class DownloadWorker(QObject):
                     self.downloadYOLOv3Weights(_path_base)
             elif path[0] == 'detr':
                 self.progress.emit(0)
-                _path_base = os.path.join('./src/detr/weights', path[1])
+                _path_base = os.path.join('./src/detr', path[1])
                 print(_path_base)
-                if not os.path.exists('./src/detr/weights'): os.mkdir('./src/detr/weights')
+                if not os.path.exists('./src/detr'): os.mkdir('./src/detr')
                 if not os.path.exists(_path_base):
                     print("DETR COCO weights not found. Attempting to download...")
                     self.downloadDETRWeights(_path_base)
@@ -225,7 +225,7 @@ class Downloader(QDialog):
                 if not os.path.exists(_path_base):
                     return True
             elif path[0] == 'detr':
-                _path_base = os.path.join('./src/detr/weights', path[1])
+                _path_base = os.path.join('./src/detr', path[1])
                 if not os.path.exists(_path_base):
                     return True
             elif path[0] == 'yolov4':

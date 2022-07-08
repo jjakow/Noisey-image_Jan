@@ -206,7 +206,7 @@ class ExperimentWorker(QObject):
 
         if useLowerThres:
             old_thres = self.config.model.conf_thres
-            self.config.model.conf_thres = 0.001
+            self.config.model.conf_thres = 0.0001
 
         if len(self.config.mainAug) == 0:
             for i, imgPath in enumerate(self.config.imagePaths):
