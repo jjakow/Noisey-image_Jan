@@ -498,12 +498,14 @@ class mainWindow(QtWidgets.QMainWindow):
         mainAug.load('default_aug.txt')
         self.addWindow.__applyConfig__()
         self.addWindow.__updateViewer__()
+        self.addWindow.__reloadAugs__()
         self.ui.checkBox_2.setChecked(False)
         self.ui.compoundAug.setChecked(False)
         self.ui.comboBox.setCurrentIndex(0)
         self.ui.original_2.clear()
         self.ui.fileList.clear()
         self.default_img()
+        
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])

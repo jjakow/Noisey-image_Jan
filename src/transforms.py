@@ -470,11 +470,12 @@ def cae(image, patches):
     image = cae_encoder.run(image, patches)
     return image
 
+def dummy(): pass
+
 augList = {
     "Intensity": {"function": dim_intensity, "default": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], "example":0.5},
     "Gaussian Noise": {"function": gaussian_noise, "default": [1,10,15,20,25,30,35,40,45,50,55,60], "example":25},
     "Gaussian Blur": {"function": gaussian_blur, "default": [3, 13, 23, 33, 43, 53, 63, 73, 83], "example":33},
-    "JPEG Compression": {"function": jpeg_comp, "default": [100,90,80,70,60,50,40,30,20,10], "example":20},
     "Salt and Pepper": {"function": saltAndPapper_noise, "default": [x/100 for x in range(12)], "example":0.25},
     "Flip Axis": {"function": flipAxis, "default": [-1], "example": -1},
     "Fisheye": {"function": fisheye, "default": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], "example":0.4},
@@ -484,8 +485,11 @@ augList = {
     "Speckle Noise": {"function": speckle_noise, "default": [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2], "example":1.5},
     "Saturation" : {"function": saturation, "default":[50], "example":50},
     "Alternate Mosaic": {"function": alternate_mosaic, "default":[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "example":2}, # 1x1 - 5x5
-    "WebP Compression": {"function": webp_transform, "default": [10,25,50,75,100], "example":10},
     "Bilinear Resizing": {"function": bilinear, "default": [10,20,30,40,50,60,70,80,90,95], "example":25},
+    "Image H264": {"function": ffmpeg_h264_to_tmp_video, "default":[0,10,20,30,40,50,60,70,80,90,100], "example":60},
+    " ": {"function": dummy, "default":[], "example":[]},
+    "JPEG Compression": {"function": jpeg_comp, "default": [100,90,80,70,60,50,40,30,20,10], "example":20},
+    "WebP Compression": {"function": webp_transform, "default": [10,25,50,75,100], "example":10},
     "Compressive Autoencoder": {"function": cae, "default": [140,148,156,164,172,180,188,196], "example":172},
     "Image H264": {"function": ffmpeg_h264_to_tmp_video, "default":[0,10,20,30,40,50,60,70,80,90,100], "example":60},
     "Image H265": {"function": ffmpeg_h265_to_tmp_video, "default":[0,5,10,15,20,25,30,35,40,45,50], "example":45}
@@ -703,6 +707,7 @@ class AugDialog(QDialog):
         self.__loadExample__()
         self.savedAugPath = './src/data/saved_augs'
         self.__applyConfig__()
+        self.hideCheckBox()
         _btn1, _btn2 = self.buttonBox.buttons() # ok, cancel
         _btn1.clicked.connect(self.__applySelection__)
         _btn2.clicked.connect(self.close)
@@ -717,6 +722,20 @@ class AugDialog(QDialog):
             _item.setCheckState(CheckState.Unchecked)
             _item.setData(Qt.UserRole, [aug, "", ""]) # aug, parameters, example
             self.listWidget.addItem(_item)
+    
+    def __reloadAugs__(self):
+        for i in range(self.listWidget.count()):
+            _payload = self.listWidget.item(i).data(Qt.UserRole)
+
+            strArgs = [str(k) for k in augList[self.listWidget.item(i).text()]["default"]]
+            parameters = ",".join(strArgs)
+            if self.listWidget.item(i).text() != " ":
+                _payload[1] = parameters
+                _payload[2] = str(augList[self.listWidget.item(i).text()]["example"])
+            self.listWidget.item(i).setData(Qt.UserRole, _payload)
+            if i == (self.listWidget.currentRow()):
+                self.noiseRange.setText(parameters)
+                self.exampleLine.setText(str(augList[self.listWidget.item(i).text()]["example"]))
     
     def __loadInitialImage__(self):
         self._img = cv2.imread(self.defaultImage)
@@ -742,28 +761,29 @@ class AugDialog(QDialog):
         
         # change GUI when item is clicked
         currentItem = aug.text()
-        _payload = aug.data(Qt.UserRole)
-        augIndex = mainAug.__keys__.index(currentItem)
-        augItem = mainAug.__augList__[augIndex]
-        
-        if _payload[1] == '': 
-            strArgs = [ str(i) for i in augItem.args]
-            parameters = ",".join(strArgs)
-        else: parameters = _payload[1]
-        
-        if _payload[2] == '':
-            example = augItem.exampleParam
-        else: example = _payload[2]
+        if currentItem != " ":
+            _payload = aug.data(Qt.UserRole)
+            augIndex = mainAug.__keys__.index(currentItem)
+            augItem = mainAug.__augList__[augIndex]
+            
+            if _payload[1] == '': 
+                strArgs = [ str(i) for i in augItem.args]
+                parameters = ",".join(strArgs)
+            else: parameters = _payload[1]
+            
+            if _payload[2] == '':
+                example = augItem.exampleParam
+            else: example = _payload[2]
 
-        # GUI range controls:
-        self.noiseRange.setText(parameters)
-        self.exampleLine.setText(str(example))
+            # GUI range controls:
+            self.noiseRange.setText(parameters)
+            self.exampleLine.setText(str(example))
 
-        _copy = np.copy(self._img)
-        _copy = augItem(_copy, example=True)
-        qtImage = images.convertCV2QT(_copy, 1000, 500)
-        self.previewImage.setPixmap(qtImage)
-        self.lastRow = augIndex
+            _copy = np.copy(self._img)
+            _copy = augItem(_copy, example=True)
+            qtImage = images.convertCV2QT(_copy, 1000, 500)
+            self.previewImage.setPixmap(qtImage)
+            self.lastRow = augIndex
         
         if currentItem == "Intensity":
             print(currentItem)
@@ -878,9 +898,7 @@ class AugDialog(QDialog):
                         if item.title == listItem.text():
                             mainAug.remove(listItem.text())
                             break
-            except ValueError:
-                print("Hello")
-                errsList.append(self.listWidget.item(i).text())
+            except ValueError: errsList.append(self.listWidget.item(i).text())
 
         if errsList != []: self.augParameterError(errsList)
         self.__updateViewer__()
@@ -962,6 +980,12 @@ class AugDialog(QDialog):
         errorBox.setIcon(QMessageBox.Critical)
         errorBox.setText("At least one of the augmentations has an illegal character in its parameters. Only numbers and commas should be used for a noise range, and only numbers should be used for an example. Check the following augmentations: " + errsStr + ".")
         x = errorBox.exec_()
+    
+    def hideCheckBox(self):
+        for i in range(self.listWidget.count()):
+            if self.listWidget.item(i).text() == " ":
+                row = i
+                self.listWidget.item(i).setFlags(Qt.NoItemFlags)
 
 
 # Augmentation holder:
