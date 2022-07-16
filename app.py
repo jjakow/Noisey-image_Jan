@@ -71,7 +71,7 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.addWindow = AugDialog(self.ui.listAugs)
+        self.addWindow = AugDialog(self.ui.listAugs, self)
         self.addWindow.setModal(True)
         self.addWindow.demoAug()
 
@@ -80,7 +80,7 @@ class mainWindow(QtWidgets.QMainWindow):
         self.labels = []
 
         if Downloader.check(weight_dict):
-            self.downloadDialog = Downloader(weight_dict)
+            self.downloadDialog = Downloader(weight_dict, self)
             self.downloadDialog.setModal(True)
             self.downloadDialog.show()
 
@@ -490,8 +490,11 @@ class mainWindow(QtWidgets.QMainWindow):
                 imgPaths.append(file_path)
 
         config = ExperimentConfig(mainAug, self.ui.compoundAug.isChecked(), imgPaths, _model, comboModelType, labels=self.labels, labelType=self.label_eval)
-        self.experiment = ExperimentDialog(config)
+        self.experiment = ExperimentDialog(config, self)
+        self.experiment.setModal(True)
+        self.experiment.show()
         self.experiment.startExperiment()
+        
     
     def setToDefault(self):
         mainAug.clear()

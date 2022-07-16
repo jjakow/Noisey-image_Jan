@@ -694,9 +694,9 @@ class AugmentationPipeline():
 class AugDialog(QDialog):
     pipelineChanged = pyqtSignal(object)
 
-    def __init__(self, listViewer):
+    def __init__(self, listViewer, parent):
         # Config tells what noises are active, what the parameters are
-        super(AugDialog, self).__init__()
+        super(AugDialog, self).__init__(parent)
         self.__viewer__ = listViewer # outside of the Augmentation Dialog UI
         self.lastRow = 0
         uic.loadUi('./src/qt_designer_file/dialogAug.ui', self)

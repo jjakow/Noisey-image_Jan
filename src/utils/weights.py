@@ -157,8 +157,8 @@ class DownloadWorker(QObject):
 
 # Setup Dialog Window:
 class Downloader(QDialog):
-    def __init__(self, pathDict:dict):
-        super(Downloader, self).__init__()
+    def __init__(self, pathDict:dict, parent):
+        super(Downloader, self).__init__(parent)
         uic.loadUi('./src/qt_designer_file/weightDownloader.ui', self)
         self.logText.setEnabled(False)
         self.progressBar.setValue(0)

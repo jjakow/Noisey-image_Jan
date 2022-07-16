@@ -481,10 +481,11 @@ class ExperimentResultWorker(QObject):
         self.finished.emit()
 
 class ExperimentDialog(QDialog):
-    def __init__(self, config:ExperimentConfig) -> None:
-        super(ExperimentDialog, self).__init__()
+    def __init__(self, config:ExperimentConfig, parent) -> None:
+        super(ExperimentDialog, self).__init__(parent)
         uic.loadUi('./src/qt_designer_file/experiment.ui', self)
-       
+        
+
         # create graph widget in here:
         self.graphWidget = MplWidget()
         self.graphWidget.resize(481, 301)
@@ -536,7 +537,7 @@ class ExperimentDialog(QDialog):
             os.mkdir(self.config.savePath)
 
         self.__setPreviews__(False)
-        self.show()
+        #self.show()
 
     def __setPreviews__(self, state:bool):
         if self.config.isCompound: self.augComboBox.setVisible(False)
