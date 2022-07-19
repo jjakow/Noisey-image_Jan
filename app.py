@@ -246,41 +246,42 @@ class mainWindow(QtWidgets.QMainWindow):
             
     def parseData(self):
         filePaths = QtWidgets.QFileDialog.getOpenFileNames(self, "Select image", filter="Image files (*.jpg *.png *.bmp *.yaml)")
-        filePath = filePaths[0][0]
+        if(filePaths[0]):
+            filePath = filePaths[0][0]
 
-        if filePath.endswith(".yaml"):
-            # create read_yaml progress:
-            self.yamlProgress.show()
+            if filePath.endswith(".yaml"):
+                # create read_yaml progress:
+                self.yamlProgress.show()
 
-            # disable controls here:
+                # disable controls here:
 
-            # run read_yaml on a worker thread:
-            self.yamlWorker.filePath = filePath
-            self.yamlWorker.moveToThread(self.yamlThread)
-            self.yamlThread.started.connect(self.yamlWorker.run)
-            self.yamlWorker.finished.connect(self.postParseData)
-            self.yamlWorker.finished.connect(self.yamlWorker.deleteLater)
-            self.yamlWorker.finished.connect(self.yamlThread.quit)
-            self.yamlWorker.finished.connect(self.yamlThread.wait)
+                # run read_yaml on a worker thread:
+                self.yamlWorker.filePath = filePath
+                self.yamlWorker.moveToThread(self.yamlThread)
+                self.yamlThread.started.connect(self.yamlWorker.run)
+                self.yamlWorker.finished.connect(self.postParseData)
+                self.yamlWorker.finished.connect(self.yamlWorker.deleteLater)
+                self.yamlWorker.finished.connect(self.yamlThread.quit)
+                self.yamlWorker.finished.connect(self.yamlThread.wait)
 
-            self.yamlThread.start()
-        else:
-            new_item = None
-            fileName = os.path.basename(filePath)
-            items = self.ui.fileList.findItems(fileName, QtCore.Qt.MatchExactly)
-            if len(items) > 0:
-                self.ui.statusbar.showMessage("File already opened", 3000)
+                self.yamlThread.start()
+            else:
+                new_item = None
+                fileName = os.path.basename(filePath)
+                items = self.ui.fileList.findItems(fileName, QtCore.Qt.MatchExactly)
+                if len(items) > 0:
+                    self.ui.statusbar.showMessage("File already opened", 3000)
 
-            new_item = QtWidgets.QListWidgetItem()
-            new_item.setText(fileName)
-            new_item.setData(QtCore.Qt.UserRole, {'filePath':filePath})
-            self.ui.fileList.addItem(new_item)
+                new_item = QtWidgets.QListWidgetItem()
+                new_item.setText(fileName)
+                new_item.setData(QtCore.Qt.UserRole, {'filePath':filePath})
+                self.ui.fileList.addItem(new_item)
 
-            if(new_item is not None):
-                self.ui.original.setPixmap(QtGui.QPixmap(filePath))
-                self.ui.fileList.setCurrentItem(new_item)
-                self.ui.original_2.clear()
-                self.ui.preview_2.clear()
+                if(new_item is not None):
+                    self.ui.original.setPixmap(QtGui.QPixmap(filePath))
+                    self.ui.fileList.setCurrentItem(new_item)
+                    self.ui.original_2.clear()
+                    self.ui.preview_2.clear()
 
     def postParseData(self):
         if self.yamlQueue.qsize() > 0:
@@ -491,7 +492,7 @@ class mainWindow(QtWidgets.QMainWindow):
 
         config = ExperimentConfig(mainAug, self.ui.compoundAug.isChecked(), imgPaths, _model, comboModelType, labels=self.labels, labelType=self.label_eval)
         self.experiment = ExperimentDialog(config, self)
-        self.experiment.setModal(True)
+        #self.experiment.setModal(True)
         self.experiment.show()
         self.experiment.startExperiment()
         
