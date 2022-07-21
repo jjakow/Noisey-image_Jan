@@ -1,30 +1,30 @@
 # System libs
 import os
 from pathlib import Path
-from tkinter import E
-import PIL.Image
-import numpy as np
+#from tkinter import E
+#import PIL.Image
+#import numpy as np
 
 # Sementic segmentation
-from src.predict_img import new_visualize_result
+#from src.predict_img import new_visualize_result
 
 # PyQt5
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QMessageBox
 from src.window import Ui_MainWindow
 from PyQt5.QtCore import Qt
-from src.yamlDialog import Ui_Dialog
+#from src.yamlDialog import Ui_Dialog
 
 import cv2
-from functools import partial
-import yaml
+# from functools import partial
+# import yaml
 
 # import utilities:
 from src.utils.images import convert_cvimg_to_qimg
 from src.transforms import AugDialog, AugmentationPipeline, Augmentation, mainAug
 from src.experimentDialog import ExperimentConfig, ExperimentDialog
 from src import models
-from src.utils.qt5extra import CheckState
+#from src.utils.qt5extra import CheckState
 from src.utils.weights import Downloader
 from src.dataParser import *
 
