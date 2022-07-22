@@ -30,7 +30,7 @@ from src.utils.images import convert_cvimg_to_qimg
 
 CURRENT_PATH = str(Path(__file__).parent.absolute()) + '/'
 TEMP_PATH = CURRENT_PATH + 'src/tmp_results/'
-DEFAULT_PATH = CURRENT_PATH + '../Noisey-image/imgs/default_imgs/'
+DEFAULT_PATH = CURRENT_PATH + 'imgs/default_imgs/'
 
 
 class mainWindow(QtWidgets.QMainWindow):
@@ -65,7 +65,7 @@ class mainWindow(QtWidgets.QMainWindow):
 
         # QActions
         # Default values (images, noise, etc.) are set up here:
-        # self.default_img()
+        self.default_img()
 
         # Buttons
         self.ui.pushButton.clicked.connect(self.run_model)  
