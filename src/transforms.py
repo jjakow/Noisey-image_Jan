@@ -1,36 +1,32 @@
-from distutils.log import error
 import random
 import math
 import os
-from urllib import request
 from pathlib import Path
 import ffmpeg
 import tempfile
 import io
-from PyQt5.QtCore import QObject, pyqtSignal, Qt
+from PyQt5.QtCore import pyqtSignal, Qt
 
-from numpy.lib.function_base import select
 from src.utils.qt5extra import CheckState
 #import utils.qt5extra.CheckState
 
-import PyQt5
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QFileDialog, QListWidgetItem, QMessageBox, QWidget
+from PyQt5.QtWidgets import QDialog, QFileDialog, QListWidgetItem, QMessageBox
 from PyQt5 import uic
 import cv2
 import numpy as np
-import time
-from PIL import Image
 from src.utils import images
-import src.models
+# import matplotlib.pyplot as plt
+#import src.models
 #import src.utils.images
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
 
 # Load the autoencoder with the configuration file
-cae_model_path = os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state')
-if os.path.exists(cae_model_path):
-    cae_encoder = src.models.CompressiveAE( os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state') ) 
-else: print("Cannot find %s"%(cae_model_path))
+# cae_model_path = os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state')
+# if os.path.exists(cae_model_path):
+#     cae_encoder = src.models.CompressiveAE( os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state') ) 
+# else: print("Cannot find %s"%(cae_model_path))
+cae_encoder = None
 
 def letterbox_image(image, size):
     '''
@@ -90,7 +86,7 @@ def gaussian_noise(image, std, seed=-1):
     mean = 2
     if type(std) == float or type(std) == int:
         assert std > 0
-        import matplotlib.pyplot as plt
+        
         # only control standard dev:
         normal_matrix = np.random.normal(mean, std, size=image.shape)
         combined = image+normal_matrix

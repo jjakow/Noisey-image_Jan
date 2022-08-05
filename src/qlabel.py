@@ -1,7 +1,7 @@
-from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtGui import QResizeEvent
-from PyQt6.QtWidgets import QLabel, QWidget
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QResizeEvent
+from PyQt5.QtWidgets import QLabel, QWidget
 
 class Label(QLabel):
 

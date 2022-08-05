@@ -208,7 +208,7 @@ class Downloader(QDialog):
         )
 
     def reportProgress(self, val):
-        self.progressBar.setValue(val*100)
+        self.progressBar.setValue(int(val*100))
 
     def updateLog(self, val):
         self.logText.insertPlainText(val)

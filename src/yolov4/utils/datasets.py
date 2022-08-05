@@ -18,10 +18,10 @@ from PIL import Image, ExifTags
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
-import pickle
-from copy import deepcopy
-from pycocotools import mask as maskUtils
-from torchvision.utils import save_image
+#import pickle
+#from copy import deepcopy
+#from pycocotools import mask as maskUtils
+#from torchvision.utils import save_image
 
 from src.yolov4.utils.general import xyxy2xywh, xywh2xyxy
 from src.yolov4.utils.torch_utils import torch_distributed_zero_first
