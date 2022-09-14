@@ -16,17 +16,17 @@ import cv2
 import numpy as np
 from src.utils import images
 # import matplotlib.pyplot as plt
-#import src.models
+import src.models
 #import src.utils.images
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
 
 # Load the autoencoder with the configuration file
-# cae_model_path = os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state')
-# if os.path.exists(cae_model_path):
-#     cae_encoder = src.models.CompressiveAE( os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state') ) 
-# else: print("Cannot find %s"%(cae_model_path))
-cae_encoder = None
+cae_model_path = os.path.join(os.getcwd(), 'src/cae/model/model_yt_small_final.state')
+if os.path.exists(cae_model_path):
+    cae_encoder = src.models.CompressiveAE( cae_model_path ) 
+else: print("Cannot find %s"%(cae_model_path))
+# cae_encoder = None
 
 def letterbox_image(image, size):
     '''
@@ -203,54 +203,54 @@ def barrel(image, factor=0.005):
     new_image = cv2.undistort(image, cam, dist_coeff)
     return new_image
 
-def pick_img(start_dir):
-    curr_dir = os.listdir(os.path.join(start_dir))
-    # curr_dir.remove("LABELS")
-    curr_path = start_dir
+# def pick_img(start_dir):
+#     curr_dir = os.listdir(os.path.join(start_dir))
+#     # curr_dir.remove("LABELS")
+#     curr_path = start_dir
     
-    while True:
-        curr_file = random.choice(curr_dir)
+#     while True:
+#         curr_file = random.choice(curr_dir)
 
-        if os.path.isfile(os.path.join(curr_path, curr_file)):
-            img = cv2.imread(os.path.join(curr_path, curr_file))
-            if img is None:
-                curr_dir = os.listdir(os.path.join(start_dir))
-                # curr_dir.remove("LABELS")
-                curr_path = start_dir
-            else:
-                return img
-        else:
-            curr_path = os.path.join(curr_path, curr_file)
-            curr_dir = os.listdir(os.path.join(curr_path))
+#         if os.path.isfile(os.path.join(curr_path, curr_file)):
+#             img = cv2.imread(os.path.join(curr_path, curr_file))
+#             if img is None:
+#                 curr_dir = os.listdir(os.path.join(start_dir))
+#                 # curr_dir.remove("LABELS")
+#                 curr_path = start_dir
+#             else:
+#                 return img
+#         else:
+#             curr_path = os.path.join(curr_path, curr_file)
+#             curr_dir = os.listdir(os.path.join(curr_path))
 
-def simple_mosaic(image, dummy):
-    # pick three images
-    images = [pick_img('imgs') for x in range(4)]
-    # images += [image]
+# def simple_mosaic(image, dummy):
+#     # pick three images
+#     images = [pick_img('imgs') for x in range(4)]
+#     # images += [image]
 
-    # find smallest image, resize others to fit
-    smallest = image.shape[0] * image.shape[1]
-    sm_shape = image.shape
-    for i in images:
-        curr_area = i.shape[0] * i.shape[1]
-        if curr_area < smallest:
-            smallest = curr_area
-            sm_shape = i.shape
+#     # find smallest image, resize others to fit
+#     smallest = image.shape[0] * image.shape[1]
+#     sm_shape = image.shape
+#     for i in images:
+#         curr_area = i.shape[0] * i.shape[1]
+#         if curr_area < smallest:
+#             smallest = curr_area
+#             sm_shape = i.shape
 
-    # combine images into one big 2x2
-    resized = [cv2.resize(curr_im, (sm_shape[0], sm_shape[1])) for curr_im in images]
-    big_image = []
-    big_image = np.concatenate((resized[0], resized[1]), axis=1)
-    bottom = np.concatenate((resized[2], resized[3]), axis=1)
-    big_image = np.concatenate((big_image, bottom), axis=0)
+#     # combine images into one big 2x2
+#     resized = [cv2.resize(curr_im, (sm_shape[0], sm_shape[1])) for curr_im in images]
+#     big_image = []
+#     big_image = np.concatenate((resized[0], resized[1]), axis=1)
+#     bottom = np.concatenate((resized[2], resized[3]), axis=1)
+#     big_image = np.concatenate((big_image, bottom), axis=0)
     
-    # pick random bounds to make the mosaic image
-    row_start = math.floor(random.random() * big_image.shape[0] / 2)
-    col_start = math.floor(random.random() * big_image.shape[1] / 2)
-    row_end = row_start + math.floor(big_image.shape[0] / 2)
-    col_end = col_start + math.floor(big_image.shape[1] / 2)
-    final_im = big_image[row_start:row_end][col_start:col_end]
-    return final_im
+#     # pick random bounds to make the mosaic image
+#     row_start = math.floor(random.random() * big_image.shape[0] / 2)
+#     col_start = math.floor(random.random() * big_image.shape[1] / 2)
+#     row_end = row_start + math.floor(big_image.shape[0] / 2)
+#     col_end = col_start + math.floor(big_image.shape[1] / 2)
+#     final_im = big_image[row_start:row_end][col_start:col_end]
+#     return final_im
 
 def black_white(image, channel):
     channel = int(channel)
@@ -444,6 +444,8 @@ def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
 
     fp = tempfile.NamedTemporaryFile(delete=True, suffix=".mp4")
     output_file = fp.name
+    assert os.path.isfile(output_file)
+    print(output_file)
     stream = ffmpeg.input(i0_fp.name)
     if quant_lvl+3 > 51: quant_lvl = 51
     else: quant_lvl += 3
@@ -476,7 +478,7 @@ augList = {
     "Flip Axis": {"function": flipAxis, "default": [-1], "example": -1},
     "Fisheye": {"function": fisheye, "default": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], "example":0.4},
     "Barrel": {"function": barrel, "default": [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.001, 0.002, 0.003, 0.004, 0.005, 0.01], "example":0.005},
-    "Simple Mosaic": {"function": simple_mosaic, "default":[], "example":[]},
+    # "Simple Mosaic": {"function": simple_mosaic, "default":[], "example":[]},
     "Black and White": {"function": black_white, "default":[0,1,2], "example":0}, 
     "Speckle Noise": {"function": speckle_noise, "default": [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2], "example":1.5},
     "Saturation" : {"function": saturation, "default":[50], "example":50},
@@ -698,7 +700,7 @@ class AugDialog(QDialog):
         uic.loadUi('./src/qt_designer_file/dialogAug.ui', self)
         self.__loadAugs__()
         self.__loadEvents__()
-        self.defaultImage = 'imgs/default_imgs/original.png'
+        self.defaultImage = 'imgs/default_imgs/100FACES.jpg'
         self.__loadInitialImage__()
         self.__loadExample__()
         self.savedAugPath = './src/data/saved_augs'
@@ -956,10 +958,10 @@ class AugDialog(QDialog):
 
     def demoAug(self):
         mainAug.clear()
-        mainAug.append('Gaussian Blur')
-        mainAug.append('Gaussian Noise')
+        # mainAug.append('Gaussian Blur')
+        # mainAug.append('Gaussian Noise')
         #mainAug.append('JPEG Compression')
-        #mainAug.append('Salt and Pepper')
+        mainAug.append('Salt and Pepper')
         self.__updateViewer__()
     
     def augParameterError(self, errs: list):

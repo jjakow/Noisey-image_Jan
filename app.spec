@@ -1,6 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-
 block_cipher = None
 
 added_files = [
@@ -11,7 +10,13 @@ added_files = [
     ( 'src/yolov4/weights/*', 'src/yolov4/weights' ),
     ( 'src/obj_detector/weights/*', 'src/obj_detector/weights' ),
     ( 'src/obj_detector/cfg/*', 'src/obj_detector/cfg' ),
-    ( 'src/yolov3/models/*.yaml', 'src/yolov3/models' )
+    ( 'src/yolov3/models/*.yaml', 'src/yolov3/models' ),
+    ( 'src/yolox/weights/*', 'src/yolox/weights' ),
+    ( 'src/detr/detr-r50-e632da11.pth', 'src/detr' ),
+    ( 'src/detr/datasets/*', 'src/detr/datasets' ),
+    ( 'src/cae/model/model_yt_small_final.state', 'src/cae/model' ),
+    ( 'src/mtcnn/weights/*', 'src/mtcnn/weights'),
+    ( 'default_aug.txt', '.')
 ]
 
 a = Analysis(
@@ -41,7 +46,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
