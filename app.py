@@ -1,6 +1,14 @@
+# For Pyinstaller spash screen
+try:
+    import pyi_splash
+    pyi_splash.update_text("Loading...")
+except ImportError:
+    pass
+
 # System libs
 import os
 from pathlib import Path
+import sys
 
 # PyQt5
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -15,7 +23,7 @@ from src.utils.images import convert_cvimg_to_qimg
 from src.transforms import AugDialog, mainAug
 from src.experimentDialog import ExperimentConfig, ExperimentDialog
 from src import models
-# from src.utils.weights import Downloader
+from src.utils.weights import Downloader
 # from src.dataParser import *
 
 CURRENT_PATH = str(Path(__file__).parent.absolute()) + '/'
@@ -70,10 +78,10 @@ class mainWindow(QtWidgets.QMainWindow):
         weight_dict = {'mit_semseg':"ade20k-hrnetv2-c1", 'yolov3':"yolov3.weights", 'detr':"detr-r50-e632da11.pth", 'yolov4':"yolov4.weights", "yolov3-face":"yolov3-face_last.weights", "yolox":"yolox_m.pth"}
         self.labels = []
 
-        # if Downloader.check(weight_dict):
-        #     self.downloadDialog = Downloader(weight_dict, self)
-        #     self.downloadDialog.setModal(True)
-        #     self.downloadDialog.show()
+        if Downloader.check(weight_dict):
+            self.downloadDialog = Downloader(weight_dict, self)
+            self.downloadDialog.setModal(True)
+            self.downloadDialog.show()
 
         self.ui.listAugs.setMaximumSize(400,100) # quickfix for sizing issue with layouts
         self.ui.deleteListAug.setMaximumWidth(30)
@@ -84,7 +92,6 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.progressBar_2.hide()
 
         self.ui.comboBox.addItems(list(models._registry.keys()))
-
 
         # Buttons
         self.ui.pushButton.clicked.connect(self.run_model)  
@@ -101,7 +108,7 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.deleteListAug.clicked.connect(self.addWindow.__deleteItem__)
         self.ui.downListAug.clicked.connect(self.addWindow.__moveDown__)
         self.ui.upListAug.clicked.connect(self.addWindow.__moveUp__)
-        self.ui.listAugs.itemChanged.connect(self.changePreviewImage)
+        # self.ui.listAugs.itemChanged.connect(self.changePreviewImage)
         # access model of listwidget to detect changes
         self.addWindow.pipelineChanged.connect(self.changePreviewImage)
         #self.ui.runOnAug.stateChanged.connect(self.runAugOnImage)
@@ -215,7 +222,7 @@ class mainWindow(QtWidgets.QMainWindow):
 
         self.changePreviewImage()
         self.ui.fileList.setCurrentRow(0)
-        self.run_model()
+        # self.run_model()
 
     def open_file(self, filePaths):
         if(isinstance(filePaths, list) == 0):
@@ -433,6 +440,7 @@ class mainWindow(QtWidgets.QMainWindow):
             self.ui.augmented.addItem(i)
 
         qListItem.setData(QtCore.Qt.UserRole, data)
+        self.ui.tabWidget.setCurrentIndex(0)
 
  
     def run_model(self):
@@ -520,16 +528,15 @@ class mainWindow(QtWidgets.QMainWindow):
         
     
     def setToDefault(self):
-        mainAug.clear()
-        mainAug.load('default_aug.txt')
-        self.addWindow.__applyConfig__()
-        self.addWindow.__updateViewer__()
-        self.addWindow.__reloadAugs__()
+        # mainAug.load('default_aug.txt')
+        self.addWindow.demoAug()
+        # self.addWindow.__applyConfig__()
+        # self.addWindow.__updateViewer__()
+        # self.addWindow.__reloadAugs__()
         self.ui.checkBox_2.setChecked(False)
         self.ui.compoundAug.setChecked(False)
         self.ui.comboBox.setCurrentIndex(0)
-        self.ui.original_2.clear()
-        # self.ui.fileList.clear()
+    
         self.default_img()
         
 
@@ -539,5 +546,8 @@ if __name__ == '__main__':
     window = mainWindow()
     window.show()
     window.showMaximized()
+
+    if 'pyi_splash' in sys.modules:
+        pyi_splash.close()
 
     app.exec_()

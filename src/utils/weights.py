@@ -2,13 +2,11 @@ import os
 import urllib
 from bs4 import BeautifulSoup
 import requests
-from tqdm import tqdm
-from time import sleep
+# from tqdm import tqdm
+# from time import sleep
 
 # PyQt5
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QFileDialog, QListWidgetItem
+from PyQt5.QtWidgets import QDialog
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
@@ -56,7 +54,7 @@ class DownloadWorker(QObject):
 
                 file_url = "%s/%s"%(new_url, _file)
                 _folder = './src/mit_semseg/ckpt/%s'%(filename)
-                if not os.path.exists(_folder): os.mkdir(_folder)
+                if not os.path.exists(_folder): os.makedirs(_folder)
                 self.logProgress.emit("Downloading %s\n"%(file_url))
                 request = urllib.request.urlretrieve(file_url, os.path.join(_folder, _file), callback)
             
@@ -104,19 +102,11 @@ class DownloadWorker(QObject):
         # path_dict: key=model_name; val=model_type
         print("Checking weights...")
         for path in path_dict.items():
-            if path[0] == 'mit_semseg':
-                self.progress.emit(0)
-                _path_base = os.path.join('./src/mit_semseg/ckpt/', path[1])
-                print(_path_base)
-                if not os.path.exists('./src/mit_semseg/ckpt'): os.mkdir('./src/mit_semseg/ckpt')
-                if not os.path.exists(_path_base):
-                    print("MIT Segmentation weights (%s) not found. Attempting to download..."%(path[1]))
-                    self.downloadMITWeight(path[1])
-            elif path[0] == 'yolov3':
+            if path[0] == 'yolov3':
                 self.progress.emit(0)
                 _path_base = os.path.join('./src/obj_detector/weights', path[1])
                 print(_path_base)
-                if not os.path.exists('./src/obj_detector/weights'): os.mkdir('./src/obj_detector/weights')
+                if not os.path.exists('./src/obj_detector/weights'): os.makedirs('./src/obj_detector/weights')
                 if not os.path.exists(_path_base):
                     print("YOLOv3 COCO weights not found. Attempting to download...")
                     self.downloadYOLOv3Weights(_path_base)
@@ -124,7 +114,7 @@ class DownloadWorker(QObject):
                 self.progress.emit(0)
                 _path_base = os.path.join('./src/detr', path[1])
                 print(_path_base)
-                if not os.path.exists('./src/detr'): os.mkdir('./src/detr')
+                if not os.path.exists('./src/detr'): os.makedirs('./src/detr')
                 if not os.path.exists(_path_base):
                     print("DETR COCO weights not found. Attempting to download...")
                     self.downloadDETRWeights(_path_base)
@@ -132,7 +122,7 @@ class DownloadWorker(QObject):
                 self.progress.emit(0)
                 _path_base = os.path.join('./src/yolov4/weights', path[1])
                 print(_path_base)
-                if not os.path.exists('./src/detr/weights'): os.mkdir('./src/detr/weights')
+                if not os.path.exists('./src/yolov4/weights'): os.makedirs('./src/yolov4/weights')
                 if not os.path.exists(_path_base):
                     print("YOLOv4 COCO weights not found. Attempting to download...")
                     self.downloadYOLOv4Weights(_path_base)
@@ -140,7 +130,7 @@ class DownloadWorker(QObject):
                 self.progress.emit(0)
                 _path_base = os.path.join('./src/obj_detector/weights', path[1])
                 print(_path_base)
-                if not os.path.exists('./src/obj_detector/weights'): os.mkdir('./src/obj_detector/weights')
+                if not os.path.exists('./src/obj_detector/weights'): os.makedirs('./src/obj_detector/weights')
                 if not os.path.exists(_path_base):
                     print("YOLOv3 COCO weights not found. Attempting to download...")
                     self.downloadGoogleDriveWeights(_path_base, "https://drive.google.com/u/0/uc?id=1OcabdJV98TaPg6D6LjWSNc6pl0s9IIdr")
@@ -148,10 +138,18 @@ class DownloadWorker(QObject):
                 self.progress.emit(0)
                 _path_base = os.path.join('./src/yolox/weights', path[1])
                 print(_path_base)
-                if not os.path.exists('./src/yolox/weights'): os.mkdir('./src/yolox/weights')
+                if not os.path.exists('./src/yolox/weights'): os.makedirs('./src/yolox/weights')
                 if not os.path.exists(_path_base):
                     print("YOLOvX COCO weights not found. Attempting to download...")
                     self.downloadYOLOv3Weights(_path_base, host='https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_m.pth')
+            # elif path[0] == 'mit_semseg':
+            #     self.progress.emit(0)
+            #     _path_base = os.path.join('./src/mit_semseg/ckpt/', path[1])
+            #     print(_path_base)
+            #     if not os.path.exists('./src/mit_semseg/ckpt'): os.makedirs('./src/mit_semseg/ckpt')
+            #     if not os.path.exists(_path_base):
+            #         print("MIT Segmentation weights (%s) not found. Attempting to download..."%(path[1]))
+            #         self.downloadMITWeight(path[1])
 
         self.logProgress.emit("Finished downloading all weights. Press Continue to proceed to main GUI\n")
 
@@ -216,11 +214,7 @@ class Downloader(QDialog):
     @staticmethod
     def check(path_dict:dict):
         for path in path_dict.items():
-            if path[0] == 'mit_semseg':
-                _path_base = os.path.join('./src/mit_semseg/ckpt/', path[1])
-                if not os.path.exists(_path_base):
-                    return True
-            elif path[0] == 'yolov3':
+            if path[0] == 'yolov3':
                 _path_base = os.path.join('./src/obj_detector/weights', path[1])
                 if not os.path.exists(_path_base):
                     return True
@@ -240,4 +234,8 @@ class Downloader(QDialog):
                 _path_base = os.path.join('./src/yolox/weights', path[1])
                 if not os.path.exists(_path_base):
                     return True
+            # elif path[0] == 'mit_semseg':
+            #     _path_base = os.path.join('./src/mit_semseg/ckpt/', path[1])
+            #     if not os.path.exists(_path_base):
+            #         return True
         return False

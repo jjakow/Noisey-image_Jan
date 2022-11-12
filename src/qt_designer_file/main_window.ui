@@ -444,41 +444,6 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="0" rowspan="2">
-       <widget class="QTabWidget" name="tabWidget">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
-        <widget class="QWidget" name="tab">
-         <attribute name="title">
-          <string>Items</string>
-         </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout_8">
-          <item>
-           <widget class="QListWidget" name="uncompressed"/>
-          </item>
-          <item>
-           <widget class="QListWidget" name="augmented"/>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tab_2">
-         <attribute name="title">
-          <string>Images</string>
-         </attribute>
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
-          <item>
-           <widget class="QListWidget" name="fileList"/>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
       <item row="2" column="0">
        <widget class="QProgressBar" name="progressBar_2">
         <property name="value">
@@ -571,6 +536,44 @@
          </layout>
         </item>
        </layout>
+      </item>
+      <item row="0" column="0" rowspan="2">
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QTabBar {font: 8pt &quot;MS Shell Dlg 2&quot;};</string>
+        </property>
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <widget class="QWidget" name="tab">
+         <attribute name="title">
+          <string>Items</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QListWidget" name="uncompressed"/>
+          </item>
+          <item>
+           <widget class="QListWidget" name="augmented"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_2">
+         <attribute name="title">
+          <string>Images</string>
+         </attribute>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QListWidget" name="fileList"/>
+          </item>
+         </layout>
+        </widget>
+       </widget>
       </item>
      </layout>
     </item>
