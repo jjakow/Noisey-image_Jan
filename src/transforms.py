@@ -435,7 +435,6 @@ def ffmpeg_h264_to_tmp_video(i0, quant_lvl):
     fp.close()
     return frame
 
-
 def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
     #i0 = cv2.imread(input_file)
     h,w,c = i0.shape
@@ -472,6 +471,9 @@ def cae(image, patches):
 
 def dummy(): pass
 
+def passthrough(images, param):
+    return images
+
 augList = {
     "Intensity": {"function": dim_intensity, "default": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], "example":0.5},
     "Gaussian Noise": {"function": gaussian_noise, "default": [1,10,15,20,25,30,35,40,45,50,55,60], "example":25},
@@ -494,6 +496,7 @@ augList = {
     "Image H264": {"function": ffmpeg_h264_to_tmp_video, "default":[0,10,20,30,40,50,60,70,80,90,100], "example":60},
     "Image H265": {"function": ffmpeg_h265_to_tmp_video, "default":[0,5,10,15,20,25,30,35,40,45,50], "example":45}
 }
+
 class Augmentation:
     """
     Creates and Add Augmentations

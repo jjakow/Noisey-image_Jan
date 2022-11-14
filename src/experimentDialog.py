@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from multiprocessing import Value
 
 from makeBetterGraph import makemAPGraph
-from src.transforms import AugmentationPipeline, Augmentation
+from src.transforms import AugmentationPipeline, Augmentation, passthrough
 import cv2
 import os
 import re
@@ -209,6 +209,7 @@ class ExperimentWorker(QObject):
             self.config.model.conf_thres = 0.0001
 
         if len(self.config.mainAug) == 0:
+            counter = [[0]]
             for i, imgPath in enumerate(self.config.imagePaths):
                 if self.config.labelType == 'coco':
                     imgID = imgPath
@@ -485,7 +486,6 @@ class ExperimentDialog(QDialog):
         super(ExperimentDialog, self).__init__(parent)
         uic.loadUi('./src/qt_designer_file/experiment.ui', self)
         
-
         # create graph widget in here:
         self.graphWidget = MplWidget()
         self.graphWidget.resize(481, 301)
@@ -509,7 +509,14 @@ class ExperimentDialog(QDialog):
         self.totalArgIdx = 0
 
         # fill in combobox:
+        if len(self.config.mainAug) == 0:
+            # pass through:
+            #"Intensity": {"function": dim_intensity, "default": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], "example":0.5},
+            _item = Augmentation( ("", passthrough), 0, args=([0],0), verbose=False, )
+            self.config.mainAug.__pipeline__.append(_item)
+
         self.totalArgIdx = len(self.config.mainAug.__pipeline__[0].args)
+        
         if self.config.isCompound: 
             self.augComboBox.setVisible(False)
         else:
