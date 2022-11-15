@@ -553,15 +553,15 @@ class ExperimentDialog(QDialog):
         self.image_label.setVisible(state)
         self.label_7.setVisible(state)
         self.label_11.setVisible(state)
-        self.label_12.setVisible(state)
-        self.label_13.setVisible(state)
+        #self.label_12.setVisible(state)
+        #self.label_13.setVisible(state)
         self.previewBack_3.setVisible(state)
         self.previewForward_3.setVisible(state)
         #self.label_6.setVisible(state)
         #self.label_5.setVisible(state)
         #self.label_4.setVisible(state)
-        self.label_3.setVisible(state)
-        self.label_2.setVisible(state)
+        #self.label_3.setVisible(state)
+        #self.label_2.setVisible(state)
         self.label.setVisible(state)
         self.previewBack.setVisible(state)
         self.previewForward.setVisible(state)
@@ -570,6 +570,7 @@ class ExperimentDialog(QDialog):
         #self.graphImage.setVisible(state)
         self.previewImage.setVisible(state)
         self.graphWidget.setVisible(state)
+        self.noise_type_label.setVisible(state)
         
         # Opposite:
         self.progressBar.setVisible(not state)
@@ -602,12 +603,14 @@ class ExperimentDialog(QDialog):
         self.thread.quit()
 
         # update metadata on the labels:
-        self.label_3.setText(str(len(self.config.imagePaths)))
+        #self.label_3.setText(str(len(self.config.imagePaths)))
         #self.label_6.setText(str(self.totalGraphs))
-        self.label.setText(str(self.currentIdx+1))
+        self.label.setText("%i of %i"%(self.currentIdx+1, len(self.config.imagePaths)))
         #self.label_4.setText(str(self.currentGraphIdx+1))
-        self.label_13.setText(str(self.totalArgIdx))
-        self.label_11.setText(str(self.currentArgIdx+1))
+        #self.label_13.setText(str(self.totalArgIdx))
+        #self.label_11.setText(str(self.currentArgIdx+1))
+        self.label_11.setText("%i of %i"%(self.currentArgIdx+1, self.totalArgIdx))
+        self.graphGrid.setColumnMinimumWidth(0,600)
 
         self.__setPreviews__(True)
         self.refreshImageResults(0)
@@ -622,9 +625,9 @@ class ExperimentDialog(QDialog):
             if self.currentArgIdx >= self.totalArgIdx:
                 self.currentArgIdx = self.totalArgIdx-1
                 #i = self.currentIdx
-                self.label_11.setText(str(self.currentArgIdx+1))
+                self.label_11.setText("%i of %i"%(self.currentArgIdx+1, self.totalArgIdx))
             self.worker = ExperimentResultWorker(self.config.imagePaths[i], self.config, self.config.expName, argPosition=self.currentArgIdx, augPosition=augPosition)
-            self.label_13.setText(str(self.totalArgIdx))
+            #self.label_13.setText(str(self.totalArgIdx))
 
         self.worker.moveToThread(self.afterExpThread)
         self.afterExpThread.started.connect(self.worker.run)
@@ -661,7 +664,7 @@ class ExperimentDialog(QDialog):
 
     def updateImage(self, img):
         self.previewImage.setIcon(QIcon(img))
-        self.previewImage.setIconSize(QSize(500,500))
+        self.previewImage.setIconSize(QSize(300,300))
 
     def updateGraph(self, ax_list):
         fig, ax = ax_list
@@ -699,13 +702,13 @@ class ExperimentDialog(QDialog):
     def changeOnImageButton(self, i):
         if self.currentIdx+i < len(self.config.imagePaths) and self.currentIdx+i >= 0:
             self.currentIdx += i
-            self.label.setText(str(self.currentIdx+1))
+            self.label.setText("%i of %i"%(self.currentIdx+1, len(self.config.imagePaths)))
             self.refreshImageResults(self.currentIdx)
 
     def changeOnImageAugButton(self, i):
         if self.currentArgIdx+i < self.totalArgIdx and self.currentArgIdx+i >= 0:
             self.currentArgIdx += i
-            self.label_11.setText(str(self.currentArgIdx+1))
+            self.label_11.setText("%i of %i"%(self.currentArgIdx+1, self.totalArgIdx))
             self.refreshImageResults(self.currentIdx)
 
     def changeOnGraphButton(self, i):
@@ -716,8 +719,10 @@ class ExperimentDialog(QDialog):
 
     def closeEvent(self, event):
         with self.threadDone.get_lock():
+            self.graphGrid.setColumnMinimumWidth(0,0)
+            '''
             if not self.threadDone.value:
-                '''
+
                 reply = QMessageBox.question(self, 'Question',
                     "Are you sure you want to close the application?",
                     QMessageBox.Yes,
@@ -731,10 +736,9 @@ class ExperimentDialog(QDialog):
                     self.closeEvent(event)
                 else:
                     event.ignore()
-                '''
-                self.close()
-            else:
-                self.close()
+            '''
+
+            self.close()
 
     def _stop_thread(self):
         #self.stop_update.setVisible(False)
