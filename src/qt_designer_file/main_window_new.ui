@@ -206,9 +206,9 @@
                <colorrole role="Button">
                 <brush brushstyle="SolidPattern">
                  <color alpha="255">
-                  <red>64</red>
-                  <green>65</green>
-                  <blue>66</blue>
+                  <red>0</red>
+                  <green>170</green>
+                  <blue>0</blue>
                  </color>
                 </brush>
                </colorrole>
@@ -224,18 +224,18 @@
                <colorrole role="Base">
                 <brush brushstyle="SolidPattern">
                  <color alpha="255">
-                  <red>46</red>
-                  <green>47</green>
-                  <blue>48</blue>
+                  <red>0</red>
+                  <green>170</green>
+                  <blue>0</blue>
                  </color>
                 </brush>
                </colorrole>
                <colorrole role="Window">
                 <brush brushstyle="SolidPattern">
                  <color alpha="255">
-                  <red>46</red>
-                  <green>47</green>
-                  <blue>48</blue>
+                  <red>0</red>
+                  <green>170</green>
+                  <blue>0</blue>
                  </color>
                 </brush>
                </colorrole>
@@ -546,16 +546,6 @@
               </item>
              </layout>
             </item>
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_9"/>
-            </item>
-            <item>
-             <widget class="QPushButton" name="demoAug">
-              <property name="text">
-               <string>Demo Augmentation</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
          </layout>
@@ -572,7 +562,7 @@
      <x>0</x>
      <y>0</y>
      <width>1299</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

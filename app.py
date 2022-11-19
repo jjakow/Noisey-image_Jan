@@ -107,7 +107,7 @@ class mainWindow(QtWidgets.QMainWindow):
         # Augmentation Generator:
         #self.ui.compoundAug.setChecked(True)
         self.ui.addAug.clicked.connect(self.addWindow.show)
-        self.ui.demoAug.clicked.connect(self.addWindow.demoAug)
+        #self.ui.demoAug.clicked.connect(self.addWindow.demoAug)
         self.ui.loadAug.clicked.connect(self.addWindow.__loadFileDialog__)
         self.ui.saveAug.clicked.connect(self.addWindow.__saveFileDialog__)
         self.ui.deleteListAug.clicked.connect(self.addWindow.__deleteItem__)
@@ -318,7 +318,30 @@ class mainWindow(QtWidgets.QMainWindow):
     def reportProgress(self, n):
         self.ui.progressBar.setValue(n)
 
+    def flipAllControls(self, value):
+        self.ui.addAug.setEnabled(value)
+        self.ui.loadAug.setEnabled(value)
+        self.ui.saveAug.setEnabled(value)
+        #self.ui.demoAug.setEnabled(value)
+        self.ui.comboBox.setEnabled(value)
+        self.ui.pushButton.setEnabled(value)
+        self.ui.pushButton_2.setEnabled(value)
+        #self.ui.pushButton_3.setEnabled(value)
+        self.ui.pushButton_4.setEnabled(value)
+        self.ui.compoundAug.setEnabled(value)
+        self.ui.checkBox_2.setEnabled(value)
+        self.ui.upListAug.setEnabled(value)
+        self.ui.downListAug.setEnabled(value)
+        self.ui.deleteListAug.setEnabled(value)
+        self.ui.listAugs.setEnabled(value)
+        return 0
+
     def change_file_selection(self, qListItem):
+        if hasattr(self, 'emptyNest'):
+            if self.emptyNest:
+                self.flipAllControls(True)
+                self.emptyNest = False
+
         if not qListItem is None:
             originalImg = cv2.imread(qListItem.data(QtCore.Qt.UserRole)['filePath'])
 
@@ -331,7 +354,15 @@ class mainWindow(QtWidgets.QMainWindow):
 
             self.changePreviewImage()
         else:
-            print("INFO: qListItem was None (was it cleared by YAML read function?)")
+            if self.ui.listWidget.count() == 0:
+                self.emptyNest = True
+                self.flipAllControls(False)
+                self.ui.original.clear()
+                self.ui.preview_2.clear()
+                self.ui.original_2.clear()
+                self.ui.preview.clear()
+            else:
+                print("INFO: qListItem was None (was it cleared by YAML read function?)")
 
     def change_seg_selection(self, current):
         if(current == None):

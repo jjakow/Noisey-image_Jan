@@ -494,6 +494,7 @@ class ExperimentDialog(QDialog):
 
         self.progressBar.setValue(0)
         #self.textProgress.setEnabled(False)
+        self.textProgress.setReadOnly(True)
         self.config = config
         self._progressMove = 1/len(self.config.imagePaths)
         self.config.expName = createExperimentName(self.config.savePath)
@@ -720,24 +721,6 @@ class ExperimentDialog(QDialog):
     def closeEvent(self, event):
         with self.threadDone.get_lock():
             self.graphGrid.setColumnMinimumWidth(0,0)
-            '''
-            if not self.threadDone.value:
-
-                reply = QMessageBox.question(self, 'Question',
-                    "Are you sure you want to close the application?",
-                    QMessageBox.Yes,
-                    QMessageBox.No)
-                if reply == QMessageBox.Yes:
-                    if self.thread:
-                        self.thread.terminate()
-                        self.thread.quit()
-                    del self.thread
-                    #super(ExperimentDialog, self).closeEvent(event)
-                    self.closeEvent(event)
-                else:
-                    event.ignore()
-            '''
-
             self.close()
 
     def _stop_thread(self):
