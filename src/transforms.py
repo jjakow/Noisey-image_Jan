@@ -246,10 +246,13 @@ class AugDialog(QDialog):
     def __augError__(self, errs: list):
         print("Failed to convert file lines to array of floats")
         errsStr = ''
-        for i in errs:
-            if i == errs[len(errs) - 1] and len(errs) != 1:
-                errsStr += ('and ' + i)
-            else: errsStr += (i + ', ')
+        if len(errs) == 1:
+            errsStr += errs[0]
+        else:
+            for i in errs:
+                if i == errs[len(errs) - 1] and len(errs) != 1:
+                    errsStr += ('and ' + i)
+                else: errsStr += (i + ', ')
 
         errorBox = QMessageBox()
         errorBox.setWindowTitle("Error")
