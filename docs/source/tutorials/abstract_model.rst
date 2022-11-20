@@ -12,26 +12,27 @@ In a general sense, all applicable neural networks (CNN-based Object Detectors, 
 * Render (draw) output
 * Deinitialization (optional)
 
-The `Model` abstract class given in the models.py provide a skeleton that can make integration very easy to do.
+The :code:`Model` abstract class given in the models.py provide a skeleton that can make integration very easy to do.
 Create a class (perferably in the same models.py file) and inherit the Model class. From then, you will have to reimplement the following functions:
 
-* `initialize(\*kwargs)`
-* `run(input)`
-* `draw(prediction, img)`
-* `deinitialize()`
+* :code:`initialize(\*kwargs)`
+* :code:`run(input)`
+* :code:`draw(prediction, img)`
+* :code:`deinitialize()`
 
-After creating the inherited class, create an initialized object of the class in the `_registry` variable.
+After creating the inherited class, create an initialized object of the class in the :code:`_registry` variable.
 
 Example
 ---------------------------
 
-For this example, let's say we are (re)implementing and reintegrating the `YOLOv3` (You Look Only Once) network.
+For this example, let's say we are (re)implementing and reintegrating the :code:`YOLOv3` (You Look Only Once) network.
 This network was originally created with the Darknet Neural Network framework, which is created using C++.
 
 To integrate the C++ functionalities into PyQt5 is quite difficult, as there is an issue with conflicting CDLL loading from both Qt5 and Darknet.
 For this reason, we are using this PyTorch port of YOLOv3: https://github.com/eriklindernoren/PyTorch-YOLOv3
 
 This particular implementation's initialization sequence is the following:
+
 * Converting configuration (cfg) file from text to a sequence of PyTorch layers
 * Load in binary Darknet weight (weights) file, convert into same structure as PyTorch network
 * Load in converted weights into PyTorch network
@@ -68,10 +69,9 @@ So, to start the process of integration, let's create our inherited class:
             return 0 # TODO later in tutorial
 
 To get the network detecting images, we can utilize the following function to transform and run the image through the network:
+:code:`detect_image(model, image, img_size=416, conf_thres=0.5, nms_thres=0.5)`
 
-`detect_image(model, image, img_size=416, conf_thres=0.5, nms_thres=0.5)`
-
-The `run` function would turn to:
+The :code:`run` function would turn to:
 
 .. code-block:: python
     :caption: Updating Inherited Class with Detection Method
@@ -86,6 +86,7 @@ The `run` function would turn to:
         ...
 
 Finally, we would want to implement the draw and deinitialize functions. For the draw function, since it is an object detector, we should loop through the detections, take the coordinates, and draw the rectangles.
+
 Deinitialization is optional and only really applies for certain cases (long-sequence, multi-network pipelines). In this case, it does not need to be implemented.
 
 .. code-block:: python
@@ -105,7 +106,7 @@ Deinitialization is optional and only really applies for certain cases (long-seq
             return np_img
 
 After the YOLOv3 Model class has been created, you can create an object of that network (note: object creation is **not** the same thing as initializing a network)
-within the `_registry` dictionary:
+within the :code:`_registry` dictionary:
 
 .. code-block:: python
     :caption: Insertion of YOLOv3 class object

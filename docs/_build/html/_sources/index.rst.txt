@@ -10,9 +10,10 @@ Welcome to Noisey-Image's documentation!
    :maxdepth: 2
    :caption: Modules:
 
+   source/main_gs_guide
    source/main_tutorial_guide
    source/src
-   source/src.mit_semseg
+   ..source/src.mit_semseg
    source/src.obj_detector
 
 Indices and tables
