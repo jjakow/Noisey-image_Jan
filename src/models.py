@@ -3,19 +3,21 @@ import os
 from pathlib import Path
 from pyexpat import model
 from types import SimpleNamespace
-from PyQt5.QtCore import QObject
-import os, csv, torch, scipy.io
+import os, csv, torch
+# import scipy.io
 import numpy as np
+import cv2
 
-if __name__ == '__main__':
-    import sys
-    sys.path.append('./')
+
+# if __name__ == '__main__':
+#     import sys
+#     sys.path.append('./')
 
 # move imports into their own __init__.py file
 
 # import seg network here:
-from src.predict_img import new_visualize_result, process_img, predict_img, load_model_from_cfg, visualize_result, transparent_overlays, get_color_palette
-from src.mit_semseg.utils import AverageMeter, accuracy, intersectionAndUnion
+# from src.predict_img import new_visualize_result, process_img, predict_img, load_model_from_cfg, visualize_result, transparent_overlays
+# from src.mit_semseg.utils import AverageMeter, accuracy, intersectionAndUnion
 
 # import yolov3 stuff:
 import src.obj_detector.detect as detect
@@ -28,41 +30,41 @@ from src.mtcnn import visualization_utils as mtcnn_utils
 from PIL import Image
 
 # import mAP eval:
-from src.evaluators.map_metric.lib.BoundingBoxes import BoundingBox
-from src.evaluators.map_metric.lib import BoundingBoxes
-from src.evaluators.map_metric.lib.Evaluator import *
-from src.evaluators.map_metric.lib.utils import BBFormat
+# from src.evaluators.map_metric.lib.BoundingBoxes import BoundingBox
+# from src.evaluators.map_metric.lib import BoundingBoxes
+# from src.evaluators.map_metric.lib.Evaluator import *
+# from src.evaluators.map_metric.lib.utils import BBFormat
 
 # import efficientNetV2
-from src.effdet import create_model, create_evaluator, create_dataset, create_loader
-from src.effdet.data import resolve_input_config
-from timm.utils import AverageMeter, setup_default_logging
-from timm.models.layers import set_layer_config
-from torchvision import transforms
+# from src.effdet import create_model
+# from timm.utils import AverageMeter
+# from torchvision import transforms
 
 # import yolov4 stuff:
 from src.yolov4.utils.torch_utils import select_device
-import src.yolov4.detect as detect_v4
 from src.yolov4.models.models import Darknet
 from src.yolov4.models.models import load_darknet_weights
-import src.yolov4.utils.utils as utils_v4
 import src.yolov4.utils.datasets as yolov4_datasets
-from src.yolov4.utils.general import (check_img_size, non_max_suppression, apply_classifier, scale_coords, xyxy2xywh, strip_optimizer)
+from src.yolov4.utils.general import non_max_suppression, scale_coords
 
 # import yolov3-ultralytics here:
-#from src.yolov3 import detect
+# from src.yolov3 import detect
 from src.yolov3.utils.plots import Annotator, Colors
 from src.yolov3.utils.augmentations import letterbox
 from src.yolov3.models.common import DetectMultiBackend
 import yaml
 
 # import compressive autoendcoding here:
-from src.cae.src import detect as cae_detector
 from src.cae.src.data_loader import preprocess_single as cae_preprocess_single
 from src.cae.src.models.cae_32x32x32_zero_pad_bin import CAE
 
 # YOLOX imports:
 from src.yolox.yolox.data.datasets import COCO_CLASSES
+from src.yolox.yolox.data.data_augment import ValTransform
+from src.yolox.yolox.exp import get_exp
+from src.yolox.yolox.utils import fuse_model, get_model_info, postprocess, vis
+from src.yolox.yolox.utils.visualize import _COLORS
+from src.yolox.exps.default.yolox_m import Exp
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
 
@@ -173,107 +175,107 @@ class MTCNN(Model):
     def outputFormat(self):
         return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
 
-class Segmentation(Model):
-    """
-    Segmentation Model that inherits the Model class
-    It specifies its four main functions: run, initialize, deinitialize, and draw. 
-    """
-    def __init__(self, *network_config) -> None:
-        super().__init__(network_config)
+# class Segmentation(Model):
+#     """
+#     Segmentation Model that inherits the Model class
+#     It specifies its four main functions: run, initialize, deinitialize, and draw. 
+#     """
+#     def __init__(self, *network_config) -> None:
+#         super().__init__(network_config)
         
-        self.complexOutput = True
-        self.isCOCO91 = False
-        self.cfg, self.colors = network_config
-        #self.cfg = str(Path(__file__).parent.absolute()) + "/config/ade20k-hrnetv2.yaml"
-        # colors
-        #self.colors = scipy.io.loadmat(str(Path(__file__).parent.absolute()) + '/data/color150.mat')['colors']
-        self.names = {}
-        self.complexOutput = True # output is a large matrix. Saving output is a little different than object detector
+#         self.complexOutput = True
+#         self.isCOCO91 = False
+#         self.cfg, self.colors = network_config
+#         #self.cfg = str(Path(__file__).parent.absolute()) + "/config/ade20k-hrnetv2.yaml"
+#         # colors
+#         #self.colors = scipy.io.loadmat(str(Path(__file__).parent.absolute()) + '/data/color150.mat')['colors']
+#         self.names = {}
+#         self.complexOutput = True # output is a large matrix. Saving output is a little different than object detector
 
-        with open(str(Path(__file__).parent.absolute()) + '/data/object150_info.csv') as f:
-            reader = csv.reader(f)
-            next(reader)
-            for row in reader:
-                self.names[int(row[0])] = row[5].split(";")[0]
+#         with open(str(Path(__file__).parent.absolute()) + '/data/object150_info.csv') as f:
+#             reader = csv.reader(f)
+#             next(reader)
+#             for row in reader:
+#                 self.names[int(row[0])] = row[5].split(";")[0]
 
-    def run(self, input):
-        if torch.cuda.is_available():
-            self.segmentation_module.cuda()
-        else:
-            self.segmentation_module.cpu()
+#     def run(self, input):
+#         if torch.cuda.is_available():
+#             self.segmentation_module.cuda()
+#         else:
+#             self.segmentation_module.cpu()
 
-        img_original, singleton_batch, output_size = process_img(frame = input)
+#         img_original, singleton_batch, output_size = process_img(frame = input)
 
-        try:
-            # predict
-            img_original, singleton_batch, output_size = process_img(frame = input)
-            pred = predict_img(self.segmentation_module, singleton_batch, output_size)
-        except:
-            self.segmentation_module.cpu()
+#         try:
+#             # predict
+#             img_original, singleton_batch, output_size = process_img(frame = input)
+#             pred = predict_img(self.segmentation_module, singleton_batch, output_size)
+#         except:
+#             self.segmentation_module.cpu()
 
-            print("Using cpu")
+#             print("Using cpu")
 
-            # predict
-            img_original, singleton_batch, output_size = process_img(frame = input, cpu = 1)
-            pred = predict_img(self.segmentation_module, singleton_batch, output_size)
-        return pred
+#             # predict
+#             img_original, singleton_batch, output_size = process_img(frame = input, cpu = 1)
+#             pred = predict_img(self.segmentation_module, singleton_batch, output_size)
+#         return pred
 
-    def initialize(self, *kwargs):
-        # Network Builders
-        print("parsing {}".format(self.cfg))
-        self.segmentation_module = load_model_from_cfg(self.cfg)
+#     def initialize(self, *kwargs):
+#         # Network Builders
+#         print("parsing {}".format(self.cfg))
+#         self.segmentation_module = load_model_from_cfg(self.cfg)
         
-        self.segmentation_module.eval()
-        return 0
+#         self.segmentation_module.eval()
+#         return 0
 
-    def deinitialize(self):
-        return -1
+#     def deinitialize(self):
+#         return -1
 
-    def draw(self, pred, img):
-        detectedNames = {"all": [255,255,255]}
-        pred_color, org_pred_split = visualize_result(img, pred, self.colors)
+#     def draw(self, pred, img):
+#         detectedNames = {"all": [255,255,255]}
+#         pred_color, org_pred_split = visualize_result(img, pred, self.colors)
 
-        #color_palette = get_color_palette(pred, org_pred_split.shape[0], self.names, self.colors, detectedNames)
+#         #color_palette = get_color_palette(pred, org_pred_split.shape[0], self.names, self.colors, detectedNames)
 
-        # transparent pred on org
-        dst = transparent_overlays(img, pred_color, alpha=0.6)
+#         # transparent pred on org
+#         dst = transparent_overlays(img, pred_color, alpha=0.6)
 
-        return {"dst": dst, 
-        "segmentation": pred_color, 
-        "listOfNames":detectedNames
-                }
+#         return {"dst": dst, 
+#         "segmentation": pred_color, 
+#         "listOfNames":detectedNames
+#                 }
 
-    def draw_single_class(self, pred, img, selected_class):
-        imgs = new_visualize_result(pred, img, selected_class)
-        return {"segmentation": imgs[0], "overlay": imgs[1]}
+#     def draw_single_class(self, pred, img, selected_class):
+#         imgs = new_visualize_result(pred, img, selected_class)
+#         return {"segmentation": imgs[0], "overlay": imgs[1]}
 
-    def report_accuracy(self, pred, pred_truth):
-        acc_meter = AverageMeter()
-        intersection_meter = AverageMeter()
-        union_meter = AverageMeter()
+#     def report_accuracy(self, pred, pred_truth):
+#         acc_meter = AverageMeter()
+#         intersection_meter = AverageMeter()
+#         union_meter = AverageMeter()
 
-        acc, pix = accuracy(pred, pred_truth)
-        intersection, union = intersectionAndUnion(pred, pred_truth, 150)
-        acc_meter.update(acc, pix)
-        intersection_meter.update(intersection)
-        union_meter.update(union)
+#         acc, pix = accuracy(pred, pred_truth)
+#         intersection, union = intersectionAndUnion(pred, pred_truth, 150)
+#         acc_meter.update(acc, pix)
+#         intersection_meter.update(intersection)
+#         union_meter.update(union)
         
-        class_ious = {}
-        iou = intersection_meter.sum / (union_meter.sum + 1e-10)
-        for i, _iou in enumerate(iou):
-            class_ious[i] = _iou
-        return iou.mean(), acc_meter.average(), class_ious
+#         class_ious = {}
+#         iou = intersection_meter.sum / (union_meter.sum + 1e-10)
+#         for i, _iou in enumerate(iou):
+#             class_ious[i] = _iou
+#         return iou.mean(), acc_meter.average(), class_ious
 
-    def outputFormat(self):
-        return "{}" # hex based output?
+#     def outputFormat(self):
+#         return "{}" # hex based output?
 
-    def calculateRatios(self, dets):
-        values, counts = np.unique(dets, return_counts=True)
-        total_idx = [i for i in range(150)]
-        for idx in total_idx:
-            if not idx in values:
-                counts = np.insert(counts, idx, 0)
-        return counts
+#     def calculateRatios(self, dets):
+#         values, counts = np.unique(dets, return_counts=True)
+#         total_idx = [i for i in range(150)]
+#         for idx in total_idx:
+#             if not idx in values:
+#                 counts = np.insert(counts, idx, 0)
+#         return counts
 
 class YOLOv3(Model):
     """
@@ -443,99 +445,100 @@ class EfficientDetV2(Model):
     def outputFormat(self):
         return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
 
-class DETR(Model):
-    """
-    DETR Model that inherits the Model class
-    It specifies its four main functions: run, initialize, deinitialize, and draw.
-    """
-    def __init__(self, *network_config) -> None:
-        super(DETR, self).__init__(network_config)
-        self.CLASSES, self.WEIGHTS = network_config[0], network_config[1]
-        print(self.CLASSES, self.WEIGHTS)
-        self.classes = load_classes(self.CLASSES)
-        self.conf_thres = 0.25
-        self.isCOCO91 = True
+# class DETR(Model):
+#     """
+#     DETR Model that inherits the Model class
+#     It specifies its four main functions: run, initialize, deinitialize, and draw.
+#     """
+#     def __init__(self, *network_config) -> None:
+#         super(DETR, self).__init__(network_config)
+#         self.CLASSES, self.WEIGHTS = network_config[0], network_config[1]
+#         print(self.CLASSES, self.WEIGHTS)
+#         self.classes = load_classes(self.CLASSES)
+#         self.conf_thres = 0.25
+#         self.isCOCO91 = True
     
-    def initialize(self, *kwargs):
-        self.model = DETRdemo(num_classes=len(self.classes))
-        self.model.load_state_dict(torch.load(self.WEIGHTS, map_location=torch.device('cpu')))
-        self.model.eval()
-        if torch.cuda.is_available():
-            self.model.cuda()
-            self.on_gpu = True
-        else:
-            self.model.cpu()
-            self.on_gpu = False
-        self.transform = transforms.Compose([
-            transforms.Resize(800, max_size=1333),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])
-        return 0
+#     def initialize(self, *kwargs):
+#         self.model = DETRdemo(num_classes=len(self.classes))
+#         self.model.load_state_dict(torch.load(self.WEIGHTS, map_location=torch.device('cpu')))
+#         self.model.eval()
+#         if torch.cuda.is_available():
+#             self.model.cuda()
+#             self.on_gpu = True
+#         else:
+#             self.model.cpu()
+#             self.on_gpu = False
+#         self.transform = transforms.Compose([
+#             transforms.Resize(800, max_size=1333),
+#             transforms.ToTensor(),
+#             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+#         ])
+#         return 0
 
-    def run(self, input):
-        with torch.no_grad():
-            img = Image.fromarray(input)
-            #if self.on_gpu: img = img.cuda()
-            scores, boxes = self.model.detect(img, self.model, self.transform, threshold=self.conf_thres)
-            _confidences, _classes = torch.max(scores, axis=1)
-            _cls_conf = torch.cat((torch.unsqueeze(_confidences, axis=0), torch.unsqueeze(_classes, axis=0)))
-            _cls_conf = torch.transpose(_cls_conf, 0,1)
-            pred = torch.cat((boxes, _cls_conf), axis=1) #[x1,y1,x2,y2,conf,class] <--- box
-            pred = pred.cpu()
-            return pred
+#     def run(self, input):
+#         with torch.no_grad():
+#             img = Image.fromarray(input)
+#             #if self.on_gpu: img = img.cuda()
+#             scores, boxes = self.model.detect(img, self.model, self.transform, threshold=self.conf_thres)
+#             _confidences, _classes = torch.max(scores, axis=1)
+#             _cls_conf = torch.cat((torch.unsqueeze(_confidences, axis=0), torch.unsqueeze(_classes, axis=0)))
+#             _cls_conf = torch.transpose(_cls_conf, 0,1)
+#             pred = torch.cat((boxes, _cls_conf), axis=1) #[x1,y1,x2,y2,conf,class] <--- box
+#             pred = pred.cpu()
+#             return pred
 
-    def deinitialize(self):
-        return -1
+#     def deinitialize(self):
+#         return -1
 
-    def draw(self, pred, img):
-        np_img, detectedNames = detect._draw_and_return_output_image(img, pred, 416, self.classes)
-        return {"dst": np_img,
-                "listOfNames":detectedNames}
+#     def draw(self, pred, img):
+#         np_img, detectedNames = detect._draw_and_return_output_image(img, pred, 416, self.classes)
+#         return {"dst": np_img,
+#                 "listOfNames":detectedNames}
 
-    def draw_single_class(self, pred, img, selected_class):
-        np_img = detect._draw_and_return_output_image_single_class(img, pred, selected_class, self.classes)
-        return {"overlay": np_img}
+#     def draw_single_class(self, pred, img, selected_class):
+#         np_img = detect._draw_and_return_output_image_single_class(img, pred, selected_class, self.classes)
+#         return {"overlay": np_img}
 
-    def report_accuracy(self, pred:list, gt:list, evalType='voc'):
-        """Function takes in prediction boxes and ground truth boxes and
-        returns the mean average precision (mAP) @ IOU 0.5 under VOC2007 criteria (default).
-        Args:
-            pred (list): A list of BoundingBox objects representing each detection from method
-            gt (list): A list of BoundingBox objects representing each object in the ground truth
-        Returns:
-            mAP: a number representing the mAP over all classes for a single image.
-        """        
-        if len(pred) == 0: return 0
+#     def report_accuracy(self, pred:list, gt:list, evalType='voc'):
+#         """Function takes in prediction boxes and ground truth boxes and
+#         returns the mean average precision (mAP) @ IOU 0.5 under VOC2007 criteria (default).
+#         Args:
+#             pred (list): A list of BoundingBox objects representing each detection from method
+#             gt (list): A list of BoundingBox objects representing each object in the ground truth
+#         Returns:
+#             mAP: a number representing the mAP over all classes for a single image.
+#         """        
+#         if len(pred) == 0: return 0
 
-        allBoundingBoxes = BoundingBoxes()
-        evaluator = Evaluator()
+#         allBoundingBoxes = BoundingBoxes()
+#         evaluator = Evaluator()
 
-        # loop through gt:
-        for _gt in gt:
-            assert type(_gt) == BoundingBox, "_gt is not BoundingBox type. Instead is %s"%(str(type(_gt)))
-            allBoundingBoxes.addBoundingBox(_gt)
+#         # loop through gt:
+#         for _gt in gt:
+#             assert type(_gt) == BoundingBox, "_gt is not BoundingBox type. Instead is %s"%(str(type(_gt)))
+#             allBoundingBoxes.addBoundingBox(_gt)
 
-        for _pred in pred:
-            assert type(_pred) == BoundingBox, "_gt is not BoundingBox type. Instead is %s"%(str(type(_pred)))
-            allBoundingBoxes.addBoundingBox(_pred)
+#         for _pred in pred:
+#             assert type(_pred) == BoundingBox, "_gt is not BoundingBox type. Instead is %s"%(str(type(_pred)))
+#             allBoundingBoxes.addBoundingBox(_pred)
 
-        image = np.zeros((1400,1607,3), dtype=np.uint8)
-        out_image = allBoundingBoxes.drawAllBoundingBoxes(image, '100faces')
-        cv2.imwrite('test.png', out_image)
+#         image = np.zeros((1400,1607,3), dtype=np.uint8)
+#         out_image = allBoundingBoxes.drawAllBoundingBoxes(image, '100faces')
+#         cv2.imwrite('test.png', out_image)
 
-        #for box in allBoundingBoxes:
-        #    print(box.getAbsoluteBoundingBox(format=BBFormat.XYWH), box.getBBType()) 
-        if evalType == 'voc':
-            metrics = evaluator.GetPascalVOCMetrics(allBoundingBoxes)
-            print(metrics)
-        elif evalType == 'coco':
-            assert False
-        else: assert False, "evalType %s not supported"%(evalType) 
-        return metrics[0]['AP']
+#         #for box in allBoundingBoxes:
+#         #    print(box.getAbsoluteBoundingBox(format=BBFormat.XYWH), box.getBBType()) 
+#         if evalType == 'voc':
+#             metrics = evaluator.GetPascalVOCMetrics(allBoundingBoxes)
+#             print(metrics)
+#         elif evalType == 'coco':
+#             assert False
+#         else: assert False, "evalType %s not supported"%(evalType) 
+#         return metrics[0]['AP']
 
-    def outputFormat(self):
-        return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
+#     def outputFormat(self):
+#         return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
+
 
 class YOLOv4(Model):
     """
@@ -765,12 +768,11 @@ class YOLOv3_Ultralytics(Model):
 
 class YOLOX(Model):
     def __init__(self, *network_config) -> None:   
-        from src.yolox.yolox.data.data_augment import ValTransform
-        from src.yolox.yolox.exp import get_exp
+        
         exp_file, name, self.weight, self.classes = network_config
         self.complexOutput = False
         self.isCOCO91 = False
-        self.exp = get_exp(exp_file, name)
+        self.exp = Exp()
         self.test_size = self.exp.test_size
         self.preproc = ValTransform(legacy=False)
         self.num_classes = self.exp.num_classes
@@ -783,7 +785,7 @@ class YOLOX(Model):
             self.device = "cpu"
 
     def run(self, img):
-        from src.yolox.yolox.utils import fuse_model, get_model_info, postprocess, vis
+        
         imgShape = img.shape
         ratio = min(self.test_size[0] / img.shape[0], self.test_size[1] / img.shape[1])
 
@@ -821,14 +823,17 @@ class YOLOX(Model):
 
     def initialize(self):
         self.model = self.exp.get_model()
-        self.model.load_state_dict(torch.load(self.weight)["model"])
+        if self.device == 'cpu':
+            self.model.load_state_dict(torch.load(self.weight, map_location=torch.device('cpu'))["model"])
+        else:
+            self.model.load_state_dict(torch.load(self.weight)["model"])
         self.model.eval()
         
     def deinitialize(self):
         del self.model
 
     def draw(self,  preds, im0, class_filter=None):
-        from src.yolox.yolox.utils.visualize import _COLORS
+        
 
         labels = {"all":[255,255,255]}
 
@@ -1051,7 +1056,7 @@ class DETR(Model):
         return b
 
     def run(self, img):
-        from PIL import Image
+        
         import time
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         im = Image.fromarray(img)
@@ -1063,7 +1068,10 @@ class DETR(Model):
         if self.device == 'cuda': target_tensor = target_tensor.cuda()
         # propagate through the model
         with torch.no_grad():
-            img = img.cuda()
+
+            if self.device == 'gpu':
+                img = img.cuda()
+
             outputs = self.model(img)
             #results = self.postprocess['bbox'](outputs, target_tensor)
             #img_w, img_h = im.size
@@ -1081,7 +1089,12 @@ class DETR(Model):
 
     def initialize(self):
         from src.detr.models.detr import build
-        model_weights = torch.load("./src/detr/detr-r50-e632da11.pth", map_location=torch.device('cuda'))
+
+        if self.device == 'cpu':
+            model_weights = torch.load("./src/detr/detr-r50-e632da11.pth", map_location=torch.device('cpu'))
+        else:
+            model_weights = torch.load("./src/detr/detr-r50-e632da11.pth", map_location=torch.device('cuda'))
+
         tuple_model = build(self.args)
         self.model = tuple_model[0]
         self.model.load_state_dict(model_weights['model'])   
@@ -1094,7 +1107,7 @@ class DETR(Model):
         return 0
 
     def draw(self, preds, im0, class_filter=None):
-        from src.yolox.yolox.utils.visualize import _COLORS
+        
         labels = {"all":[255,255,255]}
         for i in range(preds.shape[0]):
             bboxes = preds[i,:4].int().tolist()
@@ -1174,24 +1187,24 @@ _registry = {
          os.path.join(currPath, 'obj_detector/cfg', 'yolov3-face.cfg'),
          os.path.join(currPath,'obj_detector/weights','yolov3-face_last.weights')
     ),
-    # 'Face Detection (MTCNN)': MTCNN(
-    #     os.path.join(currPath, 'mtcnn/weights', 'pnet.npy'),
-    #     os.path.join(currPath, 'mtcnn/weights', 'rnet.npy'),
-    #     os.path.join(currPath,'mtcnn/weights','onet.npy')
-    # ),
-    'Semantic Segmentation': Segmentation(
-        str(Path(__file__).parent.absolute()) + "/mit_semseg/config/ade20k-hrnetv2.yaml",
-        scipy.io.loadmat(str(Path(__file__).parent.absolute()) + '/data/color150.mat')['colors']
+    'Face Detection (MTCNN)': MTCNN(
+        os.path.join(currPath, 'mtcnn/weights', 'pnet.npy'),
+        os.path.join(currPath, 'mtcnn/weights', 'rnet.npy'),
+        os.path.join(currPath,'mtcnn/weights','onet.npy')
     ),
+    # 'Semantic Segmentation': Segmentation(
+    #     str(Path(__file__).parent.absolute()) + "/mit_semseg/config/ade20k-hrnetv2.yaml",
+    #     scipy.io.loadmat(str(Path(__file__).parent.absolute()) + '/data/color150.mat')['colors']
+    # ),
     'Object Detection (YOLOv3)': YOLOv3(
         os.path.join(currPath, 'obj_detector', 'cfg', 'coco.names'),
         os.path.join(currPath, 'obj_detector', 'cfg', 'yolov3.cfg'),
         os.path.join(currPath,'obj_detector', 'weights', 'yolov3.weights')
     ),
-    'Object Detection (EfficientDetV2)': EfficientDetV2(
-        os.path.join(currPath, 'detr', 'datasets', 'coco.names'),
-        'efficientdetv2_dt'
-    ),
+    # 'Object Detection (EfficientDetV2)': EfficientDetV2(
+    #     os.path.join(currPath, 'detr', 'datasets', 'coco.names'),
+    #     'efficientdetv2_dt'
+    # ),
     'Object Detection (DETR)': DETR(
         os.path.join(currPath, 'detr', 'datasets', 'coco.names'),
         #os.path.join(currPath, 'detr', 'weights', 'detr.weights')

@@ -1,8 +1,7 @@
-from PyQt5.QtCore import QObject, pyqtSignal, Qt
+from PyQt5.QtCore import QObject, pyqtSignal, Qt, QSize, QVariant
 from src.utils.qt5extra import CheckState
 
-import PyQt5
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QFileDialog, QListWidgetItem, QMessageBox, QWidget
+from PyQt5.QtWidgets import QDialog, QFileDialog, QListWidgetItem, QMessageBox
 from PyQt5 import uic
 import cv2
 import numpy as np
@@ -24,13 +23,15 @@ augList = {
     "Saturation" : {"function": saturation, "default":[50], "example":50, "limits":trans.__saturationCheck__},
     "Simple Mosaic": {"function": alternate_mosaic, "default":[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "example":2, "limits":trans.__altMosaicCheck__}, # 1x1 - 5x5
     "Bilinear Resizing": {"function": bilinear, "default": [10,20,30,40,50,60,70,80,90,95], "example":25, "limits":trans.__bilinearCheck__},
-    #" ": {"function": dummy, "default":[], "example":[]},
+    " ": {"function": trans.passthrough, "default":[], "example":[],"limits":None, "line": "Compression Methods"},
     "JPEG Compression": {"function": jpeg_comp, "default": [100,90,80,70,60,50,40,30,20,10], "example":20, "limits":trans.__JPEGCheck__},
     "WebP Compression": {"function": webp_transform, "default": [10,25,50,75,100], "example":10, "limits":trans.__WEBPCheck__},
     "Compressive Autoencoder": {"function": cae, "default": [140,148,156,164,172,180,188,196], "example":172, "limits":trans.__compressiveAutoCheck__},
     "Image H264": {"function": ffmpeg_h264_to_tmp_video, "default":[0,10,20,30,40,50,60,70,80,90,100], "example":60, "limits":trans.__h264Check__},
     "Image H265": {"function": ffmpeg_h265_to_tmp_video, "default":[0,5,10,15,20,25,30,35,40,45,50], "example":45, "limits":trans.__h265Check__}
 }
+
+# horizontal line seperator:
 
 class Augmentation:
     """
@@ -89,7 +90,7 @@ class Augmentation:
     def setParam(self, args):
         self.__args__ = args
 
-    def check(self, param_list):
+    def valid(self, param_list):
         if self.__limitFunc__:
             for param in param_list:
                 ret = self.__limitFunc__(param)
@@ -100,16 +101,21 @@ class Augmentation:
 class AugmentationPipeline():
     def __init__(self, augList:dict) -> None:
         self.__list__ = augList
-        self.__keys__ = list(self.__list__.keys())
+        self.__keys__ = []
         self.__augList__ = []
         self.__index__ = 0
         self.__pipeline__ = []
+        self.__line_pos__ = []
         self.__wrapper__()
 
     def __wrapper__(self):
         for pos, item in enumerate(self.__list__.items()):
-            _item = Augmentation( (item[0], item[1]["function"]), pos, args=(item[1]["default"], item[1]["example"]), verbose=False, )
-            self.__augList__.append(_item)
+            if not "line" in item[1]:
+                _item = Augmentation( (item[0], item[1]["function"]), pos, args=(item[1]["default"], item[1]["example"]), verbose=False, limit=item[1]['limits'])
+                self.__augList__.append(_item)
+                self.__keys__.append(item[0])
+            else:
+                self.__line_pos__.append(pos)
 
     def __len__(self):
         return len(self.__pipeline__)
@@ -171,26 +177,56 @@ class AugmentationPipeline():
         # check if filename is a .txt:
         with open(filename, 'r') as f:
             content = list(map(str.strip, f.readlines()))
-        self.clear()
+        oldLen = len(mainAug)
+        
         # create list of errors which may arise
-        errIn = []
+        errs = []
         # format: [title,# of parameters,*parameters,1,example]
         for _content in content:
             _content = _content.split(',')
             name = _content[0]
             nargs = int(_content[1])
             params = []
-            for i in range(nargs):
-                params.append( float(_content[i+2]) )
+
+            try:
+                for i in range(nargs):
+                    params.append( float(_content[i+2]) )
+            except ValueError as e:
+                print(e)
+                errs.append('Parameters listed for %s contains items that are not numbers'%(name))
+                break
+
             params = list(params)
             _example_buffer_loc = nargs+3 #+2 and +1 to get to 1
-            example = float(_content[_example_buffer_loc])
+            
+            try:
+                example = float(_content[_example_buffer_loc])
+            except ValueError:
+                errs.append('Example parameter listed in %s is not a valid number'%(name))
+                break
 
             if name in augList:
-                _aug  = Augmentation([name, augList[name]['function']], list(augList.keys()).index(name), [params, example], verbose=False)
-                mainAug.__pipeline__.append(_aug)
+                _aug  = Augmentation([name, augList[name]['function']], list(augList.keys()).index(name), [params, example], verbose=False, limit=augList[name]['limits'])
+                if not _aug.valid(params):
+                    errs.append('Stated parameter list in %s contains values out of range'%(name))
+                    break
+
+                if not _aug.valid([example]):
+                    errs.append('Stated example parameter in %s contains values out of range'%(name))
+                    break
+
+                self.__pipeline__.append(_aug)
             else:
-                print("Augmentation name is not recognized! Ignoring this line")
+                errs.append("Augmentation name %s is not recognized!"%(name))
+
+        if len(errs) == 0:
+            # valid file so remove old augs:
+            self.__pipeline__ = self.__pipeline__[oldLen:]
+        else:
+            # reset to old augs:
+            self.__pipeline__ = self.__pipeline__[:oldLen]
+
+        return errs
 
     def save(self, filename):
         if '.txt' not in filename[0]:
@@ -230,7 +266,7 @@ class AugDialog(QDialog):
         #self.listWidget.setStyleSheet( "QListWidget::item { border-bottom: 1px solid black; }" )
         self.__loadAugs__()
         self.__loadEvents__()
-        self.defaultImage = 'imgs/default_imgs/original.png'
+        self.defaultImage = 'imgs/default_imgs/100FACES.jpg'
         self.__loadInitialImage__()
         self.__loadExample__()
         self.savedAugPath = './src/data/saved_augs'
@@ -239,12 +275,13 @@ class AugDialog(QDialog):
         _btn1, _btn2 = self.buttonBox.buttons() # ok, cancel
         _btn1.clicked.connect(self.__applySelection__)
         _btn2.clicked.connect(self.close)
+        # example rerun:
+        self.runExample.clicked.connect(lambda: self.__loadAugSelection__(self.listWidget.currentItem()))
 
     def __loadEvents__(self):
         self.listWidget.itemClicked.connect(self.__loadAugSelection__)
 
     def __augError__(self, errs: list):
-        print("Failed to convert file lines to array of floats")
         errsStr = ''
         if len(errs) == 1:
             errsStr += errs[0]
@@ -261,7 +298,14 @@ class AugDialog(QDialog):
         x = errorBox.exec_()
 
     def __loadAugs__(self):
-        for aug in mainAug.__augList__:
+        for i, aug in enumerate(mainAug.__augList__):
+            if i in mainAug.__line_pos__:
+                _line = QListWidgetItem()
+                _line.setFlags(Qt.NoItemFlags)
+                _line.setSizeHint(QSize(-1, 2))
+                _line.setText("Test")
+                self.listWidget.addItem(_line)
+
             _item = QListWidgetItem()
             _item.setText(aug.title)
             _item.setCheckState(CheckState.Unchecked)
@@ -271,16 +315,16 @@ class AugDialog(QDialog):
     def __reloadAugs__(self):
         for i in range(self.listWidget.count()):
             _payload = self.listWidget.item(i).data(Qt.UserRole)
-
-            strArgs = [str(k) for k in augList[self.listWidget.item(i).text()]["default"]]
-            parameters = ",".join(strArgs)
-            if self.listWidget.item(i).text() != " ":
-                _payload[1] = parameters
-                _payload[2] = str(augList[self.listWidget.item(i).text()]["example"])
-            self.listWidget.item(i).setData(Qt.UserRole, _payload)
-            if i == (self.listWidget.currentRow()):
-                self.noiseRange.setText(parameters)
-                self.exampleLine.setText(str(augList[self.listWidget.item(i).text()]["example"]))
+            if not _payload is None:
+                strArgs = [str(k) for k in augList[self.listWidget.item(i).text()]["default"]]
+                parameters = ",".join(strArgs)
+                if self.listWidget.item(i).text() != " ":
+                    _payload[1] = parameters
+                    _payload[2] = str(augList[self.listWidget.item(i).text()]["example"])
+                self.listWidget.item(i).setData(Qt.UserRole, _payload)
+                if i == (self.listWidget.currentRow()):
+                    self.noiseRange.setText(parameters)
+                    self.exampleLine.setText(str(augList[self.listWidget.item(i).text()]["example"]))
     
     def __loadInitialImage__(self):
         self._img = cv2.imread(self.defaultImage)
@@ -299,17 +343,20 @@ class AugDialog(QDialog):
 
     def __loadAugSelection__(self, aug):
         # update old active aug:
+        errs = []
         _payload = self.listWidget.item(self.lastRow).data(Qt.UserRole)
         _payload[1] = self.noiseRange.text()
         _payload[2] = self.exampleLine.text()
+
         self.listWidget.item(self.lastRow).setData(Qt.UserRole, _payload)
         
         # change GUI when item is clicked
         currentItem = aug.text()
-        if currentItem != " ":
+        if currentItem != "" and currentItem in mainAug.__keys__:
             _payload = aug.data(Qt.UserRole)
             augIndex = mainAug.__keys__.index(currentItem)
             augItem = mainAug.__augList__[augIndex]
+            augIndex2 = self.listWidget.row(aug)
             
             if _payload[1] == '': 
                 strArgs = [ str(i) for i in augItem.args]
@@ -324,22 +371,31 @@ class AugDialog(QDialog):
             self.noiseRange.setText(parameters)
             self.exampleLine.setText(str(example))
 
-            _copy = np.copy(self._img)
-            _copy = augItem(_copy, example=True)
-            qtImage = images.convertCV2QT(_copy, 1000, 500)
-            self.previewImage.setPixmap(qtImage)
-            self.lastRow = augIndex
+            try:
+                newExampleValue = float(example)
+                if not augItem.valid([newExampleValue]):
+                    errs.append("Example value not in the valid range")
+                augItem.setExampleParam(newExampleValue)
+            except ValueError:
+                errs.append('Example value not a number')
+
+            print(errs)
+            if len(errs) != 0:
+                self.__augError__(errs)
+            else:
+                _copy = np.copy(self._img)
+                _copy = augItem(_copy, example=True)
+                qtImage = images.convertCV2QT(_copy, 1000, 500)
+                self.previewImage.setPixmap(qtImage)
+                self.lastRow = augIndex2
         
         if currentItem == "Intensity":
-            print(currentItem)
             self.info_label.setText("Dims the intensity of the image by the given factor/range of factor.")
         
         if currentItem == "Gaussian Noise":
-            print(currentItem)
             self.info_label.setText("Gaussian Noise is a statistical noise having a probability density function equal to normal distribution with a given standard deviation and the mean of 2, also known as Gaussian Distribution. Random Gaussian function is added to Image function to generate this noise.")
         
         if currentItem == "Gaussian Blur":
-            print(currentItem)
             self.info_label.setText("It blurs the image using the kernel of the given size. (A kernel, in this context, is a small matrix which is combined with the image using a mathematical technique: convolution). In a Gaussian blur, the pixels nearest the center of the kernel are given more weight than those far away from the center. This averaging is done on a channel-by-channel basis, and the average channel values become the new value for the pixel in the filtered image.")
         
         if currentItem == "JPEG Compression":
@@ -382,8 +438,9 @@ class AugDialog(QDialog):
     def __applyConfig__(self):
         # update config given:
         for i in range(self.listWidget.count()):
-            listItem = self.listWidget.item(i)
-            listItem.setCheckState(CheckState.Unchecked)
+            if not i in mainAug.__line_pos__:
+                listItem = self.listWidget.item(i)
+                listItem.setCheckState(CheckState.Unchecked)
         else:
             for aug in mainAug:
                 itemPos = aug.position
@@ -398,8 +455,9 @@ class AugDialog(QDialog):
         for i in range(self.listWidget.count()):
             listItem = self.listWidget.item(i)
             payload = listItem.data(Qt.UserRole)
-            payload[1] = ''; payload[2] = ''
-            self.listWidget.item(i).setData(Qt.UserRole, payload)
+            if not payload is None: 
+                payload[1] = ''; payload[2] = ''
+                self.listWidget.item(i).setData(Qt.UserRole, payload)
         event.accept()
 
     # change mainAug to match selected items from GUI:
@@ -415,41 +473,47 @@ class AugDialog(QDialog):
         # get checks from listWidget:
         for i in range(self.listWidget.count()):
             listItem = self.listWidget.item(i)
+            augIndex = -1
+            for pos, item in enumerate(mainAug.__augList__):
+                if listItem.text() == item.title:
+                    augIndex = pos
+                    break 
 
             # parse the list items:
             _payload = listItem.data(Qt.UserRole)
-            _noiseRange = _payload[1]
-            _example = _payload[2]
+            if not _payload is None:
+                _noiseRange = _payload[1]
+                _example = _payload[2]
 
-            if _noiseRange != '':
-                try:
-                    _param = [float(j) for j in _noiseRange.split(',')]
-                except ValueError:
-                    errs.append("%s - One value is not a number"%listItem.text())
-                    continue
+                if _noiseRange != '':
+                    try:
+                        _param = [float(j) for j in _noiseRange.split(',')]
+                    except ValueError:
+                        errs.append("%s - One value is not a number"%listItem.text())
+                        continue
+                    
+                    if not mainAug.__augList__[augIndex].valid(_param) and listItem.checkState() == Qt.Checked:
+                        #print("RAHH!!! WRONG PARAMETER!!")
+                        errs.append("%s - Incorrect range"%listItem.text())
+                        continue
+                else: _param = None
 
-                if mainAug.__augList__[i].check(_param) and listItem.checkState() == Qt.Checked:
-                    #print("RAHH!!! WRONG PARAMETER!!")
-                    errs.append("%s - Incorrect range"%listItem.text())
-                    continue
-            else: _param = None
+                if _example != '': 
+                    _example = float(_payload[-1])
+                else: _example = None
 
-            if _example != '': 
-                _example = float(_payload[-1])
-            else: _example = None
+                itemIndex = mainAug.index(listItem.text())
 
-            itemIndex = mainAug.index(listItem.text())
-
-            if listItem.checkState() and itemIndex == -1:
-                mainAug.append(listItem.text(), param=_param, example=_example)
-            elif listItem.checkState() and itemIndex != -1:
-                if not _param is None: mainAug.__pipeline__[itemIndex].setParam(_param)
-                if not _example is None: mainAug.__pipeline__[itemIndex].setExampleParam(_example)
-            elif not listItem.checkState(): # make more efficient later
-                for item in mainAug.__pipeline__:
-                    if item.title == listItem.text():
-                        mainAug.remove(listItem.text())
-                        break
+                if listItem.checkState() and itemIndex == -1:
+                    mainAug.append(listItem.text(), param=_param, example=_example)
+                elif listItem.checkState() and itemIndex != -1:
+                    if not _param is None: mainAug.__pipeline__[itemIndex].setParam(_param)
+                    if not _example is None: mainAug.__pipeline__[itemIndex].setExampleParam(_example)
+                elif not listItem.checkState(): # make more efficient later
+                    for item in mainAug.__pipeline__:
+                        if item.title == listItem.text():
+                            mainAug.remove(listItem.text())
+                            break
         
         if len(errs) == 0:
             self.__updateViewer__()
@@ -466,9 +530,12 @@ class AugDialog(QDialog):
     def __loadFileDialog__(self):
         _file = QFileDialog.getOpenFileName(self, "Load in Augmentation", self.savedAugPath, '*.txt')
         if _file[0] != '':
-            mainAug.load(_file[0])
-            self.__applyConfig__() # change GUI
-            self.__updateViewer__()
+            errs = mainAug.load(_file[0])
+            if len(errs) != 0:
+                self.__augError__(errs)
+            else:
+                self.__applyConfig__() # change GUI
+                self.__updateViewer__()
 
     def __saveFileDialog__(self):
         save_path = QFileDialog.getSaveFileName(self, 'Save Current Augmentation', self.savedAugPath, '*.txt')
@@ -513,10 +580,10 @@ class AugDialog(QDialog):
 
     def demoAug(self):
         mainAug.clear()
-        mainAug.append('Gaussian Blur')
-        mainAug.append('Gaussian Noise')
+        # mainAug.append('Gaussian Blur')
+        # mainAug.append('Gaussian Noise')
         #mainAug.append('JPEG Compression')
-        #mainAug.append('Salt and Pepper')
+        mainAug.append('Salt and Pepper')
         self.__updateViewer__()
     
     def augParameterError(self, errs: list):

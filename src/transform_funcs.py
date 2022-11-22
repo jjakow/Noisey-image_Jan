@@ -461,7 +461,7 @@ def passthrough(images, param):
 def __intensityCheck__(param): return param >= 0 and param <= 1
 def __gaussianNoiseCheck__(param): return param > 0
 def __gaussianBlurCheck__(param): return param > 0
-def __saltPepperCheck__(param): return param >= 0 and param <= 100
+def __saltPepperCheck__(param): return param >= 0 and param <= 1.0
 def __flipAxisCheck__(param): return True
 def __fishEyeCheck__(param): return param > 0 and param <= 1
 def __barrelCheck__(param): return param > 0 and param <= 0.01

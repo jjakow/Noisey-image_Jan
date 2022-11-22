@@ -103,16 +103,6 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" rowspan="3">
-    <widget class="QListWidget" name="listWidget">
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-     <property name="selectionRectVisible">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="4" column="0" colspan="4">
     <widget class="QLabel" name="label_4">
      <property name="minimumSize">
@@ -135,6 +125,16 @@
      </property>
      <property name="text">
       <string>Description:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="3">
+    <widget class="QListWidget" name="listWidget">
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="selectionRectVisible">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

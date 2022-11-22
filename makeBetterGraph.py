@@ -13,13 +13,18 @@ import yaml
 def makemAPGraph(path, augName, modelName):
     path = "./" + path
     map50s = np.load( os.path.join(path, 'graphing.npy'), allow_pickle=True )
+    map50s = map50s.item()
     with open( os.path.join(path, 'meta.yaml') , 'r') as f:
         metadata = yaml.safe_load(f)
     plt.figure(figsize=(7.5,5))
+    print(map50s)
+    print()
+    print(metadata)
+    print("=================")
 
     for i, noise in enumerate(metadata.keys()):
         xaxis = metadata[noise]
-        mAP = map50s[i]
+        mAP = map50s[noise][0]
         plt.plot(xaxis, mAP,'-o')
 
     plt.title(augName + ' vs ' + modelName + ' mAP')

@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QDialog, QDesktopWidget, QApplication
+from PyQt5.QtWidgets import QDialog, QDesktopWidget
 from PyQt5 import uic
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, QSize, Qt
-from PyQt5.QtGui import QPixmap, QIcon, QImage
+from PyQt5.QtCore import QObject, QThread, pyqtSignal, QSize
+from PyQt5.QtGui import QPixmap, QIcon
 from src.mplwidget import MplWidget
 import matplotlib.pyplot as plt
 from multiprocessing import Value
@@ -21,18 +21,18 @@ import matplotlib.pyplot as plt
 
 # eval imports:
 from src.evaluators.map_metric.lib.BoundingBoxes import BoundingBox
-from src.evaluators.map_metric.lib import BoundingBoxes
+# from src.evaluators.map_metric.lib import BoundingBoxes
 from src.evaluators.map_metric.lib.Evaluator import *
-from src.evaluators.map_metric.lib.utils import BBFormat
+# from src.evaluators.map_metric.lib.utils import BBFormat
 
 # coco api import
-from pycocotools.cocoeval import COCOeval
+# from pycocotools.cocoeval import COCOeval
 from src.utils.coco_utils import coco80_to_coco91_class
 coco_remap = coco80_to_coco91_class()
 
 def createExperimentName(savePath):
     _root_name = 'exp'
-    if not os.path.exists(savePath): os.mkdir(savePath)
+    if not os.path.exists(savePath): os.makedirs(savePath)
     _folders = os.listdir(savePath)
     if len(_folders) == 0:
         return "%s_%i"%(_root_name, 1)
@@ -119,8 +119,8 @@ class ExperimentWorker(QObject):
                 _out[aug.title] = aug.args
             yaml.dump(_out, f)
 
-    def writeGraph(self, inData, outPath):
-       #np.savetxt(os.path.join(outPath, 'graphing.csv'),inData,)
+    def writeGraph(self, inData:dict, outPath:str):
+       # TODO: figure out a better workaround for this:
        np.save(os.path.join(outPath, 'graphing.npy'), inData)
        title = ""
        for aug in self.config.mainAug:
@@ -259,8 +259,9 @@ class ExperimentWorker(QObject):
                 counter = [counter]
             else:
                 # create variables for simple counting rather than mAP calculation:
-                counter = []
+                counter = {}
                 for aug in self.config.mainAug:
+                    counter[aug.title] = []
                     count_temp = []
                     self.logProgress.emit('Augmentation: %s'%(aug.title))
                     
@@ -307,27 +308,27 @@ class ExperimentWorker(QObject):
                                 _count = self.calculateStat(dets, _count, i, os.path.splitext(imgPath.split('/')[-1])[0] ) # find the filename only
 
                         # finish COCO output and calculate mAP:
-                        if self.config.labelType == 'coco':
-                            self.logProgress.emit("\tCreating json output...")
-                            _jsonObj = json.dumps(_json)
-                            with open( os.path.join(new_sub_dir, "cocoRes.json") , "w") as outfile:
-                                outfile.write(_jsonObj)
-                            cocoDets = self.config.labels['coco'].loadRes( os.path.join(new_sub_dir, "cocoRes.json") )
-                            cocoEval = COCOeval(self.config.labels['coco'],cocoDets,'bbox')
-                            self.logProgress.emit("\tEvaluating with COCO metric...")
-                            cocoEval.params.imgIds  = _filter_id
-                            cocoEval.evaluate()
-                            cocoEval.accumulate()
-                            cocoEval.summarize()
-                            map_list = cocoEval.stats
-                            with open(os.path.join(new_sub_dir, "map.txt"), 'w') as f:
-                                for _map in map_list:
-                                    f.write("%f\n"%(_map))
-                            count_temp.append(map_list[1])
+                        # if self.config.labelType == 'coco':
+                        #     self.logProgress.emit("\tCreating json output...")
+                        #     _jsonObj = json.dumps(_json)
+                        #     with open( os.path.join(new_sub_dir, "cocoRes.json") , "w") as outfile:
+                        #         outfile.write(_jsonObj)
+                        #     cocoDets = self.config.labels['coco'].loadRes( os.path.join(new_sub_dir, "cocoRes.json") )
+                        #     cocoEval = COCOeval(self.config.labels['coco'],cocoDets,'bbox')
+                        #     self.logProgress.emit("\tEvaluating with COCO metric...")
+                        #     cocoEval.params.imgIds  = _filter_id
+                        #     cocoEval.evaluate()
+                        #     cocoEval.accumulate()
+                        #     cocoEval.summarize()
+                        #     map_list = cocoEval.stats
+                        #     with open(os.path.join(new_sub_dir, "map.txt"), 'w') as f:
+                        #         for _map in map_list:
+                        #             f.write("%f\n"%(_map))
+                        #     count_temp.append(map_list[1])
                         else:
                             if type(_count) == int: _count /= len(self.config.imagePaths)
                             count_temp.append(_count)
-                    counter.append(count_temp)
+                    counter[aug.title].append(count_temp)
 
         #if self.config.model.complexOutput:
         if useLowerThres:
@@ -439,6 +440,9 @@ class ExperimentResultWorker(QObject):
                 print(exc)
 
         _graphs = np.load(os.path.join(self.parentPath, 'graphing.npy'), allow_pickle=True)
+        _name = self.config.modelName
+        _graphs = _graphs.item()
+        _graphs = [_graphs[aug.title][0] for aug in self.config.mainAug]
 
         if self.config.modelName == 'Semantic Segmentation' and len(_graphs.shape) > 1:
             _graphs = _graphs.squeeze(2)
@@ -470,8 +474,10 @@ class ExperimentResultWorker(QObject):
             else:
                 _g = _graphs[self.augPosition]
 
-            _keys = list(graphContent.keys())
-            _items = np.array(list(graphContent.values()))
+            #_keys = list(graphContent.keys())
+            _keys = [aug.title for aug in self.config.mainAug]
+            #_items = np.array(list(graphContent.values()))
+            _items = [graphContent[aug.title] for aug in self.config.mainAug]
             _title = _keys[self.augPosition]
             #_x = [i for i in range(len(_items[self.argPosition]))]
             _x = _items[self.augPosition]
@@ -594,7 +600,7 @@ class ExperimentDialog(QDialog):
         self.worker.finished.connect(self.displayResults)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.progress.connect( lambda i: self.progressBar.setValue( ((i+1)*self._progressMove)*100 ) )
+        self.worker.progress.connect( lambda i: self.progressBar.setValue( int(((i+1)*self._progressMove)*100 )) )
         self.worker.logProgress.connect(self.insertLog)
 
         # Step 6: Start the thread
