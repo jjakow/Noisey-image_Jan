@@ -102,7 +102,7 @@ class mainWindow(QtWidgets.QMainWindow):
         # Augmentation Generator:
         #self.ui.compoundAug.setChecked(True)
         self.ui.addAug.clicked.connect(self.addWindow.show)
-        self.ui.demoAug.clicked.connect(self.addWindow.demoAug)
+        #self.ui.demoAug.clicked.connect(self.addWindow.demoAug)
         self.ui.loadAug.clicked.connect(self.addWindow.__loadFileDialog__)
         self.ui.saveAug.clicked.connect(self.addWindow.__saveFileDialog__)
         self.ui.deleteListAug.clicked.connect(self.addWindow.__deleteItem__)
@@ -153,7 +153,7 @@ class mainWindow(QtWidgets.QMainWindow):
     def listwidgetmenu(self, position):
         """menu for right clicking in the file list widget"""
         right_menu = QtWidgets.QMenu(self.ui.fileList)
-        remove_action = QtWidgets.QAction("close", self, triggered = self.closeFile)
+        remove_action = QtWidgets.QAction("Close", self, triggered = self.closeFile)
 
         right_menu.addAction(self.ui.actionOpen)
 
@@ -163,12 +163,20 @@ class mainWindow(QtWidgets.QMainWindow):
         right_menu.exec_(self.ui.fileList.mapToGlobal(position))
 
     def closeFile(self):
-        """Remoes a file from the file list widget"""
+        """Removes a file from the file list widget"""
         items = self.ui.fileList.selectedItems()
 
         for item in items:
             row = self.ui.fileList.row(item)
             self.ui.fileList.takeItem(row)
+        
+        if self.ui.fileList.count() == 0:
+            self.emptyNest = True
+            self.flipAllControls(False)
+            self.ui.original.clear()
+            self.ui.preview_2.clear()
+            self.ui.original_2.clear()
+            self.ui.preview.clear()
 
     def increaseFont(self):
         """Increses the size of font across the whole application"""
@@ -327,7 +335,30 @@ class mainWindow(QtWidgets.QMainWindow):
     def reportProgress(self, n):
         self.ui.progressBar.setValue(n)
 
+    def flipAllControls(self, value):
+        self.ui.addAug.setEnabled(value)
+        self.ui.loadAug.setEnabled(value)
+        self.ui.saveAug.setEnabled(value)
+        #self.ui.demoAug.setEnabled(value)
+        self.ui.comboBox.setEnabled(value)
+        self.ui.pushButton.setEnabled(value)
+        self.ui.pushButton_2.setEnabled(value)
+        #self.ui.pushButton_3.setEnabled(value)
+        self.ui.pushButton_4.setEnabled(value)
+        self.ui.compoundAug.setEnabled(value)
+        self.ui.checkBox_2.setEnabled(value)
+        self.ui.upListAug.setEnabled(value)
+        self.ui.downListAug.setEnabled(value)
+        self.ui.deleteListAug.setEnabled(value)
+        self.ui.listAugs.setEnabled(value)
+        return 0
+
     def change_file_selection(self, qListItem):
+        if hasattr(self, 'emptyNest'):
+            if self.emptyNest:
+                self.flipAllControls(True)
+                self.emptyNest = False
+
         if not qListItem is None:
             originalImg = cv2.imread(qListItem.data(QtCore.Qt.UserRole)['filePath'])
 

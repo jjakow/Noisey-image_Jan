@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'src\qt_designer_file\main_window.ui'
+# Form implementation generated from reading ui file 'src/qt_designer_file/main_window.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -260,12 +260,6 @@ class Ui_MainWindow(object):
         self.saveAug.setObjectName("saveAug")
         self.verticalLayout_10.addWidget(self.saveAug)
         self.horizontalLayout_3.addLayout(self.verticalLayout_10)
-        self.verticalLayout_9 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_9.setObjectName("verticalLayout_9")
-        self.horizontalLayout_3.addLayout(self.verticalLayout_9)
-        self.demoAug = QtWidgets.QPushButton(self.centralwidget)
-        self.demoAug.setObjectName("demoAug")
-        self.horizontalLayout_3.addWidget(self.demoAug)
         self.line_3 = QtWidgets.QFrame(self.centralwidget)
         self.line_3.setFrameShape(QtWidgets.QFrame.VLine)
         self.line_3.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -306,7 +300,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6.addLayout(self.gridLayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1299, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1299, 22))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -338,7 +332,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEdit.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -363,7 +357,6 @@ class Ui_MainWindow(object):
         self.addAug.setText(_translate("MainWindow", "Add Augmentations"))
         self.loadAug.setText(_translate("MainWindow", "Load Augmentations"))
         self.saveAug.setText(_translate("MainWindow", "Save Augmentations"))
-        self.demoAug.setText(_translate("MainWindow", "Demo Augmentation"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Items"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Images"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
@@ -375,3 +368,13 @@ class Ui_MainWindow(object):
         self.actionIncrease_Size.setText(_translate("MainWindow", "Increase Size"))
         self.actionDecrease_Size.setText(_translate("MainWindow", "Decrease Size"))
 from src.qlabel import Label
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

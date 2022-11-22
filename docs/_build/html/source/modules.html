@@ -4,17 +4,19 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>src &mdash; Noisey-Image  documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <title>src &mdash; Noisey-Image  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -35,11 +37,10 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p><span class="caption-text">Modules:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="main_tutorial_guide.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.html">Submodules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.mit_semseg.html">Mit Semseg Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.obj_detector.html">Object Detector Module</a></li>
 </ul>
 
@@ -56,8 +57,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>src</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">src</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/source/modules.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -68,12 +69,153 @@
            <div itemprop="articleBody">
              
   <section id="src">
-<h1>src<a class="headerlink" href="#src" title="Permalink to this headline">¶</a></h1>
+<h1>src<a class="headerlink" href="#src" title="Permalink to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src.html">Submodules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.html#module-src.models">Models Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.html#module-src.transforms">Transforms Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.html#module-src.models">Models Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.CompressiveAE"><code class="docutils literal notranslate"><span class="pre">CompressiveAE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.CompressiveAE.deinitialize"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.CompressiveAE.draw"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.CompressiveAE.draw_single_class"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.CompressiveAE.initialize"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.CompressiveAE.outputFormat"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.CompressiveAE.report_accuracy"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.CompressiveAE.run"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.DETR"><code class="docutils literal notranslate"><span class="pre">DETR</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.DETR.box_cxcywh_to_xyxy"><code class="docutils literal notranslate"><span class="pre">DETR.box_cxcywh_to_xyxy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.DETR.deinitialize"><code class="docutils literal notranslate"><span class="pre">DETR.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.DETR.draw"><code class="docutils literal notranslate"><span class="pre">DETR.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.DETR.draw_single_class"><code class="docutils literal notranslate"><span class="pre">DETR.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.DETR.initialize"><code class="docutils literal notranslate"><span class="pre">DETR.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.DETR.outputFormat"><code class="docutils literal notranslate"><span class="pre">DETR.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.DETR.read_name_file"><code class="docutils literal notranslate"><span class="pre">DETR.read_name_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.DETR.report_accuracy"><code class="docutils literal notranslate"><span class="pre">DETR.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.DETR.rescale_bboxes"><code class="docutils literal notranslate"><span class="pre">DETR.rescale_bboxes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.DETR.run"><code class="docutils literal notranslate"><span class="pre">DETR.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.EfficientDetV2"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.EfficientDetV2.deinitialize"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.EfficientDetV2.draw"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.EfficientDetV2.draw_single_class"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.EfficientDetV2.initialize"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.EfficientDetV2.outputFormat"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.EfficientDetV2.report_accuracy"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.EfficientDetV2.run"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.MTCNN"><code class="docutils literal notranslate"><span class="pre">MTCNN</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.MTCNN.deinitialize"><code class="docutils literal notranslate"><span class="pre">MTCNN.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.MTCNN.draw"><code class="docutils literal notranslate"><span class="pre">MTCNN.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.MTCNN.draw_single_class"><code class="docutils literal notranslate"><span class="pre">MTCNN.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.MTCNN.initialize"><code class="docutils literal notranslate"><span class="pre">MTCNN.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.MTCNN.outputFormat"><code class="docutils literal notranslate"><span class="pre">MTCNN.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.MTCNN.report_accuracy"><code class="docutils literal notranslate"><span class="pre">MTCNN.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.MTCNN.run"><code class="docutils literal notranslate"><span class="pre">MTCNN.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Model.deinitialize"><code class="docutils literal notranslate"><span class="pre">Model.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Model.draw"><code class="docutils literal notranslate"><span class="pre">Model.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Model.draw_single_class"><code class="docutils literal notranslate"><span class="pre">Model.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Model.initialize"><code class="docutils literal notranslate"><span class="pre">Model.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Model.outputFormat"><code class="docutils literal notranslate"><span class="pre">Model.outputFormat</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Model.report_accuracy"><code class="docutils literal notranslate"><span class="pre">Model.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Model.run"><code class="docutils literal notranslate"><span class="pre">Model.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.Segmentation"><code class="docutils literal notranslate"><span class="pre">Segmentation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Segmentation.calculateRatios"><code class="docutils literal notranslate"><span class="pre">Segmentation.calculateRatios()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Segmentation.deinitialize"><code class="docutils literal notranslate"><span class="pre">Segmentation.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Segmentation.draw"><code class="docutils literal notranslate"><span class="pre">Segmentation.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Segmentation.draw_single_class"><code class="docutils literal notranslate"><span class="pre">Segmentation.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Segmentation.initialize"><code class="docutils literal notranslate"><span class="pre">Segmentation.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Segmentation.outputFormat"><code class="docutils literal notranslate"><span class="pre">Segmentation.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Segmentation.report_accuracy"><code class="docutils literal notranslate"><span class="pre">Segmentation.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.Segmentation.run"><code class="docutils literal notranslate"><span class="pre">Segmentation.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.YOLOX"><code class="docutils literal notranslate"><span class="pre">YOLOX</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOX.deinitialize"><code class="docutils literal notranslate"><span class="pre">YOLOX.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOX.draw"><code class="docutils literal notranslate"><span class="pre">YOLOX.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOX.draw_single_class"><code class="docutils literal notranslate"><span class="pre">YOLOX.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOX.initialize"><code class="docutils literal notranslate"><span class="pre">YOLOX.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOX.outputFormat"><code class="docutils literal notranslate"><span class="pre">YOLOX.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOX.report_accuracy"><code class="docutils literal notranslate"><span class="pre">YOLOX.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOX.run"><code class="docutils literal notranslate"><span class="pre">YOLOX.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.YOLOv3"><code class="docutils literal notranslate"><span class="pre">YOLOv3</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3.deinitialize"><code class="docutils literal notranslate"><span class="pre">YOLOv3.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3.draw"><code class="docutils literal notranslate"><span class="pre">YOLOv3.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3.draw_single_class"><code class="docutils literal notranslate"><span class="pre">YOLOv3.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3.initialize"><code class="docutils literal notranslate"><span class="pre">YOLOv3.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3.outputFormat"><code class="docutils literal notranslate"><span class="pre">YOLOv3.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3.report_accuracy"><code class="docutils literal notranslate"><span class="pre">YOLOv3.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3.run"><code class="docutils literal notranslate"><span class="pre">YOLOv3.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.YOLOv3_Ultralytics"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3_Ultralytics.deinitialize"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3_Ultralytics.draw"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3_Ultralytics.draw_single_class"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3_Ultralytics.initialize"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3_Ultralytics.outputFormat"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3_Ultralytics.report_accuracy"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3_Ultralytics.run"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv3_Ultralytics.testCOCO"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.testCOCO()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.models.YOLOv4"><code class="docutils literal notranslate"><span class="pre">YOLOv4</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv4.deinitialize"><code class="docutils literal notranslate"><span class="pre">YOLOv4.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv4.draw"><code class="docutils literal notranslate"><span class="pre">YOLOv4.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv4.draw_single_class"><code class="docutils literal notranslate"><span class="pre">YOLOv4.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv4.initialize"><code class="docutils literal notranslate"><span class="pre">YOLOv4.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv4.outputFormat"><code class="docutils literal notranslate"><span class="pre">YOLOv4.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv4.report_accuracy"><code class="docutils literal notranslate"><span class="pre">YOLOv4.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.models.YOLOv4.run"><code class="docutils literal notranslate"><span class="pre">YOLOv4.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.html#module-src.transforms">Transforms Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.transforms.AugDialog"><code class="docutils literal notranslate"><span class="pre">AugDialog</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugDialog.augParameterError"><code class="docutils literal notranslate"><span class="pre">AugDialog.augParameterError()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugDialog.closeEvent"><code class="docutils literal notranslate"><span class="pre">AugDialog.closeEvent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugDialog.demoAug"><code class="docutils literal notranslate"><span class="pre">AugDialog.demoAug()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugDialog.hideCheckBox"><code class="docutils literal notranslate"><span class="pre">AugDialog.hideCheckBox()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugDialog.pipelineChanged"><code class="docutils literal notranslate"><span class="pre">AugDialog.pipelineChanged</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugDialog.show"><code class="docutils literal notranslate"><span class="pre">AugDialog.show()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.transforms.Augmentation"><code class="docutils literal notranslate"><span class="pre">Augmentation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.Augmentation.args"><code class="docutils literal notranslate"><span class="pre">Augmentation.args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.Augmentation.check"><code class="docutils literal notranslate"><span class="pre">Augmentation.check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.Augmentation.enabled"><code class="docutils literal notranslate"><span class="pre">Augmentation.enabled</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.Augmentation.exampleParam"><code class="docutils literal notranslate"><span class="pre">Augmentation.exampleParam</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.Augmentation.position"><code class="docutils literal notranslate"><span class="pre">Augmentation.position</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.Augmentation.setExampleParam"><code class="docutils literal notranslate"><span class="pre">Augmentation.setExampleParam()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.Augmentation.setParam"><code class="docutils literal notranslate"><span class="pre">Augmentation.setParam()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.Augmentation.title"><code class="docutils literal notranslate"><span class="pre">Augmentation.title</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.html#src.transforms.AugmentationPipeline"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugmentationPipeline.append"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.append()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugmentationPipeline.checkArgs"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.checkArgs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugmentationPipeline.clear"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugmentationPipeline.exists"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.exists()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugmentationPipeline.index"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.index()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugmentationPipeline.load"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.load()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugmentationPipeline.next"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.next()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugmentationPipeline.remove"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.remove()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.html#src.transforms.AugmentationPipeline.save"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.save()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -88,7 +230,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Vijay, Rus.</p>
+    <p>&#169; Copyright 2021, Vijay Rajagopal, Rus Refati.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

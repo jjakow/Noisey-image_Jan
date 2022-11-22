@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from multiprocessing import Value
 
 from makeBetterGraph import makemAPGraph
-from src.transforms import AugmentationPipeline
+from src.transforms import AugmentationPipeline, Augmentation, passthrough
 import cv2
 import os
 import re
@@ -119,8 +119,8 @@ class ExperimentWorker(QObject):
                 _out[aug.title] = aug.args
             yaml.dump(_out, f)
 
-    def writeGraph(self, inData, outPath):
-       #np.savetxt(os.path.join(outPath, 'graphing.csv'),inData,)
+    def writeGraph(self, inData:dict, outPath:str):
+       # TODO: figure out a better workaround for this:
        np.save(os.path.join(outPath, 'graphing.npy'), inData)
        title = ""
        for aug in self.config.mainAug:
@@ -209,6 +209,7 @@ class ExperimentWorker(QObject):
             self.config.model.conf_thres = 0.0001
 
         if len(self.config.mainAug) == 0:
+            counter = [[0]]
             for i, imgPath in enumerate(self.config.imagePaths):
                 if self.config.labelType == 'coco':
                     imgID = imgPath
@@ -258,8 +259,9 @@ class ExperimentWorker(QObject):
                 counter = [counter]
             else:
                 # create variables for simple counting rather than mAP calculation:
-                counter = []
+                counter = {}
                 for aug in self.config.mainAug:
+                    counter[aug.title] = []
                     count_temp = []
                     self.logProgress.emit('Augmentation: %s'%(aug.title))
                     
@@ -326,7 +328,7 @@ class ExperimentWorker(QObject):
                         else:
                             if type(_count) == int: _count /= len(self.config.imagePaths)
                             count_temp.append(_count)
-                    counter.append(count_temp)
+                    counter[aug.title].append(count_temp)
 
         #if self.config.model.complexOutput:
         if useLowerThres:
@@ -438,6 +440,9 @@ class ExperimentResultWorker(QObject):
                 print(exc)
 
         _graphs = np.load(os.path.join(self.parentPath, 'graphing.npy'), allow_pickle=True)
+        _name = self.config.modelName
+        _graphs = _graphs.item()
+        _graphs = [_graphs[aug.title][0] for aug in self.config.mainAug]
 
         if self.config.modelName == 'Semantic Segmentation' and len(_graphs.shape) > 1:
             _graphs = _graphs.squeeze(2)
@@ -469,8 +474,10 @@ class ExperimentResultWorker(QObject):
             else:
                 _g = _graphs[self.augPosition]
 
-            _keys = list(graphContent.keys())
-            _items = np.array(list(graphContent.values()))
+            #_keys = list(graphContent.keys())
+            _keys = [aug.title for aug in self.config.mainAug]
+            #_items = np.array(list(graphContent.values()))
+            _items = [graphContent[aug.title] for aug in self.config.mainAug]
             _title = _keys[self.augPosition]
             #_x = [i for i in range(len(_items[self.argPosition]))]
             _x = _items[self.augPosition]
@@ -485,7 +492,6 @@ class ExperimentDialog(QDialog):
         super(ExperimentDialog, self).__init__(parent)
         uic.loadUi('./src/qt_designer_file/experiment.ui', self)
         
-
         # create graph widget in here:
         self.graphWidget = MplWidget()
         self.graphWidget.resize(481, 301)
@@ -494,6 +500,7 @@ class ExperimentDialog(QDialog):
 
         self.progressBar.setValue(0)
         #self.textProgress.setEnabled(False)
+        self.textProgress.setReadOnly(True)
         self.config = config
         self._progressMove = 1/len(self.config.imagePaths)
         self.config.expName = createExperimentName(self.config.savePath)
@@ -509,7 +516,14 @@ class ExperimentDialog(QDialog):
         self.totalArgIdx = 0
 
         # fill in combobox:
+        if len(self.config.mainAug) == 0:
+            # pass through:
+            #"Intensity": {"function": dim_intensity, "default": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], "example":0.5},
+            _item = Augmentation( ("", passthrough), 0, args=([0],0), verbose=False, )
+            self.config.mainAug.__pipeline__.append(_item)
+
         self.totalArgIdx = len(self.config.mainAug.__pipeline__[0].args)
+        
         if self.config.isCompound: 
             self.augComboBox.setVisible(False)
         else:
@@ -546,15 +560,15 @@ class ExperimentDialog(QDialog):
         self.image_label.setVisible(state)
         self.label_7.setVisible(state)
         self.label_11.setVisible(state)
-        self.label_12.setVisible(state)
-        self.label_13.setVisible(state)
+        #self.label_12.setVisible(state)
+        #self.label_13.setVisible(state)
         self.previewBack_3.setVisible(state)
         self.previewForward_3.setVisible(state)
         #self.label_6.setVisible(state)
         #self.label_5.setVisible(state)
         #self.label_4.setVisible(state)
-        self.label_3.setVisible(state)
-        self.label_2.setVisible(state)
+        #self.label_3.setVisible(state)
+        #self.label_2.setVisible(state)
         self.label.setVisible(state)
         self.previewBack.setVisible(state)
         self.previewForward.setVisible(state)
@@ -563,6 +577,7 @@ class ExperimentDialog(QDialog):
         #self.graphImage.setVisible(state)
         self.previewImage.setVisible(state)
         self.graphWidget.setVisible(state)
+        self.noise_type_label.setVisible(state)
         
         # Opposite:
         self.progressBar.setVisible(not state)
@@ -595,12 +610,14 @@ class ExperimentDialog(QDialog):
         self.thread.quit()
 
         # update metadata on the labels:
-        self.label_3.setText(str(len(self.config.imagePaths)))
+        #self.label_3.setText(str(len(self.config.imagePaths)))
         #self.label_6.setText(str(self.totalGraphs))
-        self.label.setText(str(self.currentIdx+1))
+        self.label.setText("%i of %i"%(self.currentIdx+1, len(self.config.imagePaths)))
         #self.label_4.setText(str(self.currentGraphIdx+1))
-        self.label_13.setText(str(self.totalArgIdx))
-        self.label_11.setText(str(self.currentArgIdx+1))
+        #self.label_13.setText(str(self.totalArgIdx))
+        #self.label_11.setText(str(self.currentArgIdx+1))
+        self.label_11.setText("%i of %i"%(self.currentArgIdx+1, self.totalArgIdx))
+        self.graphGrid.setColumnMinimumWidth(0,600)
 
         self.__setPreviews__(True)
         self.refreshImageResults(0)
@@ -615,9 +632,9 @@ class ExperimentDialog(QDialog):
             if self.currentArgIdx >= self.totalArgIdx:
                 self.currentArgIdx = self.totalArgIdx-1
                 #i = self.currentIdx
-                self.label_11.setText(str(self.currentArgIdx+1))
+                self.label_11.setText("%i of %i"%(self.currentArgIdx+1, self.totalArgIdx))
             self.worker = ExperimentResultWorker(self.config.imagePaths[i], self.config, self.config.expName, argPosition=self.currentArgIdx, augPosition=augPosition)
-            self.label_13.setText(str(self.totalArgIdx))
+            #self.label_13.setText(str(self.totalArgIdx))
 
         self.worker.moveToThread(self.afterExpThread)
         self.afterExpThread.started.connect(self.worker.run)
@@ -654,7 +671,7 @@ class ExperimentDialog(QDialog):
 
     def updateImage(self, img):
         self.previewImage.setIcon(QIcon(img))
-        self.previewImage.setIconSize(QSize(500,500))
+        self.previewImage.setIconSize(QSize(300,300))
 
     def updateGraph(self, ax_list):
         fig, ax = ax_list
@@ -692,13 +709,13 @@ class ExperimentDialog(QDialog):
     def changeOnImageButton(self, i):
         if self.currentIdx+i < len(self.config.imagePaths) and self.currentIdx+i >= 0:
             self.currentIdx += i
-            self.label.setText(str(self.currentIdx+1))
+            self.label.setText("%i of %i"%(self.currentIdx+1, len(self.config.imagePaths)))
             self.refreshImageResults(self.currentIdx)
 
     def changeOnImageAugButton(self, i):
         if self.currentArgIdx+i < self.totalArgIdx and self.currentArgIdx+i >= 0:
             self.currentArgIdx += i
-            self.label_11.setText(str(self.currentArgIdx+1))
+            self.label_11.setText("%i of %i"%(self.currentArgIdx+1, self.totalArgIdx))
             self.refreshImageResults(self.currentIdx)
 
     def changeOnGraphButton(self, i):
@@ -709,25 +726,8 @@ class ExperimentDialog(QDialog):
 
     def closeEvent(self, event):
         with self.threadDone.get_lock():
-            if not self.threadDone.value:
-                '''
-                reply = QMessageBox.question(self, 'Question',
-                    "Are you sure you want to close the application?",
-                    QMessageBox.Yes,
-                    QMessageBox.No)
-                if reply == QMessageBox.Yes:
-                    if self.thread:
-                        self.thread.terminate()
-                        self.thread.quit()
-                    del self.thread
-                    #super(ExperimentDialog, self).closeEvent(event)
-                    self.closeEvent(event)
-                else:
-                    event.ignore()
-                '''
-                self.close()
-            else:
-                self.close()
+            self.graphGrid.setColumnMinimumWidth(0,0)
+            self.close()
 
     def _stop_thread(self):
         #self.stop_update.setVisible(False)
