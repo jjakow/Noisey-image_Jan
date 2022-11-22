@@ -453,6 +453,7 @@ class ExperimentResultWorker(QObject):
                 _graphs = _graphs.squeeze(0)
                 _graphs = np.transpose(_graphs, (1,0))
 
+            _items = [graphContent[aug.title] for aug in self.config.mainAug]
             _title = ", ".join(list(graphContent.keys()))
             _items = list(graphContent.values())
             argLen = len(_items[0])
