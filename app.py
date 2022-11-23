@@ -9,9 +9,11 @@ except ImportError:
 import os
 from pathlib import Path
 import sys
+from queue import Queue
 
 # PyQt5
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QMessageBox
 from src.window import Ui_MainWindow
 from PyQt5.QtCore import Qt
@@ -24,7 +26,7 @@ from src.transforms import AugDialog, mainAug
 from src.experimentDialog import ExperimentConfig, ExperimentDialog
 from src import models
 from src.utils.weights import Downloader
-# from src.dataParser import *
+from src.dataParser import ReadYAMLProgressWindow, yamlWorker
 
 CURRENT_PATH = str(Path(__file__).parent.absolute()) + '/'
 TEMP_PATH = CURRENT_PATH + 'src/tmp_results/'
@@ -145,10 +147,10 @@ class mainWindow(QtWidgets.QMainWindow):
         self.label_eval = None
 
         # yaml stuff:
-        # self.yamlThread = QThread()
-        # self.yamlProgress = ReadYAMLProgressWindow()
-        # self.yamlQueue = Queue()
-        # self.yamlWorker = yamlWorker(self.yamlQueue)
+        self.yamlThread = QThread()
+        self.yamlProgress = ReadYAMLProgressWindow()
+        self.yamlQueue = Queue()
+        self.yamlWorker = yamlWorker(self.yamlQueue)
 
     def listwidgetmenu(self, position):
         """menu for right clicking in the file list widget"""

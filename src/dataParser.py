@@ -1,29 +1,21 @@
 # System libs
 import os
 import yaml
-import json
-import argparse
 import numpy as np
 import xml.etree.ElementTree as ET
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, Qt
+from PyQt5.QtCore import QObject, pyqtSignal
 from multiprocessing import Queue
 import time
 
 # PyQt5
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QFileDialog, QListWidgetItem, QMessageBox, QWidget
+from PyQt5.QtWidgets import QDialog
 from PyQt5 import uic
-
-# import utilities:
-from src.yamlDialog import Ui_Dialog
 
 # eval:
 from src.evaluators.map_metric.lib.BoundingBox import BoundingBox
 
 # COCO:
 from pycocotools.coco import COCO
-from pycocotools.cocoeval import COCOeval
 
 class ReadYAMLProgressWindow(QDialog):
     def __init__(self, *args, **kwargs):

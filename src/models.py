@@ -30,10 +30,10 @@ from src.mtcnn import visualization_utils as mtcnn_utils
 from PIL import Image
 
 # import mAP eval:
-# from src.evaluators.map_metric.lib.BoundingBoxes import BoundingBox
-# from src.evaluators.map_metric.lib import BoundingBoxes
-# from src.evaluators.map_metric.lib.Evaluator import *
-# from src.evaluators.map_metric.lib.utils import BBFormat
+from src.evaluators.map_metric.lib.BoundingBoxes import BoundingBox
+from src.evaluators.map_metric.lib import BoundingBoxes
+from src.evaluators.map_metric.lib.Evaluator import *
+from src.evaluators.map_metric.lib.utils import BBFormat
 
 # import efficientNetV2
 # from src.effdet import create_model
