@@ -8,7 +8,6 @@ import io
 import src.models
 import numpy as np
 import cv2
-import atexit
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
 
