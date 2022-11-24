@@ -8,6 +8,7 @@ import io
 import src.models
 import numpy as np
 import cv2
+import atexit
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
 
@@ -350,7 +351,7 @@ def webp_transform(image, quality=10, return_encoded=False):
     Encodes the image using Webp image compression. 
     
         |Parameters: 
-            |image (numpy array): The original input image
+            |   image (numpy array): The original input image
             |quality (float): The quality factor for the image
         
         |Returns: 
@@ -400,10 +401,16 @@ def ffmpeg_h264_to_tmp_video(i0, quant_lvl):
     i1 = cv2.imencode('.png', i0)[1]
     io_buf = io.BytesIO(i1)
     img_bytes = io_buf.getbuffer().tobytes()
-    i0_fp = tempfile.NamedTemporaryFile(delete=True, suffix=".png")
+    if os.name == 'nt':
+        i0_fp = tempfile.NamedTemporaryFile(delete=False, suffix=".png", mode='wb')
+    else:
+        i0_fp = tempfile.NamedTemporaryFile(delete=True, suffix=".png", mode='wb')
     i0_fp.write(img_bytes)
 
-    fp = tempfile.NamedTemporaryFile(delete=True, suffix=".mp4")
+    if os.name == 'nt':
+        fp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4", mode='wb')
+    else:
+        fp = tempfile.NamedTemporaryFile(delete=True, suffix=".mp4", mode='wb')
     output_file = fp.name
     stream = ffmpeg.input(i0_fp.name)
     stream = ffmpeg.output(stream, output_file, vcodec="libx264", qp=quant_lvl, vf="format=yuv444p,scale=%i:%i"%(w,h))
@@ -415,9 +422,15 @@ def ffmpeg_h264_to_tmp_video(i0, quant_lvl):
         ret, _frame = cap.read()
         if not ret: break
         else: frame = _frame
+    cap.release()
     
     i0_fp.close()
     fp.close()
+
+    if os.name == 'nt':
+        os.unlink(i0_fp.name)
+        os.unlink(fp.name)
+
     return frame
 
 def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
@@ -427,10 +440,18 @@ def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
     i1 = cv2.imencode('.png', i0)[1]
     io_buf = io.BytesIO(i1)
     img_bytes = io_buf.getbuffer().tobytes()
-    i0_fp = tempfile.NamedTemporaryFile(delete=True, suffix=".png")
+    if os.name == 'nt':
+        i0_fp = tempfile.NamedTemporaryFile(delete=False, suffix=".png", mode='wb')
+    else:
+        i0_fp = tempfile.NamedTemporaryFile(delete=True, suffix=".png", mode='wb')
+
     i0_fp.write(img_bytes)
 
-    fp = tempfile.NamedTemporaryFile(delete=True, suffix=".mp4")
+    if os.name == 'nt':
+        fp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4", mode='wb')
+    else:
+        fp = tempfile.NamedTemporaryFile(delete=True, suffix=".mp4", mode='wb')
+
     output_file = fp.name
     stream = ffmpeg.input(i0_fp.name)
     if quant_lvl+3 > 51: quant_lvl = 51
@@ -444,9 +465,15 @@ def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
         ret, _frame = cap.read()
         if not ret: break
         else: frame = _frame
-    
+    cap.release()
+        
     i0_fp.close()
     fp.close()
+
+    if os.name == 'nt':
+        os.unlink(i0_fp.name)
+        os.unlink(fp.name)
+
     return frame
 
 def cae(image, patches):  
