@@ -157,10 +157,8 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addLayout(self.horizontalLayout, 0, 0, 1, 1)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.checkBox_2 = QtWidgets.QCheckBox(self.centralwidget)
-        self.checkBox_2.setObjectName("checkBox_2")
-        self.horizontalLayout_2.addWidget(self.checkBox_2)
         self.compoundAug = QtWidgets.QCheckBox(self.centralwidget)
+        self.compoundAug.setEnabled(False)
         self.compoundAug.setObjectName("compoundAug")
         self.horizontalLayout_2.addWidget(self.compoundAug)
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
@@ -332,7 +330,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEdit.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -347,7 +345,6 @@ class Ui_MainWindow(object):
         self.pushButton_4.setText(_translate("MainWindow", "Default"))
         self.pushButton_3.setText(_translate("MainWindow", "Exit"))
         self.label_3.setText(_translate("MainWindow", "Select a model:"))
-        self.checkBox_2.setText(_translate("MainWindow", "Display result on a separate window"))
         self.compoundAug.setText(_translate("MainWindow", "Compound Augmentations"))
         self.label_9.setText(_translate("MainWindow", "Noisy"))
         self.label_11.setText(_translate("MainWindow", "Augmented Detections"))
@@ -368,13 +365,3 @@ class Ui_MainWindow(object):
         self.actionIncrease_Size.setText(_translate("MainWindow", "Increase Size"))
         self.actionDecrease_Size.setText(_translate("MainWindow", "Decrease Size"))
 from src.qlabel import Label
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())

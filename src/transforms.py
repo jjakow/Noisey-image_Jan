@@ -1,4 +1,5 @@
-from PyQt5.QtCore import QObject, pyqtSignal, Qt, QSize, QVariant
+from PyQt5.QtCore import pyqtSignal, Qt, QSize
+from PyQt5.QtGui import QFont, QPalette
 from src.utils.qt5extra import CheckState
 
 from PyQt5.QtWidgets import QDialog, QFileDialog, QListWidgetItem, QMessageBox
@@ -106,6 +107,7 @@ class AugmentationPipeline():
         self.__index__ = 0
         self.__pipeline__ = []
         self.__line_pos__ = []
+        self.__line_text__ = []
         self.__wrapper__()
 
     def __wrapper__(self):
@@ -116,6 +118,7 @@ class AugmentationPipeline():
                 self.__keys__.append(item[0])
             else:
                 self.__line_pos__.append(pos)
+                self.__line_text__.append(item[1]['line'])
 
     def __len__(self):
         return len(self.__pipeline__)
@@ -277,6 +280,7 @@ class AugDialog(QDialog):
         _btn2.clicked.connect(self.close)
         # example rerun:
         self.runExample.clicked.connect(lambda: self.__loadAugSelection__(self.listWidget.currentItem()))
+        self.listWidget.setStyleSheet( "QListWidget::item { color: rgb(0,0,0) }" );
 
     def __loadEvents__(self):
         self.listWidget.itemClicked.connect(self.__loadAugSelection__)
@@ -298,13 +302,19 @@ class AugDialog(QDialog):
         x = errorBox.exec_()
 
     def __loadAugs__(self):
+        j = 0
+        _title_font = QFont()
+        _title_font.setBold(True)
+        
         for i, aug in enumerate(mainAug.__augList__):
             if i in mainAug.__line_pos__:
                 _line = QListWidgetItem()
                 _line.setFlags(Qt.NoItemFlags)
-                _line.setSizeHint(QSize(-1, 2))
-                _line.setText("Test")
+                _line.setSizeHint(QSize(-1, 20))
+                _line.setFont(_title_font)
+                _line.setText(mainAug.__line_text__[j])
                 self.listWidget.addItem(_line)
+                j += 1
 
             _item = QListWidgetItem()
             _item.setText(aug.title)

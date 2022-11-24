@@ -9,9 +9,11 @@ except ImportError:
 import os
 from pathlib import Path
 import sys
+from queue import Queue
 
 # PyQt5
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QMessageBox
 from src.window import Ui_MainWindow
 from PyQt5.QtCore import Qt
@@ -24,7 +26,7 @@ from src.transforms import AugDialog, mainAug
 from src.experimentDialog import ExperimentConfig, ExperimentDialog
 from src import models
 from src.utils.weights import Downloader
-# from src.dataParser import *
+from src.dataParser import ReadYAMLProgressWindow, yamlWorker
 
 CURRENT_PATH = str(Path(__file__).parent.absolute()) + '/'
 TEMP_PATH = CURRENT_PATH + 'src/tmp_results/'
@@ -34,9 +36,8 @@ class Worker(QtCore.QObject):
     finished = QtCore.pyqtSignal(tuple)
     progress = QtCore.pyqtSignal(int)
 
-    def setup(self, files, ifDisplay, model_type, listWidget):
+    def setup(self, files, model_type, listWidget):
         self.files = files
-        self.ifDisplay = ifDisplay
         self.listWidget = listWidget
         #assert model_type == 'segmentation' or model_type == 'yolov3', "Model Type %s is not a defined term!"%(model_type)
         self.model_type = model_type
@@ -145,10 +146,10 @@ class mainWindow(QtWidgets.QMainWindow):
         self.label_eval = None
 
         # yaml stuff:
-        # self.yamlThread = QThread()
-        # self.yamlProgress = ReadYAMLProgressWindow()
-        # self.yamlQueue = Queue()
-        # self.yamlWorker = yamlWorker(self.yamlQueue)
+        self.yamlThread = QThread()
+        self.yamlProgress = ReadYAMLProgressWindow()
+        self.yamlQueue = Queue()
+        self.yamlWorker = yamlWorker(self.yamlQueue)
 
     def listwidgetmenu(self, position):
         """menu for right clicking in the file list widget"""
@@ -346,7 +347,7 @@ class mainWindow(QtWidgets.QMainWindow):
         #self.ui.pushButton_3.setEnabled(value)
         self.ui.pushButton_4.setEnabled(value)
         self.ui.compoundAug.setEnabled(value)
-        self.ui.checkBox_2.setEnabled(value)
+        #self.ui.checkBox_2.setEnabled(value)
         self.ui.upListAug.setEnabled(value)
         self.ui.downListAug.setEnabled(value)
         self.ui.deleteListAug.setEnabled(value)
@@ -496,10 +497,10 @@ class mainWindow(QtWidgets.QMainWindow):
         self.worker = Worker()
 
         #detectedNames = {"all": [255,255,255]}
-        display_sep = self.ui.checkBox_2.isChecked()
+        #display_sep = self.ui.checkBox_2.isChecked()
         comboModelType = self.ui.comboBox.currentText()
 
-        self.worker.setup((img, noiseImg), display_sep, comboModelType, qListItem)
+        self.worker.setup((img, noiseImg), comboModelType, qListItem)
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
         self.worker.finished.connect(self.thread.quit)
@@ -564,7 +565,7 @@ class mainWindow(QtWidgets.QMainWindow):
         # self.addWindow.__applyConfig__()
         # self.addWindow.__updateViewer__()
         # self.addWindow.__reloadAugs__()
-        self.ui.checkBox_2.setChecked(False)
+        #self.ui.checkBox_2.setChecked(False)
         self.ui.compoundAug.setChecked(False)
         self.ui.comboBox.setCurrentIndex(0)
     
