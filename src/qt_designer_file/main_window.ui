@@ -336,14 +336,10 @@
         <item row="2" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QCheckBox" name="checkBox_2">
-            <property name="text">
-             <string>Display result on a separate window</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QCheckBox" name="compoundAug">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Compound Augmentations</string>
             </property>

@@ -230,7 +230,7 @@ class ExperimentWorker(QObject):
                 # apply sequentially (all args must be of the same length):
                 maxArgLen = len(self.config.mainAug.__pipeline__[0].args)
                 # create variables for simple counting rather than mAP calculation:
-                counter = []
+                counter = {}
                 for j in range(maxArgLen):
                     _count = None
                     for i, imgPath in enumerate(self.config.imagePaths):
@@ -248,7 +248,7 @@ class ExperimentWorker(QObject):
                             _img = aug(_img, _args[j])
         
                         dets = self.config.model.run(_img)
-                        _count = self.calculateStat(dets, _count, i)
+                        _count = self.calculateStat(dets, _count, i, os.path.splitext(imgPath.split('/')[-1])[0])
 
                         self.writeDets(dets, os.path.join(self.savePath, exp_path, j_subFolder), imgPath)
                         self.logProgress.emit('Progress: (%i/%i)'%(i,len(self.config.imagePaths)))
@@ -256,7 +256,7 @@ class ExperimentWorker(QObject):
 
                     if type(_count) == int: _count /= len(self.config.imagePaths)
                     counter.append(_count)
-                counter = [counter]
+                counter[aug.title] = [counter]
             else:
                 # create variables for simple counting rather than mAP calculation:
                 counter = {}
