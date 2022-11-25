@@ -111,11 +111,13 @@ class AugmentationPipeline():
         self.__wrapper__()
 
     def __wrapper__(self):
+        aug_pos = 0
         for pos, item in enumerate(self.__list__.items()):
             if not "line" in item[1]:
-                _item = Augmentation( (item[0], item[1]["function"]), pos, args=(item[1]["default"], item[1]["example"]), verbose=False, limit=item[1]['limits'])
+                _item = Augmentation( (item[0], item[1]["function"]), aug_pos, args=(item[1]["default"], item[1]["example"]), verbose=False, limit=item[1]['limits'])
                 self.__augList__.append(_item)
                 self.__keys__.append(item[0])
+                aug_pos += 1
             else:
                 self.__line_pos__.append(pos)
                 self.__line_text__.append(item[1]['line'])
@@ -166,10 +168,13 @@ class AugmentationPipeline():
 
     def remove(self, aug_title):
         augIndex = self.__keys__.index(aug_title)
+        print(augIndex, self.__keys__, aug_title)
         for i, aug in enumerate(self.__pipeline__):
+            print(aug.title, aug.position)
             if aug.position == augIndex:
                 self.__pipeline__.remove(aug)
                 break
+
 
     def clear(self):
         self.__pipeline__.clear()
