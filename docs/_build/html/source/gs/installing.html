@@ -45,6 +45,7 @@
 <li class="toctree-l2"><a class="reference internal" href="starting.html">Introduction</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Installation Process</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#source-installation">Source Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#build-to-windows-installation">Build to Windows Installation</a></li>
 </ul>
 </li>
 </ul>
@@ -90,7 +91,7 @@
 <li><p>CUDA-enabled GPU (optional)</p></li>
 <li><p>Qt5 Packages (can be installed through <cite>conda</cite>)</p></li>
 <li><p>PyTorch &gt;= 1.7 (and associating Torchvision version)</p></li>
-<li><p>Tested on Pop OS 20.04 LTS (you might find GUI elements misplaced on Windows and Mac OS)</p></li>
+<li><p>Tested on Pop OS 20.04 LTS (you might find GUI elements being visually different on Windows or Mac OS)</p></li>
 </ul>
 <p><strong>Anaconda Steps:</strong></p>
 <ol class="arabic simple">
@@ -119,6 +120,15 @@
 </dl>
 </li>
 </ol>
+</section>
+<section id="build-to-windows-installation">
+<h2>Build to Windows Installation<a class="headerlink" href="#build-to-windows-installation" title="Permalink to this heading"></a></h2>
+<p>This application can be exported to a traditional executable program for various operating system. This can be helpful for distribution to individuals that are unfamiliar with Python and its environment setup.
+To package this project into a portable executable program, we utilize <strong>PyInstaller</strong> to isolate the Python interpreter and the Python packages utilized in the Augmentation GUI.</p>
+<p>We have created a simple specification file (<code class="code docutils literal notranslate"><span class="pre">app.sec</span></code>) that helps gather different packages properly. Run the following command to execute the spec file:
+<code class="code docutils literal notranslate"><span class="pre">pyinstaller</span> <span class="pre">app.spec</span></code></p>
+<p>PyInstaller will output an isolated version of the Augmentation GUI into a folder called “dist”. If you take a look into the folder, you will see all the familiar Python project files in addition to</p>
+<p>Additionally, we use <strong>Inno Setup 6</strong> to take the PyInstaller output and convert it into a Windows-specific file, such as a Setup Wizard for installation. Inno Setup also wraps everything up into a single exe file that many Windows users are familiar with.</p>
 </section>
 </section>
 

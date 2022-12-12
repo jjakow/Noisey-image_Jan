@@ -46,6 +46,8 @@ To test different augmentations and different parameters, click the "Add Augment
 Running Experiments
 +++++++++++++++
 
+Once your list of augmentations and parameters for each augmentation is set, the experiment can be executed by pressing the "Run Model" button on the main window.
+
 
 Launching from Executable
 -----------------

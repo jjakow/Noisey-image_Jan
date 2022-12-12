@@ -41,6 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="main_gs_guide.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="main_tutorial_guide.html">Tutorials</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Submodules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.models">Models Module</a><ul>
@@ -95,17 +96,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#src.models.Model.outputFormat"><code class="docutils literal notranslate"><span class="pre">Model.outputFormat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#src.models.Model.report_accuracy"><code class="docutils literal notranslate"><span class="pre">Model.report_accuracy()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#src.models.Model.run"><code class="docutils literal notranslate"><span class="pre">Model.run()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#src.models.Segmentation"><code class="docutils literal notranslate"><span class="pre">Segmentation</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#src.models.Segmentation.calculateRatios"><code class="docutils literal notranslate"><span class="pre">Segmentation.calculateRatios()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#src.models.Segmentation.deinitialize"><code class="docutils literal notranslate"><span class="pre">Segmentation.deinitialize()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#src.models.Segmentation.draw"><code class="docutils literal notranslate"><span class="pre">Segmentation.draw()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#src.models.Segmentation.draw_single_class"><code class="docutils literal notranslate"><span class="pre">Segmentation.draw_single_class()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#src.models.Segmentation.initialize"><code class="docutils literal notranslate"><span class="pre">Segmentation.initialize()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#src.models.Segmentation.outputFormat"><code class="docutils literal notranslate"><span class="pre">Segmentation.outputFormat()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#src.models.Segmentation.report_accuracy"><code class="docutils literal notranslate"><span class="pre">Segmentation.report_accuracy()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#src.models.Segmentation.run"><code class="docutils literal notranslate"><span class="pre">Segmentation.run()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#src.models.YOLOX"><code class="docutils literal notranslate"><span class="pre">YOLOX</span></code></a><ul>
@@ -163,13 +153,13 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#src.transforms.Augmentation"><code class="docutils literal notranslate"><span class="pre">Augmentation</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.args"><code class="docutils literal notranslate"><span class="pre">Augmentation.args</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.check"><code class="docutils literal notranslate"><span class="pre">Augmentation.check()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.enabled"><code class="docutils literal notranslate"><span class="pre">Augmentation.enabled</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.exampleParam"><code class="docutils literal notranslate"><span class="pre">Augmentation.exampleParam</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.position"><code class="docutils literal notranslate"><span class="pre">Augmentation.position</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.setExampleParam"><code class="docutils literal notranslate"><span class="pre">Augmentation.setExampleParam()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.setParam"><code class="docutils literal notranslate"><span class="pre">Augmentation.setParam()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.title"><code class="docutils literal notranslate"><span class="pre">Augmentation.title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.valid"><code class="docutils literal notranslate"><span class="pre">Augmentation.valid()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#src.transforms.AugmentationPipeline"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline</span></code></a><ul>
@@ -469,54 +459,6 @@ Requirment: The network needs to be fitted in four main funtions: run, initializ
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="src.models.Segmentation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">Segmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Segmentation" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#src.models.Model" title="src.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
-<p>Segmentation Model that inherits the Model class
-It specifies its four main functions: run, initialize, deinitialize, and draw.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.Segmentation.calculateRatios">
-<span class="sig-name descname"><span class="pre">calculateRatios</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dets</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Segmentation.calculateRatios" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.Segmentation.deinitialize">
-<span class="sig-name descname"><span class="pre">deinitialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Segmentation.deinitialize" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.Segmentation.draw">
-<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Segmentation.draw" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.Segmentation.draw_single_class">
-<span class="sig-name descname"><span class="pre">draw_single_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Segmentation.draw_single_class" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.Segmentation.initialize">
-<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Segmentation.initialize" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.Segmentation.outputFormat">
-<span class="sig-name descname"><span class="pre">outputFormat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Segmentation.outputFormat" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.Segmentation.report_accuracy">
-<span class="sig-name descname"><span class="pre">report_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_truth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Segmentation.report_accuracy" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.models.Segmentation.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Segmentation.run" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="src.models.YOLOX">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">YOLOX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOX" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.models.Model" title="src.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
@@ -782,11 +724,6 @@ gt (list): A list of BoundingBox objects representing each object in the ground 
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#src.transforms.Augmentation.args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="src.transforms.Augmentation.check">
-<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.Augmentation.check" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="src.transforms.Augmentation.enabled">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled</span></span><a class="headerlink" href="#src.transforms.Augmentation.enabled" title="Permalink to this definition"></a></dt>
@@ -815,6 +752,11 @@ gt (list): A list of BoundingBox objects representing each object in the ground 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.transforms.Augmentation.title">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#src.transforms.Augmentation.title" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.Augmentation.valid">
+<span class="sig-name descname"><span class="pre">valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.Augmentation.valid" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
