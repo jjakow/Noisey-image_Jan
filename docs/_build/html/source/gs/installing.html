@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation Process &mdash; Noisey-Image  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tutorials" href="../main_tutorial_guide.html" />
+    <link rel="prev" title="Introduction" href="starting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Noisey-Image
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../main_gs_guide.html">Getting Started</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="starting.html">Introduction</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Installation Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#source-installation">Source Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#build-to-windows-installation">Build to Windows Installation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../main_tutorial_guide.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../src.obj_detector.html">Object Detector Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Noisey-Image</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../main_gs_guide.html">Getting Started</a></li>
+      <li class="breadcrumb-item active">Installation Process</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/source/gs/installing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation-process">
+<h1>Installation Process<a class="headerlink" href="#installation-process" title="Permalink to this heading"></a></h1>
+<section id="source-installation">
+<h2>Source Installation<a class="headerlink" href="#source-installation" title="Permalink to this heading"></a></h2>
+<p>To recreate the development environment to run and edit this project, it is highly recommended you installed Anaconda for package and Python version management. Creating an venv will also work, but pip package versions might not have correct conflict resolutions.</p>
+<p><strong>Optimal Environment:</strong></p>
+<ul class="simple">
+<li><p>Python 3.7</p></li>
+<li><p>CUDA-enabled GPU (optional)</p></li>
+<li><p>Qt5 Packages (can be installed through <cite>conda</cite>)</p></li>
+<li><p>PyTorch &gt;= 1.7 (and associating Torchvision version)</p></li>
+<li><p>Tested on Pop OS 20.04 LTS (you might find GUI elements being visually different on Windows or Mac OS)</p></li>
+</ul>
+<p><strong>Anaconda Steps:</strong></p>
+<ol class="arabic simple">
+<li><p>Start an Anaconda shell</p></li>
+<li><p>Create an environment: <code class="code docutils literal notranslate"><span class="pre">conda</span> <span class="pre">create</span> <span class="pre">--name</span> <span class="pre">noisey</span> <span class="pre">python=3.7</span></code></p></li>
+<li><p>Installing FFMPEG and libx264: <code class="code docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">x264</span> <span class="pre">ffmpeg=4.0.2</span> <span class="pre">-c</span> <span class="pre">conda-forge</span></code></p></li>
+<li><dl class="simple">
+<dt>Installing torch:</dt><dd><ul class="simple">
+<li><p>(CUDA): <code class="code docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">pytorch</span> <span class="pre">torchvision</span> <span class="pre">torchaudio</span> <span class="pre">cudatoolkit=11.3</span> <span class="pre">-c</span> <span class="pre">pytorch</span></code> (adjust CUDA versions to your system’s driver version)</p></li>
+<li><p>(CPU-only): <code class="code docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">pytorch</span> <span class="pre">torchvision</span> <span class="pre">torchaudio</span> <span class="pre">cpuonly</span> <span class="pre">-c</span> <span class="pre">pytorch</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Install required packages: <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p></li>
+</ol>
+<p><strong>virtualenv Steps:</strong></p>
+<ol class="arabic simple">
+<li><p>Create an environment: <code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">[NAME_OF_ENVIRONMENT]</span></code></p></li>
+<li><p>Activate environment (OS-dependent; <a class="reference external" href="https://www.infoworld.com/article/3239675/virtualenv-and-venv-python-virtual-environments-explained.html">Link more info here - scroll down to “Activate […]” section</a>)</p></li>
+<li><dl class="simple">
+<dt>Install packages via pip: <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></dt><dd><ul class="simple">
+<li><p>NOTE: If pip complains about versions not existing and displays a version warning message, please update pip in your venv</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</section>
+<section id="build-to-windows-installation">
+<h2>Build to Windows Installation<a class="headerlink" href="#build-to-windows-installation" title="Permalink to this heading"></a></h2>
+<p>This application can be exported to a traditional executable program for various operating system. This can be helpful for distribution to individuals that are unfamiliar with Python and its environment setup.
+To package this project into a portable executable program, we utilize <strong>PyInstaller</strong> to isolate the Python interpreter and the Python packages utilized in the Augmentation GUI.</p>
+<p>We have created a simple specification file (<code class="code docutils literal notranslate"><span class="pre">app.sec</span></code>) that helps gather different packages properly. Run the following command to execute the spec file:
+<code class="code docutils literal notranslate"><span class="pre">pyinstaller</span> <span class="pre">app.spec</span></code></p>
+<p>PyInstaller will output an isolated version of the Augmentation GUI into a folder called “dist”. If you take a look into the folder, you will see all the familiar Python project files in addition to</p>
+<p>Additionally, we use <strong>Inno Setup 6</strong> to take the PyInstaller output and convert it into a Windows-specific file, such as a Setup Wizard for installation. Inno Setup also wraps everything up into a single exe file that many Windows users are familiar with.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="starting.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../main_tutorial_guide.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Vijay Rajagopal, Rus Refati.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

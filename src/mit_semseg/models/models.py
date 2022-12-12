@@ -4,7 +4,6 @@ from . import resnet, resnext, mobilenet, hrnet
 from src.mit_semseg.lib.nn import SynchronizedBatchNorm2d
 BatchNorm2d = SynchronizedBatchNorm2d
 
-
 class SegmentationModuleBase(nn.Module):
     def __init__(self):
         super(SegmentationModuleBase, self).__init__()
@@ -30,6 +29,7 @@ class SegmentationModule(SegmentationModuleBase):
         # added the following for training on 1 gpu
         # if the dataset is loaded as a list, this will
         # raise a TypeError while trying to access it as a dictionary.
+        
         if type(feed_dict) is list:
             feed_dict = feed_dict[0]
             # also, convert to torch.cuda.FloatTensor

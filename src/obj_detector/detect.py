@@ -25,6 +25,25 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.ticker import NullLocator
 
+class Colors:
+    # Ultralytics color palette https://ultralytics.com/
+    def __init__(self):
+        # hex = matplotlib.colors.TABLEAU_COLORS.values()
+        hex = ('FF3838', 'FF9D97', 'FF701F', 'FFB21D', 'CFD231', '48F90A', '92CC17', '3DDB86', '1A9334', '00D4BB',
+               '2C99A8', '00C2FF', '344593', '6473FF', '0018EC', '8438FF', '520085', 'CB38FF', 'FF95C8', 'FF37C7')
+        self.palette = [self.hex2rgb('#' + c) for c in hex]
+        self.n = len(self.palette)
+
+    def __call__(self, i, bgr=False):
+        c = self.palette[int(i) % self.n]
+        return (c[2], c[1], c[0]) if bgr else c
+
+    @staticmethod
+    def hex2rgb(h):  # rgb order (PIL)
+        return tuple(int(h[1 + i:1 + i + 2], 16) for i in (0, 2, 4))
+
+colors = Colors()  # create instance for 'from utils.plots import colors'
+
 
 def detect_directory(model_path, weights_path, img_path, classes, output_path,
                      batch_size=8, img_size=416, n_cpu=8, conf_thres=0.5, nms_thres=0.5):
@@ -90,6 +109,8 @@ def detect_image(model, image, img_size=416, conf_thres=0.5, nms_thres=0.5):
 
     if torch.cuda.is_available():
         input_img = input_img.to("cuda")
+    else:
+        input_img = input_img.cpu()
 
     # Get detections
     with torch.no_grad():
@@ -242,32 +263,89 @@ def _draw_and_return_output_image(image, detections, img_size, classes):
     """
     # Create plot
     org_img = np.copy(image)
-    #plt.figure()
-    #fig, ax = plt.subplots(1)
-    #ax.imshow(org_img)
-    # Rescale boxes to original image
-    #detections = rescale_boxes(detections, img_size, org_img.shape[:2])
-    unique_labels = detections[:, -1].unique() # assume detections are in cpu already
-    n_cls_preds = len(unique_labels)
+    lw = max(round(sum(org_img.shape) / 2 * 0.003), 2)
+    detectedNames = {"all": [255,255,255]}
 
-    # Bounding-box colors
-    cmap = plt.get_cmap("tab20b")
-    colors = [cmap(i) for i in np.linspace(0, 1, n_cls_preds)]
-    bbox_colors = random.sample(colors, n_cls_preds)
     for x1, y1, x2, y2, conf, cls_pred in detections:
         # print("test: ", detections)
         # print("test2:", int(x1), int(y1), int(x2), int(y2))
-        print(f"\t+ Label: {classes[int(cls_pred)]} | Confidence: {conf.item():0.4f}")
+        # print(f"\t+ Label: {classes[int(cls_pred)]} | Confidence: {conf.item():0.4f}")
+        p1, p2 = (int(x1), int(y1)), (int(x2), int(y2))
 
-        #box_w = x2 - x1
-        #box_h = y2 - y1
+        box_clr = colors(cls_pred)
+        # Chaning from BGR to RGB
+        detectedNames[classes[int(cls_pred)]] = (box_clr[2], box_clr[1], box_clr[0])
+        print(classes[int(cls_pred)])
 
-        #color = bbox_colors[int(np.where(unique_labels == int(cls_pred))[0])]
-        #color = [int(c*255) for c in color]
-        #print(color)
-        cv2.rectangle(org_img, (int(x1), int(y1)), (int(x2), int(y2)), (36,255,12), 2)
+        cv2.rectangle(org_img, p1, p2, box_clr, 2, lineType=cv2.LINE_AA)
+        tf = max(lw - 1, 1)  # font thickness
+        w, h = cv2.getTextSize(classes[int(cls_pred)], 0, fontScale=lw / 5, thickness=tf)[0]  # text width, height
+        outside = p1[1] - h - 3 >= 0  # label fits outside box
+        p2 = p1[0] + w, p1[1] - h - 3 if outside else p1[1] + h + 3
+        cv2.rectangle(org_img, p1, p2, box_clr, -1, cv2.LINE_AA)  # filled
+        cv2.putText(org_img, classes[int(cls_pred)], (p1[0], p1[1] - 2 if outside else p1[1] + h + 2), 0, lw / 5, (255,255,255),
+                    thickness=tf, lineType=cv2.LINE_AA)
+        
         # create class box:
-        cv2.putText(org_img, classes[int(cls_pred)], (int(x1), int(y1)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (36,255,12), 2)
+        #cv2.putText(org_img, classes[int(cls_pred)], (int(x1), int(y1)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (36,255,12), 2)
+        
+        # Create a Rectangle patch
+        #bbox = patches.Rectangle((x1, y1), box_w, box_h, linewidth=2, edgecolor=color, facecolor="none")
+        # Add the bbox to the plot
+        #ax.add_patch(bbox)
+        # Add label
+        '''
+        plt.text(
+            x1,
+            y1,
+            s=classes[int(cls_pred)],
+            color="white",
+            verticalalignment="top",
+            bbox={"color": color, "pad": 0})
+        '''
+
+    # Save generated image with detections
+    return org_img, detectedNames
+
+def _draw_and_return_output_image_single_class(image, detections, selected_class, classes):
+    """Draws detections in output image and stores this.
+
+    :param image_path: Path to input image
+    :type image_path: str
+    :param detections: List of detections on image
+    :type detections: [Tensor]
+    :param img_size: Size of each image dimension for yolo
+    :type img_size: int
+    :param output_path: Path of output directory
+    :type output_path: str
+    :param classes: List of class names
+    :type classes: [str]
+    """
+    # Create plot
+    org_img = np.copy(image)
+    lw = max(round(sum(org_img.shape) / 2 * 0.003), 2)
+
+    for x1, y1, x2, y2, conf, cls_pred in detections:
+        # print("test: ", detections)
+        # print("test2:", int(x1), int(y1), int(x2), int(y2))
+        if(classes[int(cls_pred)] != selected_class):
+            continue
+        print(f"\t+ Label: {classes[int(cls_pred)]} | Confidence: {conf.item():0.4f}")
+        p1, p2 = (int(x1), int(y1)), (int(x2), int(y2))
+
+        box_clr = colors(cls_pred)
+
+        cv2.rectangle(org_img, p1, p2, box_clr, 2, lineType=cv2.LINE_AA)
+        tf = max(lw - 1, 1)  # font thickness
+        w, h = cv2.getTextSize(classes[int(cls_pred)], 0, fontScale=lw / 5, thickness=tf)[0]  # text width, height
+        outside = p1[1] - h - 3 >= 0  # label fits outside box
+        p2 = p1[0] + w, p1[1] - h - 3 if outside else p1[1] + h + 3
+        cv2.rectangle(org_img, p1, p2, box_clr, -1, cv2.LINE_AA)  # filled
+        cv2.putText(org_img, classes[int(cls_pred)], (p1[0], p1[1] - 2 if outside else p1[1] + h + 2), 0, lw / 5, (255,255,255),
+                    thickness=tf, lineType=cv2.LINE_AA)
+        
+        # create class box:
+        #cv2.putText(org_img, classes[int(cls_pred)], (int(x1), int(y1)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (36,255,12), 2)
         
         # Create a Rectangle patch
         #bbox = patches.Rectangle((x1, y1), box_w, box_h, linewidth=2, edgecolor=color, facecolor="none")
@@ -286,7 +364,6 @@ def _draw_and_return_output_image(image, detections, img_size, classes):
 
     # Save generated image with detections
     return org_img
-
 
 def _create_data_loader(img_path, batch_size, img_size, n_cpu):
     """Creates a DataLoader for inferencing.

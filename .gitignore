@@ -3,6 +3,15 @@
 *.weights
 *.webp
 *.Identifier
+.vscode/
 __pycache__/
 ckpt/
+dev
+jupyter_files/.ipynb_checkpoints/
+src/data/tmp/runs
+src/jit/yolo_test/build
+src/jit/darknet_radar_cfg/
+jupyter_files/libtorch
+imgs/COCO/annotations/
+imgs/COCO/val2017/
 tmp_results/

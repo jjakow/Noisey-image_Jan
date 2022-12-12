@@ -9,7 +9,6 @@ import numpy as np
 from src.obj_detector.utils.parse_config import parse_model_config
 from src.obj_detector.utils.utils import weights_init_normal
 
-
 def create_modules(module_defs):
     """
     Constructs module list of layer blocks from module configuration in module_defs
@@ -181,7 +180,8 @@ class Darknet(nn.Module):
                 x = module[0](x, img_size)
                 yolo_outputs.append(x)
             layer_outputs.append(x)
-        return yolo_outputs if self.training else torch.cat(yolo_outputs, 1)
+        return torch.cat(yolo_outputs, 1)
+        #return yolo_outputs if self.training else torch.cat(yolo_outputs, 1)
 
     def load_darknet_weights(self, weights_path):
         """Parses and loads the weights stored in 'weights_path'"""
@@ -282,9 +282,13 @@ def load_model(model_path, weights_path=None):
     :return: Returns model
     :rtype: Darknet
     """
-    device = torch.device("cuda" if torch.cuda.is_available()
-                          else "cpu")  # Select device for inference
-    model = Darknet(model_path).to(device)
+    #device = torch.device("cuda" if torch.cuda.is_available()
+    #                      else "cpu")  # Select device for inference
+    
+    if torch.cuda.is_available():
+        model = Darknet(model_path).cuda()
+    else:
+        model = Darknet(model_path).cpu()
 
     model.apply(weights_init_normal)
 

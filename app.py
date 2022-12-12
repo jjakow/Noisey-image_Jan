@@ -1,124 +1,138 @@
+# For Pyinstaller spash screen
+try:
+    import pyi_splash
+    pyi_splash.update_text("Loading...")
+except ImportError:
+    pass
+
 # System libs
 import os
 from pathlib import Path
-import PIL.Image
-
-# Sementic segmentation
-from src.predict_img import start_from_gui, new_visualize_result
-from src.noise_image import add_noise_img
-
-# import yolov3 stuff:
-import src.obj_detector.detect as detect
-from src.obj_detector.models import load_model
-from src.obj_detector.utils.utils import load_classes
+import sys
+from queue import Queue
 
 # PyQt5
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import QMessageBox
 from src.window import Ui_MainWindow
 from PyQt5.QtCore import Qt
 
 import cv2
-from functools import partial
 
-currPath = str(Path(__file__).parent.absolute()) + '/'
-tmpPath = currPath + 'src/tmp_results/'
+# import utilities:
+from src.utils.images import convert_cvimg_to_qimg
+from src.transforms import AugDialog, mainAug
+from src.experimentDialog import ExperimentConfig, ExperimentDialog
+from src import models
+from src.utils.weights import Downloader
+from src.dataParser import ReadYAMLProgressWindow, yamlWorker
 
-
-# Converts opencv image to RGB first then to qt image
-def convert_cvimg_to_qimg(cv_img):
-    cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
-
-    height, width, channel = cv_img.shape
-    bytesPerLine = 3 * width
-
-    qt_img = QtGui.QImage(cv_img.data, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
-    return qt_img
-
+CURRENT_PATH = str(Path(__file__).parent.absolute()) + '/'
+TEMP_PATH = CURRENT_PATH + 'src/tmp_results/'
+DEFAULT_PATH = CURRENT_PATH + 'imgs/default_imgs/'
 
 class Worker(QtCore.QObject):
     finished = QtCore.pyqtSignal(tuple)
     progress = QtCore.pyqtSignal(int)
 
-    def setup(self, files, ifDisplay, model_type, listWidgets):
+    def setup(self, files, model_type, listWidget):
         self.files = files
-        self.ifDisplay = ifDisplay
-        self.listWidgets = listWidgets
-        assert model_type == 'segmentation' or model_type == 'yolov3', "Model Type %s is not a defined term!"%(model_type)
+        self.listWidget = listWidget
+        #assert model_type == 'segmentation' or model_type == 'yolov3', "Model Type %s is not a defined term!"%(model_type)
         self.model_type = model_type
 
     def run(self):
-        if self.model_type == 'segmentation':
-            result = start_from_gui(self.files, tmpPath, self.progress, self.ifDisplay)
+        model = models._registry[self.model_type]
+        self.progress.emit(1)
 
-        else:
-            self.progress.emit(1)  
-            CLASSES = os.path.join(currPath, 'src/obj_detector/cfg', 'coco.names')
-            CFG = os.path.join(currPath, 'src/obj_detector/cfg', 'yolov3.cfg')
-            WEIGHTS = os.path.join(currPath,'src/obj_detector/weights','yolov3.weights')
+        model.initialize()
+        self.progress.emit(2)
 
-            self.progress.emit(2)  
-            yolo = load_model(CFG, WEIGHTS)
-            
-             
-            classes = load_classes(CLASSES)  # List of class names
-            
-            result = []
-            for img in self.files:
-                dets = detect.detect_image(yolo, img)
-                np_img = detect._draw_and_return_output_image(img, dets, 416, classes)
-                result.append((np_img, dets))
-                self.progress.emit(3) 
+        result = []
+        for img in self.files:
+            pred = model.run(img)
+            temp = model.draw(pred, img)
+            temp["pred"] = pred
+            result.append(temp)
+            self.progress.emit(3)
 
-            #image_dst = os.path.join(tmpPath, 'yolo_output.png')
-            #cv2.imwrite(image_dst, np_img)
-               
-            self.progress.emit(4)   
+        result[0]['model'] = self.model_type
+        self.progress.emit(4)
+        model.deinitialize()
 
-            if (self.ifDisplay==1):
-                PIL.Image.fromarray(np_img).show()
-
-        self.finished.emit((result, self.listWidgets))
+        self.finished.emit((result, self.listWidget))
 
 
 class mainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.addWindow = AugDialog(self.ui.listAugs, self)
+        self.addWindow.setModal(True)
+        self.addWindow.demoAug()
+
+        # Check status of configurations:
+        weight_dict = {'mit_semseg':"ade20k-hrnetv2-c1", 'yolov3':"yolov3.weights", 'detr':"detr-r50-e632da11.pth", 'yolov4':"yolov4.weights", "yolov3-face":"yolov3-face_last.weights", "yolox":"yolox_m.pth"}
+        self.labels = []
+
+        if Downloader.check(weight_dict):
+            self.downloadDialog = Downloader(weight_dict, self)
+            self.downloadDialog.setModal(True)
+            self.downloadDialog.show()
+
+        self.ui.listAugs.setMaximumSize(400,100) # quickfix for sizing issue with layouts
+        self.ui.deleteListAug.setMaximumWidth(30)
+        self.ui.upListAug.setMaximumWidth(30)
+        self.ui.downListAug.setMaximumWidth(30)
 
         self.ui.progressBar.hide()
         self.ui.progressBar_2.hide()
 
-        self.ui.comboBox.addItems(["Semantic Segmentation", "Object Detection (YOLOv3)"])
-
-        # QActions
-        self.build_qactions()
-        self.qactions[0].trigger()
+        self.ui.comboBox.addItems(list(models._registry.keys()))
 
         # Buttons
-        self.ui.pushButton.clicked.connect(self.noise_gen)
-        self.ui.pushButton_2.clicked.connect(self.run_model)
-        self.ui.pushButton_3.clicked.connect(self.noise_gen_all)
-        self.ui.pushButton_4.clicked.connect(self.quitApp)
-        self.ui.pushButton_5.clicked.connect(self.run_model_all)
+        self.ui.pushButton.clicked.connect(self.run_model)  
+        self.ui.pushButton_2.clicked.connect(self.startExperiment)
+        self.ui.pushButton_3.clicked.connect(self.close)
+        self.ui.pushButton_4.clicked.connect(self.setToDefault)
+
+        # Augmentation Generator:
+        #self.ui.compoundAug.setChecked(True)
+        self.ui.addAug.clicked.connect(self.addWindow.show)
+        #self.ui.demoAug.clicked.connect(self.addWindow.demoAug)
+        self.ui.loadAug.clicked.connect(self.addWindow.__loadFileDialog__)
+        self.ui.saveAug.clicked.connect(self.addWindow.__saveFileDialog__)
+        self.ui.deleteListAug.clicked.connect(self.addWindow.__deleteItem__)
+        self.ui.downListAug.clicked.connect(self.addWindow.__moveDown__)
+        self.ui.upListAug.clicked.connect(self.addWindow.__moveUp__)
+        # self.ui.listAugs.itemChanged.connect(self.changePreviewImage)
+        # access model of listwidget to detect changes
+        self.addWindow.pipelineChanged.connect(self.changePreviewImage)
+        #self.ui.runOnAug.stateChanged.connect(self.runAugOnImage)
 
         # Menubar buttons
-        self.ui.actionOpen.triggered.connect(lambda: self.open_file())
+        #self.ui.actionOpen.triggered.connect(lambda: self.open_file())
+        self.ui.actionOpen.triggered.connect(self.parseData)
         self.ui.actionIncrease_Size.triggered.connect(self.increaseFont)
         self.ui.actionDecrease_Size.triggered.connect(self.decreaseFont)
 
-        # Noise generator
-        self.ui.horizontalSlider.valueChanged.connect(lambda: self.ui.doubleSpinBox.setValue(self.ui.horizontalSlider.value()))
-        #self.ui.doubleSpinBox.valueChanged.connect(lambda: self.ui.horizontalSlider.setValue(int(self.ui.doubleSpinBox.value())))
-        self.ui.doubleSpinBox.valueChanged.connect(self.noise_gen)
-
         # Qlistwidget signals
-        self.ui.listWidget.currentItemChanged.connect(self.change_seg_selection)
+        self.ui.augmented.currentItemChanged.connect(self.change_augmented_selection)
+        self.ui.uncompressed.currentItemChanged.connect(self.change_uncompressed_selection)
         self.ui.fileList.currentItemChanged.connect(self.change_file_selection)
 
+        # QActions
+        # Default values (images, noise, etc.) are set up here:
+        self.default_img()
+
         # Font
-        self.ui.centralwidget.setFont(QtGui.QFont('Ubuntu', 10))
+        font = self.font()
+        font.setPointSize(10)
+        self.ui.centralwidget.setFont(font)
 
         # Drag and drop
         self.ui.original.imageDropped.connect(self.open_file)
@@ -128,373 +142,435 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.fileList.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
-        
+        self.ui.listAugs.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+        self.label_eval = None
+
+        # yaml stuff:
+        self.yamlThread = QThread()
+        self.yamlProgress = ReadYAMLProgressWindow()
+        self.yamlQueue = Queue()
+        self.yamlWorker = yamlWorker(self.yamlQueue)
 
     def listwidgetmenu(self, position):
-        rightMenu = QtWidgets.QMenu(self.ui.fileList)
-        removeAction = QtWidgets.QAction("close", self, triggered = self.close)
-        
-        rightMenu.addAction(self.ui.actionOpen)
+        """menu for right clicking in the file list widget"""
+        right_menu = QtWidgets.QMenu(self.ui.fileList)
+        remove_action = QtWidgets.QAction("Close", self, triggered = self.closeFile)
+
+        right_menu.addAction(self.ui.actionOpen)
 
         if self.ui.fileList.itemAt(position):
-            rightMenu.addAction(removeAction)
+            right_menu.addAction(remove_action)
 
-        rightMenu.exec_(self.ui.fileList.mapToGlobal(position))
+        right_menu.exec_(self.ui.fileList.mapToGlobal(position))
 
-
-    def close(self):
+    def closeFile(self):
+        """Removes a file from the file list widget"""
         items = self.ui.fileList.selectedItems()
-        
+
         for item in items:
             row = self.ui.fileList.row(item)
             self.ui.fileList.takeItem(row)
+        
+        if self.ui.fileList.count() == 0:
+            self.emptyNest = True
+            self.flipAllControls(False)
+            self.ui.original.clear()
+            self.ui.preview_2.clear()
+            self.ui.original_2.clear()
+            self.ui.preview.clear()
 
     def increaseFont(self):
+        """Increses the size of font across the whole application"""
         self.ui.centralwidget.setFont(QtGui.QFont('Ubuntu', self.ui.centralwidget.fontInfo().pointSize() + 1))
         #print(self.ui.centralwidget.fontInfo().pointSize())
 
     def decreaseFont(self):
+        """Decreses the size of font across the whole application"""
         self.ui.centralwidget.setFont(QtGui.QFont('Ubuntu', self.ui.centralwidget.fontInfo().pointSize() - 1))
+        
+    def apply_augmentations(self, img):
+        for aug in mainAug:
+            img = aug(img, example=True)
+        return img
 
-    def quitApp(self):
-        quit()
-
-    def build_qactions(self):
-        mypath = currPath + "imgs/default_imgs"
-        onlyfiles = [f for f in os.listdir(mypath) if os.path.isfile(os.path.join(mypath, f))]
-        self.qactions = []
-
-        for file in onlyfiles:
-            action = QtWidgets.QAction(self)
-            action.setObjectName(file)
-            action.setIconText("default " + file)
-            action.triggered.connect(partial(self.default_qaction, action, "default_imgs/" + file))
-            self.qactions.append(action)
-            
-
-        self.ui.toolButton.addActions(self.qactions)
-        self.ui.toolButton.setDefaultAction(self.qactions[0])
-
-    def default_qaction(self, qaction, fileName):
-        self.open_file(currPath + "imgs/" + fileName)
-        self.ui.toolButton.setDefaultAction(qaction)
+    def changePreviewImage(self, *kwargs):
+        #print(kwargs)
+        print("recreating noisey image")
+        current_item = self.ui.fileList.currentItem()
+        image = cv2.imread(current_item.data(QtCore.Qt.UserRole)['filePath'])
+        #if image is not None:
+        image = self.apply_augmentations(image)
+        qt_img = convert_cvimg_to_qimg(image)
+        self.ui.preview.setPixmap(QtGui.QPixmap.fromImage(qt_img))
 
 
-    # def default_img(self, fileName = "MISC1/car detection.png"):
-    #     print(currPath + "imgs/" + fileName)
-    #     self.open_file(currPath + "imgs/" + fileName)
-        #self.ui.original_2.setPixmap(QtGui.QPixmap(currPath+"tmp_results/pred_color.png"))
-        #self.ui.preview_2.setPixmap(QtGui.QPixmap(currPath+"tmp_results/dst.png"))
+    def default_img(self):
+        #print(CURRENT_PATH + "imgs/" + fileName)
+        if(os.path.isdir(DEFAULT_PATH)):
+            onlyfiles = [f for f in os.listdir(DEFAULT_PATH) if os.path.isfile(os.path.join(DEFAULT_PATH, f))]
+    
+        onlyfiles = [DEFAULT_PATH + s for s in onlyfiles]
+        
+        self.open_file(onlyfiles)
+        
 
-        #self.ui.horizontalSlider.setValue(5)
-        #self.noise_gen()
+            # if(Path(file).stem == "original"):
+            #     original = os.path.join(DEFAULT_PATH, file)
+            #     self.open_file(original)
 
-    def open_file(self, filePaths = None):
-        if(filePaths == None):
-            filePaths = QtWidgets.QFileDialog.getOpenFileNames(self, "Select image", filter="Image files (*.jpg *.png *.bmp)")
-            filePaths = filePaths[0]
-        elif(isinstance(filePaths, list) == 0):
+            # if(Path(file).stem == "segmentation"):
+            #     print(Path(file).stem)
+            #     segmentation = os.path.join(DEFAULT_PATH, file)
+            #     qt_img = convert_cvimg_to_qimg(cv2.imread(segmentation))
+            #     self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(qt_img))
+
+            # if(Path(file).stem == "segmentation_overlay"):
+            #     segmentation_overlay = os.path.join(DEFAULT_PATH, file)
+            #     qt_img = convert_cvimg_to_qimg(cv2.imread(segmentation_overlay))
+            #     self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(qt_img))
+
+        self.changePreviewImage()
+        self.ui.fileList.setCurrentRow(0)
+        # self.run_model()
+
+    def open_file(self, filePaths):
+        if(isinstance(filePaths, list) == 0):
             filePaths = [filePaths]
 
         new_item = None
-    
+
         for filePath in filePaths:
-
-            fileName = filePath[filePath.rfind('/') + 1:]
-
+            fileName = os.path.basename(filePath)
             items = self.ui.fileList.findItems(fileName, QtCore.Qt.MatchExactly)
-            if(len(items) > 0):
+            if len(items) > 0:
                 self.ui.statusbar.showMessage("File already opened", 3000)
+                if(len(filePaths) == 1):
+                    self.ui.fileList.setCurrentItem(items[0])
                 continue
-
-            img = cv2.imread(filePath)
 
             new_item = QtWidgets.QListWidgetItem()
             new_item.setText(fileName)
-            new_item.setData(QtCore.Qt.UserRole, {'filePath':filePath, 'img':img})
+            new_item.setData(QtCore.Qt.UserRole, {'filePath':filePath})
+        
             self.ui.fileList.addItem(new_item)
-            
+
 
         if(new_item is not None):
             self.ui.original.setPixmap(QtGui.QPixmap(filePath))
             self.ui.fileList.setCurrentItem(new_item)
-
-            self.noise_gen()
-
             self.ui.original_2.clear()
             self.ui.preview_2.clear()
-
-
-    def noise_gen(self):
-        qListItem = self.ui.fileList.currentItem()
-        originalImg = qListItem.data(QtCore.Qt.UserRole)['img']
-
-        if(originalImg is None):
-            self.ui.statusbar.showMessage("Import an image first.", 3000)
-            return
-
-        noise_level = self.ui.doubleSpinBox.value() / 100
-        print("noise probability: ", noise_level)
-        
-        cv_img = add_noise_img(originalImg, noise_level)
-
-        temp = qListItem.data(QtCore.Qt.UserRole)
-        temp['noiseImg'] = cv_img
-        qListItem.setData(QtCore.Qt.UserRole, temp)
-
-        qt_img = convert_cvimg_to_qimg(cv_img)
-
-        self.ui.preview.setPixmap(QtGui.QPixmap.fromImage(qt_img))
-
-    def noise_gen_all(self):
-        lw = self.ui.fileList
-        
-        items = []
-        for x in range(lw.count()):
-            if(lw.item(x) != lw.currentItem()):
-                items.append(lw.item(x))
-
-        noise_level = self.ui.doubleSpinBox.value() / 100
-
-        for item in items:
-            temp = item.data(QtCore.Qt.UserRole)
-            cv_img = add_noise_img(temp['img'], noise_level)
-            temp['noiseImg'] = cv_img
-            item.setData(QtCore.Qt.UserRole, temp)
-
-        self.noise_gen()
-
-    def run_model_all(self):
-        lw = self.ui.fileList
-        
-        items = []
-        for x in range(lw.count()):
-            #if(lw.item(x) != lw.currentItem()):
-            items.append(lw.item(x))
-
-        imgs = []
-        qListItems = []
-
-        for qListItem in items:
-            img = qListItem.data(QtCore.Qt.UserRole).get('img')
-            noiseImg = qListItem.data(QtCore.Qt.UserRole).get('noiseImg')
-
-            if(img is None):
-                self.ui.statusbar.showMessage("Import an image first!", 3000)
-                return
-            elif(noiseImg is None):
-                # self.ui.statusbar.showMessage("Add noise to the image first!", 3000)
-                # return
-                noiseImg = img
             
-            imgs.append(noiseImg)
-            qListItems.append(qListItem)
+    def parseData(self):
+        filePaths = QtWidgets.QFileDialog.getOpenFileNames(self, "Select image", filter="Image files (*.jpg *.png *.bmp *.yaml)")
+        # print(filePaths[0])
         
-        self.ui.pushButton_5.setEnabled(False)
+        for filePath in filePaths[0]:
 
-        self.ui.progressBar_2.show()
-        self.ui.progressBar_2.reset()
-        self.ui.listWidget.clear()
-        self.ui.original_2.clear()
-        self.ui.preview_2.clear()
+            if filePath.endswith(".yaml"):
+                # create read_yaml progress:
+                self.yamlProgress.show()
 
-        self.ui.progressBar_2.setMaximum(len(imgs))
+                # disable controls here:
 
-        self.thread = QtCore.QThread()
-        self.worker = Worker()
+                # run read_yaml on a worker thread:
+                self.yamlWorker.filePath = filePath
+                self.yamlWorker.moveToThread(self.yamlThread)
+                self.yamlThread.started.connect(self.yamlWorker.run)
+                self.yamlWorker.finished.connect(self.postParseData)
+                self.yamlWorker.finished.connect(self.yamlWorker.deleteLater)
+                self.yamlWorker.finished.connect(self.yamlThread.quit)
+                self.yamlWorker.finished.connect(self.yamlThread.wait)
 
-        display_sep = False
-        comboModelType = self.ui.comboBox.currentText()
+                self.yamlThread.start()
+            else:
+                new_item = None
+                fileName = os.path.basename(filePath)
+                items = self.ui.fileList.findItems(fileName, QtCore.Qt.MatchExactly)
+                if len(items) > 0:
+                    self.ui.statusbar.showMessage("File already opened", 3000)
 
-        if comboModelType == 'Semantic Segmentation':
-            self.worker.setup(imgs, display_sep, 'segmentation', qListItems)
+                new_item = QtWidgets.QListWidgetItem()
+                new_item.setText(fileName)
+                new_item.setData(QtCore.Qt.UserRole, {'filePath':filePath})
+                self.ui.fileList.addItem(new_item)
+
+                if(new_item is not None):
+                    self.ui.original.setPixmap(QtGui.QPixmap(filePath))
+                    self.ui.fileList.setCurrentItem(new_item)
+                    self.ui.original_2.clear()
+                    self.ui.preview_2.clear()
+
+    def postParseData(self):
+        if self.yamlQueue.qsize() > 0:
+            self.yamlProgress.hide()
+            res = self.yamlQueue.get()
+            filePaths, label = res
+            self.labels, self.label_eval = label
+            self.ui.fileList.clear()
+            self.open_file(filePaths)
+            self.yamlThread = QThread()
+            self.yamlWorker = yamlWorker(self.yamlQueue)
         else:
-            self.worker.setup(imgs, display_sep, 'yolov3', qListItems)
+            assert False
+        return 0
 
+    def postParseData(self):
+        if self.yamlQueue.qsize() > 0:
+            self.yamlProgress.hide()
+            res = self.yamlQueue.get()
+            filePaths, label = res
+            self.labels, self.label_eval = label
+            self.ui.fileList.clear()
+            self.open_file(filePaths)
+            self.yamlThread = QThread()
+            self.yamlWorker = yamlWorker(self.yamlQueue)
+        else:
+            assert False
+        return 0
 
-        self.worker.moveToThread(self.thread)
-
-        self.thread.started.connect(self.worker.run)
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.worker.finished.connect(self.ui.progressBar_2.hide)
-        self.worker.finished.connect(self.display_result)
-        if(comboModelType == "Semantic Segmentation"):
-            self.worker.finished.connect(self.display_items)
-        self.worker.finished.connect(lambda: self.ui.pushButton_5.setEnabled(True))
-        self.worker.progress.connect(self.reportProgress2)
-        self.thread.finished.connect(self.thread.deleteLater)
-         
-        self.thread.start()
-            
     def reportProgress2(self, n):
         if(n == 3):
             self.ui.progressBar_2.setValue(self.ui.progressBar_2.value() + 1)
 
-
     def reportProgress(self, n):
         self.ui.progressBar.setValue(n)
 
+    def flipAllControls(self, value):
+        self.ui.addAug.setEnabled(value)
+        self.ui.loadAug.setEnabled(value)
+        self.ui.saveAug.setEnabled(value)
+        #self.ui.demoAug.setEnabled(value)
+        self.ui.comboBox.setEnabled(value)
+        self.ui.pushButton.setEnabled(value)
+        self.ui.pushButton_2.setEnabled(value)
+        #self.ui.pushButton_3.setEnabled(value)
+        self.ui.pushButton_4.setEnabled(value)
+        self.ui.compoundAug.setEnabled(value)
+        #self.ui.checkBox_2.setEnabled(value)
+        self.ui.upListAug.setEnabled(value)
+        self.ui.downListAug.setEnabled(value)
+        self.ui.deleteListAug.setEnabled(value)
+        self.ui.listAugs.setEnabled(value)
+        return 0
+
     def change_file_selection(self, qListItem):
-        originalImg = qListItem.data(QtCore.Qt.UserRole)['img']
-        noiseImg = qListItem.data(QtCore.Qt.UserRole).get('noiseImg')
-        predictedImg = qListItem.data(QtCore.Qt.UserRole).get('predictedImg')
-        predictedColor = qListItem.data(QtCore.Qt.UserRole).get('predictedColor')
-        items = qListItem.data(QtCore.Qt.UserRole).get('items')
+        if hasattr(self, 'emptyNest'):
+            if self.emptyNest:
+                self.flipAllControls(True)
+                self.emptyNest = False
 
-        self.ui.listWidget.clear()
+        if not qListItem is None:
+            originalImg = cv2.imread(qListItem.data(QtCore.Qt.UserRole)['filePath'])
 
-        originalQtImg = convert_cvimg_to_qimg(originalImg) 
-        self.ui.original.setPixmap(QtGui.QPixmap.fromImage(originalQtImg))
-
-        if(noiseImg is not None):
-            noiseQtImg = convert_cvimg_to_qimg(noiseImg)
-            self.ui.preview.setPixmap(QtGui.QPixmap.fromImage(noiseQtImg))
-        else:
-            self.ui.preview.clear()
-
-        if(predictedImg is not None):
-            predictedQtImg = convert_cvimg_to_qimg(predictedImg)
-            self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(predictedQtImg))
-        else:
+            self.ui.augmented.clear()
+            self.ui.uncompressed.clear()
+            self.ui.original_2.clear()
             self.ui.preview_2.clear()
 
-        if(predictedColor is not None):
-            predictedQtColor = convert_cvimg_to_qimg(predictedColor)
-            self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(predictedQtColor))
+            originalQtImg = convert_cvimg_to_qimg(originalImg)
+            self.ui.original.setPixmap(QtGui.QPixmap.fromImage(originalQtImg))
+
+            self.changePreviewImage()
         else:
-            self.ui.original_2.clear()
+            print("INFO: qListItem was None (was it cleared by YAML read function?)")
 
-        if(items is not None):
-            for x in items:
-                i = QtWidgets.QListWidgetItem(x)
-                i.setBackground(QtGui.QColor(items[x][0], items[x][1], items[x][2]))
-                self.ui.listWidget.addItem(i)
-
-    def change_seg_selection(self, current):
+    def change_uncompressed_selection(self, current):
         if(current == None):
             return
 
         qListItem = self.ui.fileList.currentItem()
-        originalImg = qListItem.data(QtCore.Qt.UserRole)['img']
+        data = qListItem.data(QtCore.Qt.UserRole)
+        originalImg = cv2.imread(data['filePath'])
 
-        predictedImg = qListItem.data(QtCore.Qt.UserRole).get('predictedImg')
-
-        if(predictedImg is None):
+        dst = data.get('uncompressed_dst')
+        
+        if(dst is None ):
             return
-
-        predictedQtImg = convert_cvimg_to_qimg(predictedImg)
-        predictedQtColor = convert_cvimg_to_qimg(qListItem.data(QtCore.Qt.UserRole)['predictedColor'])
-
-        #print(current.text())
 
         if(current.text() == "all"):
-            self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(predictedQtColor))
-            self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(predictedQtImg))
+            dst_qt = convert_cvimg_to_qimg(dst)
+            self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(dst_qt))
+
         else:
-            img = new_visualize_result(qListItem.data(QtCore.Qt.UserRole)['pred'], originalImg, current.text())
-            qImg_color = convert_cvimg_to_qimg(img[0])
-            qImg_overlay = convert_cvimg_to_qimg(img[1])
-            self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(qImg_color))
+            pred = qListItem.data(QtCore.Qt.UserRole)['uncompressed_pred']
+            model = models._registry[data['model']]
+            imgs = model.draw_single_class(pred, originalImg, current.text())
+            qImg_overlay = convert_cvimg_to_qimg(imgs["overlay"])
+            self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(qImg_overlay))
+
+            if "segmentation" in imgs:
+                qImg_segmentation= convert_cvimg_to_qimg(imgs["segmentation"])
+                self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(qImg_segmentation))
+        
+    def change_augmented_selection(self, current):
+        if(current == None):
+            return
+
+        qListItem = self.ui.fileList.currentItem()
+        data = qListItem.data(QtCore.Qt.UserRole)
+        originalImg = cv2.imread(data['filePath'])
+        noseImg = self.apply_augmentations(originalImg)
+
+        dst = data.get('augmented_dst')
+        
+        if(dst is None ):
+            return
+
+        if(current.text() == "all"):
+            dst_qt = convert_cvimg_to_qimg(dst)
+            self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(dst_qt))
+
+        else:
+            pred = qListItem.data(QtCore.Qt.UserRole)['augmented_pred']
+            model = models._registry[data['model']]
+            imgs = model.draw_single_class(pred, noseImg, current.text())
+            qImg_overlay = convert_cvimg_to_qimg(imgs["overlay"])
             self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(qImg_overlay))
 
+            if "segmentation" in imgs:
+                qImg_segmentation= convert_cvimg_to_qimg(imgs["segmentation"])
+                self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(qImg_segmentation))
+
+    
     def display_result(self, result):
-        comboModelType = self.ui.comboBox.currentText()
-        qListItems = result[1]
+        # Result[0]:
+        # Result[1]: qListItem
+        
+        qListItem = result[1]
         model_results = result[0]
 
-        for i, result in enumerate(model_results):
-            qListItem = qListItems[i]
-            temp = qListItem.data(QtCore.Qt.UserRole)
-            if comboModelType == 'Semantic Segmentation':
-                temp['pred'] = result[2]
-                temp['predictedImg'] = result[0]
-                temp['predictedColor'] = result[1]
+        self.ui.fileList.setCurrentItem(qListItem)
 
-                if(self.ui.fileList.currentItem() == qListItem):
-                    predictedQtImg = convert_cvimg_to_qimg(result[0])
-                    predictedQtColor = convert_cvimg_to_qimg(result[1])
-                    self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(predictedQtColor))
-                    self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(predictedQtImg))
-            else:
-                temp['pred'] = result[1]
-                temp['predictedImg'] = result[0]
-                
-                if(self.ui.fileList.currentItem() == qListItem):
-                    predictedQtImg = convert_cvimg_to_qimg(result[0])
-                    self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(predictedQtImg))
-                    self.ui.preview_2.clear()
+        data = qListItem.data(QtCore.Qt.UserRole)
 
-            qListItem.setData(QtCore.Qt.UserRole, temp)
+        # Code to display the original image with detections
+        self.ui.original_2.clear()
+        uncompressed = model_results[0]
+        data['uncompressed_pred'] = uncompressed['pred']
+        data['uncompressed_dst'] = uncompressed['dst']
+        data['model'] = uncompressed['model']
+        self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(convert_cvimg_to_qimg(uncompressed['dst'])))
 
-    def display_items(self, results):
-        qListItems = results[1]
-        seg_results = results[0]
+        names = uncompressed["listOfNames"]
+        data['uncompressed_names'] = names
+        for x in names:
+            i = QtWidgets.QListWidgetItem(x)
+            i.setBackground(QtGui.QColor(names[x][0], names[x][1], names[x][2]))
+            self.ui.uncompressed.addItem(i)
 
-        for i, result in enumerate(seg_results):
-            qListItem = qListItems[i]
-            names = result[3]
-            if(self.ui.fileList.currentItem() == qListItem):
-                for x in names:
-                    i = QtWidgets.QListWidgetItem(x)
-                    i.setBackground(QtGui.QColor(names[x][0], names[x][1], names[x][2]))
-                    self.ui.listWidget.addItem(i)
-            
-            temp = qListItem.data(QtCore.Qt.UserRole)
-            temp['items'] = names
-            qListItem.setData(QtCore.Qt.UserRole, temp)
-        
+        augmented = model_results[1]
+        data['augmented_pred'] = augmented['pred']
+        data['augmented_dst'] = augmented['dst']
+        self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(convert_cvimg_to_qimg(augmented['dst'])))
 
+        names = augmented["listOfNames"]
+        data['augmented_names'] = names
+        for x in names:
+            i = QtWidgets.QListWidgetItem(x)
+            i.setBackground(QtGui.QColor(names[x][0], names[x][1], names[x][2]))
+            self.ui.augmented.addItem(i)
+
+        qListItem.setData(QtCore.Qt.UserRole, data)
+        self.ui.tabWidget.setCurrentIndex(0)
+
+ 
     def run_model(self):
         qListItem = self.ui.fileList.currentItem()
-        img = qListItem.data(QtCore.Qt.UserRole).get('img')
-        noiseImg = qListItem.data(QtCore.Qt.UserRole).get('noiseImg')
+        img = cv2.imread(qListItem.data(QtCore.Qt.UserRole).get('filePath'))
 
-        if(img is None):
+        if img is None:
             self.ui.statusbar.showMessage("Import an image first!", 3000)
             return
-        elif(noiseImg is None):
-            self.ui.statusbar.showMessage("Add noise to the image first!", 3000)
-            noiseImg = img
+
+        noiseImg = self.apply_augmentations(img.copy())
 
         self.ui.pushButton_2.setEnabled(False)
 
         self.ui.progressBar.show()
-        self.ui.listWidget.clear()
+        self.ui.augmented.clear()
+        self.ui.uncompressed.clear()
         self.ui.original_2.clear()
         self.ui.preview_2.clear()
 
         self.thread = QtCore.QThread()
         self.worker = Worker()
-        
 
         #detectedNames = {"all": [255,255,255]}
-        display_sep = self.ui.checkBox_2.isChecked()
-
+        #display_sep = self.ui.checkBox_2.isChecked()
         comboModelType = self.ui.comboBox.currentText()
-        
 
-        if comboModelType == 'Semantic Segmentation':
-            self.worker.setup([noiseImg], display_sep, 'segmentation', [qListItem])
-        else:
-            self.worker.setup([noiseImg], display_sep, 'yolov3', [qListItem])
-        
-        
+        self.worker.setup((img, noiseImg), comboModelType, qListItem)
         self.worker.moveToThread(self.thread)
-
         self.thread.started.connect(self.worker.run)
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.worker.finished.connect(self.ui.progressBar.hide)
         self.worker.finished.connect(self.display_result)
-        if(comboModelType == "Semantic Segmentation"):
-            self.worker.finished.connect(self.display_items)
+        #if(comboModelType == "Semantic Segmentation"):
         self.worker.finished.connect(lambda: self.ui.pushButton_2.setEnabled(True))
         self.worker.progress.connect(self.reportProgress)
         self.thread.finished.connect(self.thread.deleteLater)
-         
+
         self.thread.start()
 
+    def startExperiment(self):
+        # fill image paths with dummy inputs for now
+        comboModelType = self.ui.comboBox.currentText()
+
+        # check augmentation setup:
+        if self.ui.compoundAug.isChecked():
+            ret, msg = mainAug.checkArgs()
+            if not ret:
+                print(msg) # create dialog box saying something is wrong 
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Warning)
+                msg_box.setText(msg)
+                msg_box.setWindowTitle("Compound Error")
+                msg_box.setStandardButtons(QMessageBox.Ok)
+                msg_box.exec_()
+                return -1
+
+        # initialize model (temp; move to thread worker):
+        _model = models._registry[comboModelType]
+        _model.initialize()
+        
+        # replace preset list with variable list:
+        # assemble active image path list:
+        lw = self.ui.fileList
+        items = [lw.item(x) for x in range(lw.count())]
+        imgPaths = []
+
+        if self.label_eval == 'coco':
+            # ask coco api:
+            imgPaths = self.labels['coco'].getImgIds()
+        else:
+            for qListItem in items:
+                file_path = qListItem.data(QtCore.Qt.UserRole).get('filePath')
+                if(file_path is None):
+                    self.ui.statusbar.showMessage("Import an image first!", 3000)
+                    return -1
+                imgPaths.append(file_path)
+
+        config = ExperimentConfig(mainAug, self.ui.compoundAug.isChecked(), imgPaths, _model, comboModelType, labels=self.labels, labelType=self.label_eval)
+        self.experiment = ExperimentDialog(config, self)
+        #self.experiment.setModal(True)
+        self.experiment.show()
+        self.experiment.startExperiment()
+        
+    
+    def setToDefault(self):
+        # mainAug.load('default_aug.txt')
+        self.addWindow.demoAug()
+        # self.addWindow.__applyConfig__()
+        # self.addWindow.__updateViewer__()
+        # self.addWindow.__reloadAugs__()
+        #self.ui.checkBox_2.setChecked(False)
+        self.ui.compoundAug.setChecked(False)
+        self.ui.comboBox.setCurrentIndex(0)
+    
+        self.default_img()
+        
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
@@ -503,5 +579,7 @@ if __name__ == '__main__':
     window.show()
     window.showMaximized()
 
+    if 'pyi_splash' in sys.modules:
+        pyi_splash.close()
+
     app.exec_()
-    

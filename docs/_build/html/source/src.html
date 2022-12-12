@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submodules &mdash; Noisey-Image  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Object Detector Module" href="src.obj_detector.html" />
+    <link rel="prev" title="Integrating New Network" href="tutorials/abstract_model.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Noisey-Image
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="main_gs_guide.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main_tutorial_guide.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Submodules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.models">Models Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.models.CompressiveAE"><code class="docutils literal notranslate"><span class="pre">CompressiveAE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.CompressiveAE.deinitialize"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.CompressiveAE.draw"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.CompressiveAE.draw_single_class"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.CompressiveAE.initialize"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.CompressiveAE.outputFormat"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.CompressiveAE.report_accuracy"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.CompressiveAE.run"><code class="docutils literal notranslate"><span class="pre">CompressiveAE.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#src.models.DETR"><code class="docutils literal notranslate"><span class="pre">DETR</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.DETR.box_cxcywh_to_xyxy"><code class="docutils literal notranslate"><span class="pre">DETR.box_cxcywh_to_xyxy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.DETR.deinitialize"><code class="docutils literal notranslate"><span class="pre">DETR.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.DETR.draw"><code class="docutils literal notranslate"><span class="pre">DETR.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.DETR.draw_single_class"><code class="docutils literal notranslate"><span class="pre">DETR.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.DETR.initialize"><code class="docutils literal notranslate"><span class="pre">DETR.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.DETR.outputFormat"><code class="docutils literal notranslate"><span class="pre">DETR.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.DETR.read_name_file"><code class="docutils literal notranslate"><span class="pre">DETR.read_name_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.DETR.report_accuracy"><code class="docutils literal notranslate"><span class="pre">DETR.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.DETR.rescale_bboxes"><code class="docutils literal notranslate"><span class="pre">DETR.rescale_bboxes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.DETR.run"><code class="docutils literal notranslate"><span class="pre">DETR.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#src.models.EfficientDetV2"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.EfficientDetV2.deinitialize"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.EfficientDetV2.draw"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.EfficientDetV2.draw_single_class"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.EfficientDetV2.initialize"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.EfficientDetV2.outputFormat"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.EfficientDetV2.report_accuracy"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.EfficientDetV2.run"><code class="docutils literal notranslate"><span class="pre">EfficientDetV2.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#src.models.MTCNN"><code class="docutils literal notranslate"><span class="pre">MTCNN</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.MTCNN.deinitialize"><code class="docutils literal notranslate"><span class="pre">MTCNN.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.MTCNN.draw"><code class="docutils literal notranslate"><span class="pre">MTCNN.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.MTCNN.draw_single_class"><code class="docutils literal notranslate"><span class="pre">MTCNN.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.MTCNN.initialize"><code class="docutils literal notranslate"><span class="pre">MTCNN.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.MTCNN.outputFormat"><code class="docutils literal notranslate"><span class="pre">MTCNN.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.MTCNN.report_accuracy"><code class="docutils literal notranslate"><span class="pre">MTCNN.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.MTCNN.run"><code class="docutils literal notranslate"><span class="pre">MTCNN.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#src.models.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.Model.deinitialize"><code class="docutils literal notranslate"><span class="pre">Model.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.Model.draw"><code class="docutils literal notranslate"><span class="pre">Model.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.Model.draw_single_class"><code class="docutils literal notranslate"><span class="pre">Model.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.Model.initialize"><code class="docutils literal notranslate"><span class="pre">Model.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.Model.outputFormat"><code class="docutils literal notranslate"><span class="pre">Model.outputFormat</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.Model.report_accuracy"><code class="docutils literal notranslate"><span class="pre">Model.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.Model.run"><code class="docutils literal notranslate"><span class="pre">Model.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#src.models.YOLOX"><code class="docutils literal notranslate"><span class="pre">YOLOX</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOX.deinitialize"><code class="docutils literal notranslate"><span class="pre">YOLOX.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOX.draw"><code class="docutils literal notranslate"><span class="pre">YOLOX.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOX.draw_single_class"><code class="docutils literal notranslate"><span class="pre">YOLOX.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOX.initialize"><code class="docutils literal notranslate"><span class="pre">YOLOX.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOX.outputFormat"><code class="docutils literal notranslate"><span class="pre">YOLOX.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOX.report_accuracy"><code class="docutils literal notranslate"><span class="pre">YOLOX.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOX.run"><code class="docutils literal notranslate"><span class="pre">YOLOX.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#src.models.YOLOv3"><code class="docutils literal notranslate"><span class="pre">YOLOv3</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3.deinitialize"><code class="docutils literal notranslate"><span class="pre">YOLOv3.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3.draw"><code class="docutils literal notranslate"><span class="pre">YOLOv3.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3.draw_single_class"><code class="docutils literal notranslate"><span class="pre">YOLOv3.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3.initialize"><code class="docutils literal notranslate"><span class="pre">YOLOv3.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3.outputFormat"><code class="docutils literal notranslate"><span class="pre">YOLOv3.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3.report_accuracy"><code class="docutils literal notranslate"><span class="pre">YOLOv3.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3.run"><code class="docutils literal notranslate"><span class="pre">YOLOv3.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#src.models.YOLOv3_Ultralytics"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3_Ultralytics.deinitialize"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3_Ultralytics.draw"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3_Ultralytics.draw_single_class"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3_Ultralytics.initialize"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3_Ultralytics.outputFormat"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3_Ultralytics.report_accuracy"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3_Ultralytics.run"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv3_Ultralytics.testCOCO"><code class="docutils literal notranslate"><span class="pre">YOLOv3_Ultralytics.testCOCO()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#src.models.YOLOv4"><code class="docutils literal notranslate"><span class="pre">YOLOv4</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv4.deinitialize"><code class="docutils literal notranslate"><span class="pre">YOLOv4.deinitialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv4.draw"><code class="docutils literal notranslate"><span class="pre">YOLOv4.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv4.draw_single_class"><code class="docutils literal notranslate"><span class="pre">YOLOv4.draw_single_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv4.initialize"><code class="docutils literal notranslate"><span class="pre">YOLOv4.initialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv4.outputFormat"><code class="docutils literal notranslate"><span class="pre">YOLOv4.outputFormat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv4.report_accuracy"><code class="docutils literal notranslate"><span class="pre">YOLOv4.report_accuracy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.models.YOLOv4.run"><code class="docutils literal notranslate"><span class="pre">YOLOv4.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.transforms">Transforms Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#src.transforms.AugDialog"><code class="docutils literal notranslate"><span class="pre">AugDialog</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugDialog.augParameterError"><code class="docutils literal notranslate"><span class="pre">AugDialog.augParameterError()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugDialog.closeEvent"><code class="docutils literal notranslate"><span class="pre">AugDialog.closeEvent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugDialog.demoAug"><code class="docutils literal notranslate"><span class="pre">AugDialog.demoAug()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugDialog.hideCheckBox"><code class="docutils literal notranslate"><span class="pre">AugDialog.hideCheckBox()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugDialog.pipelineChanged"><code class="docutils literal notranslate"><span class="pre">AugDialog.pipelineChanged</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugDialog.show"><code class="docutils literal notranslate"><span class="pre">AugDialog.show()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#src.transforms.Augmentation"><code class="docutils literal notranslate"><span class="pre">Augmentation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.args"><code class="docutils literal notranslate"><span class="pre">Augmentation.args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.enabled"><code class="docutils literal notranslate"><span class="pre">Augmentation.enabled</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.exampleParam"><code class="docutils literal notranslate"><span class="pre">Augmentation.exampleParam</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.position"><code class="docutils literal notranslate"><span class="pre">Augmentation.position</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.setExampleParam"><code class="docutils literal notranslate"><span class="pre">Augmentation.setExampleParam()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.setParam"><code class="docutils literal notranslate"><span class="pre">Augmentation.setParam()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.title"><code class="docutils literal notranslate"><span class="pre">Augmentation.title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.Augmentation.valid"><code class="docutils literal notranslate"><span class="pre">Augmentation.valid()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#src.transforms.AugmentationPipeline"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugmentationPipeline.append"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.append()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugmentationPipeline.checkArgs"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.checkArgs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugmentationPipeline.clear"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugmentationPipeline.exists"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.exists()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugmentationPipeline.index"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.index()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugmentationPipeline.load"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.load()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugmentationPipeline.next"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.next()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugmentationPipeline.remove"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.remove()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.transforms.AugmentationPipeline.save"><code class="docutils literal notranslate"><span class="pre">AugmentationPipeline.save()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.obj_detector.html">Object Detector Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Noisey-Image</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Submodules</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/src.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="submodules">
+<h1>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h1>
+<p>This project use two main Abstract classes namely: Model class (defined in Models Module) and Augmentation class (defined in Transforms Module).</p>
+<div class="toctree-wrapper compound">
+</div>
+<section id="module-src.models">
+<span id="models-module"></span><h2>Models Module<a class="headerlink" href="#module-src.models" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.models.CompressiveAE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">CompressiveAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.CompressiveAE" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.models.Model" title="src.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.CompressiveAE.deinitialize">
+<span class="sig-name descname"><span class="pre">deinitialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.CompressiveAE.deinitialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.CompressiveAE.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.CompressiveAE.draw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.CompressiveAE.draw_single_class">
+<span class="sig-name descname"><span class="pre">draw_single_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.CompressiveAE.draw_single_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.CompressiveAE.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.CompressiveAE.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.CompressiveAE.outputFormat">
+<span class="sig-name descname"><span class="pre">outputFormat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.CompressiveAE.outputFormat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.CompressiveAE.report_accuracy">
+<span class="sig-name descname"><span class="pre">report_accuracy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.CompressiveAE.report_accuracy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.CompressiveAE.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.CompressiveAE.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.models.DETR">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">DETR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.models.Model" title="src.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.DETR.box_cxcywh_to_xyxy">
+<span class="sig-name descname"><span class="pre">box_cxcywh_to_xyxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR.box_cxcywh_to_xyxy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.DETR.deinitialize">
+<span class="sig-name descname"><span class="pre">deinitialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR.deinitialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.DETR.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR.draw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.DETR.draw_single_class">
+<span class="sig-name descname"><span class="pre">draw_single_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR.draw_single_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.DETR.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.DETR.outputFormat">
+<span class="sig-name descname"><span class="pre">outputFormat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR.outputFormat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.DETR.read_name_file">
+<span class="sig-name descname"><span class="pre">read_name_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR.read_name_file" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.DETR.report_accuracy">
+<span class="sig-name descname"><span class="pre">report_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'voc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR.report_accuracy" title="Permalink to this definition"></a></dt>
+<dd><p>Function takes in prediction boxes and ground truth boxes and
+returns the mean average precision (mAP) &#64; IOU 0.5 under VOC2007 criteria (default).
+Args:</p>
+<blockquote>
+<div><p>pred (list): A list of BoundingBox objects representing each detection from method
+gt (list): A list of BoundingBox objects representing each object in the ground truth</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>mAP: a number representing the mAP over all classes for a single image.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.DETR.rescale_bboxes">
+<span class="sig-name descname"><span class="pre">rescale_bboxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR.rescale_bboxes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.DETR.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.DETR.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.models.EfficientDetV2">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">EfficientDetV2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.EfficientDetV2" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.models.Model" title="src.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<p>augmentation values
+GN: 1,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.EfficientDetV2.deinitialize">
+<span class="sig-name descname"><span class="pre">deinitialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.EfficientDetV2.deinitialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.EfficientDetV2.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.EfficientDetV2.draw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.EfficientDetV2.draw_single_class">
+<span class="sig-name descname"><span class="pre">draw_single_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.EfficientDetV2.draw_single_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.EfficientDetV2.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.EfficientDetV2.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.EfficientDetV2.outputFormat">
+<span class="sig-name descname"><span class="pre">outputFormat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.EfficientDetV2.outputFormat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.EfficientDetV2.report_accuracy">
+<span class="sig-name descname"><span class="pre">report_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_truth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.EfficientDetV2.report_accuracy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.EfficientDetV2.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.EfficientDetV2.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.models.MTCNN">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">MTCNN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.MTCNN" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.models.Model" title="src.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.MTCNN.deinitialize">
+<span class="sig-name descname"><span class="pre">deinitialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.MTCNN.deinitialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.MTCNN.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.MTCNN.draw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.MTCNN.draw_single_class">
+<span class="sig-name descname"><span class="pre">draw_single_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.MTCNN.draw_single_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.MTCNN.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.MTCNN.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.MTCNN.outputFormat">
+<span class="sig-name descname"><span class="pre">outputFormat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.MTCNN.outputFormat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.MTCNN.report_accuracy">
+<span class="sig-name descname"><span class="pre">report_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'voc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.MTCNN.report_accuracy" title="Permalink to this definition"></a></dt>
+<dd><p>Function takes in prediction boxes and ground truth boxes and
+returns the mean average precision (mAP) &#64; IOU 0.5 under VOC2007 criteria (default).
+Args:</p>
+<blockquote>
+<div><p>pred (list): A list of BoundingBox objects representing each detection from method
+gt (list): A list of BoundingBox objects representing each object in the ground truth</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>mAP: a number representing the mAP over all classes for a single image.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.MTCNN.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.MTCNN.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.models.Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Model" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Creates and adds models. 
+Requirment: The network needs to be fitted in four main funtions: run, initialize, deinitialize, and draw.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.Model.deinitialize">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deinitialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Model.deinitialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.Model.draw">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Model.draw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.Model.draw_single_class">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">draw_single_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Model.draw_single_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.Model.initialize">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Model.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.models.Model.outputFormat">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outputFormat</span></span><a class="headerlink" href="#src.models.Model.outputFormat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.Model.report_accuracy">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">report_accuracy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Model.report_accuracy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.Model.run">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.Model.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.models.YOLOX">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">YOLOX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOX" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.models.Model" title="src.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOX.deinitialize">
+<span class="sig-name descname"><span class="pre">deinitialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOX.deinitialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOX.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOX.draw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOX.draw_single_class">
+<span class="sig-name descname"><span class="pre">draw_single_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOX.draw_single_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOX.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOX.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOX.outputFormat">
+<span class="sig-name descname"><span class="pre">outputFormat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOX.outputFormat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOX.report_accuracy">
+<span class="sig-name descname"><span class="pre">report_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'voc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOX.report_accuracy" title="Permalink to this definition"></a></dt>
+<dd><p>Function takes in prediction boxes and ground truth boxes and
+returns the mean average precision (mAP) &#64; IOU 0.5 under VOC2007 criteria (default).
+Args:</p>
+<blockquote>
+<div><p>pred (list): A list of BoundingBox objects representing each detection from method
+gt (list): A list of BoundingBox objects representing each object in the ground truth</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>mAP: a number representing the mAP over all classes for a single image.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOX.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOX.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.models.YOLOv3">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">YOLOv3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.models.Model" title="src.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<p>YOLO Model that inherits the Model class
+It specifies its four main functions: run, initialize, deinitialize, and draw.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3.deinitialize">
+<span class="sig-name descname"><span class="pre">deinitialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3.deinitialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3.draw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3.draw_single_class">
+<span class="sig-name descname"><span class="pre">draw_single_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3.draw_single_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3.outputFormat">
+<span class="sig-name descname"><span class="pre">outputFormat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3.outputFormat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3.report_accuracy">
+<span class="sig-name descname"><span class="pre">report_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'voc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3.report_accuracy" title="Permalink to this definition"></a></dt>
+<dd><p>Function takes in prediction boxes and ground truth boxes and
+returns the mean average precision (mAP) &#64; IOU 0.5 under VOC2007 criteria (default).
+Args:</p>
+<blockquote>
+<div><p>pred (list): A list of BoundingBox objects representing each detection from method
+gt (list): A list of BoundingBox objects representing each object in the ground truth</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>mAP: a number representing the mAP over all classes for a single image.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.models.YOLOv3_Ultralytics">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">YOLOv3_Ultralytics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3_Ultralytics" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.models.Model" title="src.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3_Ultralytics.deinitialize">
+<span class="sig-name descname"><span class="pre">deinitialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3_Ultralytics.deinitialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3_Ultralytics.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3_Ultralytics.draw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3_Ultralytics.draw_single_class">
+<span class="sig-name descname"><span class="pre">draw_single_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3_Ultralytics.draw_single_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3_Ultralytics.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3_Ultralytics.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3_Ultralytics.outputFormat">
+<span class="sig-name descname"><span class="pre">outputFormat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3_Ultralytics.outputFormat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3_Ultralytics.report_accuracy">
+<span class="sig-name descname"><span class="pre">report_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'voc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3_Ultralytics.report_accuracy" title="Permalink to this definition"></a></dt>
+<dd><p>Function takes in prediction boxes and ground truth boxes and
+returns the mean average precision (mAP) &#64; IOU 0.5 under VOC2007 criteria (default).
+Args:</p>
+<blockquote>
+<div><p>pred (list): A list of BoundingBox objects representing each detection from method
+gt (list): A list of BoundingBox objects representing each object in the ground truth</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>mAP: a number representing the mAP over all classes for a single image.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3_Ultralytics.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3_Ultralytics.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv3_Ultralytics.testCOCO">
+<span class="sig-name descname"><span class="pre">testCOCO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv3_Ultralytics.testCOCO" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.models.YOLOv4">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.</span></span><span class="sig-name descname"><span class="pre">YOLOv4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">network_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv4" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.models.Model" title="src.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<p>YOLOv4 Model that inherits the Model class
+It specifies its four main functions: run, initialize, deinitialize, and draw.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv4.deinitialize">
+<span class="sig-name descname"><span class="pre">deinitialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv4.deinitialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv4.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv4.draw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv4.draw_single_class">
+<span class="sig-name descname"><span class="pre">draw_single_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv4.draw_single_class" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv4.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv4.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv4.outputFormat">
+<span class="sig-name descname"><span class="pre">outputFormat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv4.outputFormat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv4.report_accuracy">
+<span class="sig-name descname"><span class="pre">report_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'voc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv4.report_accuracy" title="Permalink to this definition"></a></dt>
+<dd><p>Function takes in prediction boxes and ground truth boxes and
+returns the mean average precision (mAP) &#64; IOU 0.5 under VOC2007 criteria (default).
+Args:</p>
+<blockquote>
+<div><p>pred (list): A list of BoundingBox objects representing each detection from method
+gt (list): A list of BoundingBox objects representing each object in the ground truth</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>mAP: a number representing the mAP over all classes for a single image.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.YOLOv4.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.YOLOv4.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.transforms">
+<span id="transforms-module"></span><h2>Transforms Module<a class="headerlink" href="#module-src.transforms" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.transforms.AugDialog">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.transforms.</span></span><span class="sig-name descname"><span class="pre">AugDialog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listViewer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugDialog" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QDialog</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugDialog.augParameterError">
+<span class="sig-name descname"><span class="pre">augParameterError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">errs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugDialog.augParameterError" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugDialog.closeEvent">
+<span class="sig-name descname"><span class="pre">closeEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">QCloseEvent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugDialog.closeEvent" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugDialog.demoAug">
+<span class="sig-name descname"><span class="pre">demoAug</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugDialog.demoAug" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugDialog.hideCheckBox">
+<span class="sig-name descname"><span class="pre">hideCheckBox</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugDialog.hideCheckBox" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.transforms.AugDialog.pipelineChanged">
+<span class="sig-name descname"><span class="pre">pipelineChanged</span></span><a class="headerlink" href="#src.transforms.AugDialog.pipelineChanged" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugDialog.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugDialog.show" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.transforms.Augmentation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.transforms.</span></span><span class="sig-name descname"><span class="pre">Augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.Augmentation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Creates and Add Augmentations</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="src.transforms.Augmentation.args">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#src.transforms.Augmentation.args" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.transforms.Augmentation.enabled">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled</span></span><a class="headerlink" href="#src.transforms.Augmentation.enabled" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.transforms.Augmentation.exampleParam">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exampleParam</span></span><a class="headerlink" href="#src.transforms.Augmentation.exampleParam" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.transforms.Augmentation.position">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><a class="headerlink" href="#src.transforms.Augmentation.position" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.Augmentation.setExampleParam">
+<span class="sig-name descname"><span class="pre">setExampleParam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.Augmentation.setExampleParam" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.Augmentation.setParam">
+<span class="sig-name descname"><span class="pre">setParam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.Augmentation.setParam" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.transforms.Augmentation.title">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#src.transforms.Augmentation.title" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.Augmentation.valid">
+<span class="sig-name descname"><span class="pre">valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.Augmentation.valid" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.transforms.AugmentationPipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.transforms.</span></span><span class="sig-name descname"><span class="pre">AugmentationPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">augList</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugmentationPipeline" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugmentationPipeline.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aug_title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">example</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugmentationPipeline.append" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugmentationPipeline.checkArgs">
+<span class="sig-name descname"><span class="pre">checkArgs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugmentationPipeline.checkArgs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugmentationPipeline.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugmentationPipeline.clear" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugmentationPipeline.exists">
+<span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugmentationPipeline.exists" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugmentationPipeline.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugmentationPipeline.index" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugmentationPipeline.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugmentationPipeline.load" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugmentationPipeline.next">
+<span class="sig-name descname"><span class="pre">next</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugmentationPipeline.next" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugmentationPipeline.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aug_title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugmentationPipeline.remove" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.transforms.AugmentationPipeline.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.transforms.AugmentationPipeline.save" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorials/abstract_model.html" class="btn btn-neutral float-left" title="Integrating New Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="src.obj_detector.html" class="btn btn-neutral float-right" title="Object Detector Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Vijay Rajagopal, Rus Refati.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
