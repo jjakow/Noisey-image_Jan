@@ -1366,7 +1366,7 @@ _registry = {
         COCO_CLASSES
     ),
     'Face Detection (YOLOv5)': YOLOv5(
-        os.path.join(currPath, 'yolov5', 'models', 'yolov5x.yaml'),
+        os.path.join(currPath, 'yolov5', 'models', 'yolov5s.yaml'),
         os.path.join(currPath, 'yolov5', 'yolov5s.pt')
     )
 }
