@@ -101,43 +101,6 @@ def gaussian_blur(image, parameter):
     output_image = cv2.GaussianBlur(image_copy, (parameter,parameter),0) # parameter is size of median kernel
     return output_image.astype('uint8')
 
-def rain(image, intensity=1):
-    drop_width=1
-    drop_color=(200,200,200)
-    drop_length=30
-    drops=[]
-    imshape = image.shape
-    area=imshape[0]*imshape[1]
-    no_of_drops=area//600
-
-    if intensity=='0':          ## drizzle
-        no_of_drops=area//770
-        drop_length=10
-    elif intensity=='1':        ## heavy
-        drop_length=30
-    elif intensity=='2':        ## torrential
-        no_of_drops=area//500
-        drop_length=60
-
-    slant= np.random.randint(-10,10) ##generate random slant if no slant value is given
-    for i in range(no_of_drops): ## If You want heavy rain, try increasing this
-        if slant<0:
-            x= np.random.randint(slant,imshape[1])
-        else:
-            x= np.random.randint(0,imshape[1]-slant)
-        y= np.random.randint(0,imshape[0]-drop_length)
-        drops.append((x,y))
-
-    image_t= image.copy()
-    for rain_drop in drops:
-            cv2.line(image_t,(rain_drop[0],rain_drop[1]),(rain_drop[0]+slant,rain_drop[1]+drop_length),drop_color,drop_width)
-    new_image= cv2.blur(image_t,(5,5)) ## rainy view are blurry
-    brightness_coefficient = 0.8 ## rainy days are usually shady 
-    image_HLS = cv2.cvtColor(new_image,cv2.COLOR_RGB2HLS)
-    image_HLS[:,:,1] = image_HLS[:,:,1]*brightness_coefficient ## scale pixel values down for channel 1(Lightness)
-    image_RGB= cv2.cvtColor(image_HLS,cv2.COLOR_HLS2RGB)
-
-    return image_RGB
 
 def jpeg_comp(image, quality, return_encoded=False):
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
@@ -524,7 +487,6 @@ def passthrough(images, param):
 def __intensityCheck__(param): return param >= 0 and param <= 1
 def __gaussianNoiseCheck__(param): return param > 0
 def __gaussianBlurCheck__(param): return param > 0
-def __rainCheck__(param): return param >= 0 and param <= 2
 def __saltPepperCheck__(param): return param >= 0 and param <= 1.0
 def __flipAxisCheck__(param): return True
 def __fishEyeCheck__(param): return param > 0 and param <= 1
