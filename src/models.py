@@ -1367,7 +1367,7 @@ _registry = {
     ),
     'Face Detection (YOLOv5)': YOLOv5(
         os.path.join(currPath, 'yolov5', 'models', 'yolov5s.yaml'),
-        os.path.join(currPath, 'yolov5', 'yolov5best.pt')
+        os.path.join(currPath, 'yolov5', 'yolov5s.pt')
     )
 }
 
