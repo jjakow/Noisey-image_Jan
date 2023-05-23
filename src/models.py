@@ -1326,7 +1326,7 @@ _registry = {
     'Face Detection (YOLOv3)': YOLOv3(
          os.path.join(currPath, 'obj_detector/cfg', 'face.names'),
          os.path.join(currPath, 'obj_detector/cfg', 'yolov3-face.cfg'),
-         os.path.join(currPath,'obj_detector/weights','yolov3-face_last.weights')
+         os.path.join(currPath,'obj_detector/weights','yolov3.weights')
     ),
     'Face Detection (MTCNN)': MTCNN(
         os.path.join(currPath, 'mtcnn/weights', 'pnet.npy'),

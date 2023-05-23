@@ -14,6 +14,7 @@ augList = {
     "Intensity": {"function": dim_intensity, "default": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], "example":0.5, "limits":trans.__intensityCheck__},
     "Gaussian Noise": {"function": gaussian_noise, "default": [1,10,15,20,25,30,35,40,45,50,55,60], "example":25, "limits":trans.__gaussianNoiseCheck__},
     "Gaussian Blur": {"function": gaussian_blur, "default": [3, 13, 23, 33, 43, 53, 63, 73, 83], "example":33, "limits":trans.__gaussianBlurCheck__},
+    "Rain": {"function": rain, "default": [0,1,2], "example":1, "limits":trans.__rainCheck__},
     "Salt and Pepper": {"function": saltAndPapper_noise, "default": [x/100 for x in range(12)], "example":0.25, "limits":trans.__saltPepperCheck__},
     "Flip Axis": {"function": flipAxis, "default": [-1], "example": -1, "limits":trans.__flipAxisCheck__},
     "Fisheye": {"function": fisheye, "default": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], "example":0.4, "limits":trans.__fishEyeCheck__},
