@@ -512,6 +512,23 @@ def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
 
     return frame
 
+def sharpen(image, param):
+    kernel = np.array([[-1,-1,-1],[-1,param,-1],[-1,-1,-1]])
+    sharp = cv2.filter2D(image, -1, kernel)
+    return sharp
+    
+def rotation(image, param):
+    center = tuple(np.array(image.shape[1::-1])/2)
+    mat = cv2.getRotationMatrix2D(center, param, 1.0)
+    rotate = cv2.warpAffine(image, mat, image.shape[1::-1])
+    return rotate
+    
+def invert(image, param):
+    return image
+
+def pincushion(image, param):
+    return image
+
 def cae(image, patches):  
     # Run the autoencoder with the given image
     image = cae_encoder.run(image, patches)
@@ -526,7 +543,9 @@ def __gaussianNoiseCheck__(param): return param > 0
 def __gaussianBlurCheck__(param): return param > 0
 def __rainCheck__(param): return param >= 0 and param <= 2
 def __saltPepperCheck__(param): return param >= 0 and param <= 1.0
-def __flipAxisCheck__(param): return True
+#def __flipAxisCheck__(param): return True
+# Changing axis constraints to allow horizontal and diagonal flip
+def __flipAxisCheck__(param): return param >= -1 and param <= 1
 def __fishEyeCheck__(param): return param > 0 and param <= 1
 def __barrelCheck__(param): return param > 0 and param <= 0.01
 def __simpleMosaicCheck__(param): return True
@@ -535,6 +554,10 @@ def __speckleNoiseCheck__(param): return param >= 1 and param <= 2
 def __saturationCheck__(param): return param >= 0
 def __altMosaicCheck__(param): return param > 0
 def __bilinearCheck__(param): return param >= 0 and param <= 100
+def __sharpenCheck__(param): return param in [5,6,7,8,9,10,11,12]
+def __rotationCheck__(param): return param >= 0 and param <= 350
+def __invertCheck__(param): return True
+def __pincushionCheck__(param): return True
 def __h264Check__(param): return param >= 0 and param <= 100
 def __h265Check__(param): return param >= 0 and param <= 100
 def __JPEGCheck__(param): return param >= 0 and param <= 100
