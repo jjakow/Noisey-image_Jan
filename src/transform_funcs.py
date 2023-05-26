@@ -524,10 +524,21 @@ def rotation(image, param):
     return rotate
     
 def invert(image, param):
-    return image
+    invert = cv2.bitwise_not(image)
+    return invert
 
-def pincushion(image, param):
-    return image
+def pincushion(image, param=0.005):
+    height, width, channel = image.shape
+    k1, k2, p1, p2 = 0, 0, param, param # Need to find right order of parameters for pinching
+    dist_coeff = np.array([[k1],[k2],[p1],[p2]])
+    # assume unit matrix for camera
+    cam = np.eye(3,dtype=np.float32)
+    cam[0,2] = width/2.0  # define center x
+    cam[1,2] = height/2.0 # define center y
+    cam[0,0] = 10.        # define focal length x
+    cam[1,1] = 10.        # define focal length y
+    new_image = cv2.undistort(image, cam, dist_coeff)
+    return new_image
 
 def cae(image, patches):  
     # Run the autoencoder with the given image
@@ -557,7 +568,7 @@ def __bilinearCheck__(param): return param >= 0 and param <= 100
 def __sharpenCheck__(param): return param in [5,6,7,8,9,10,11,12]
 def __rotationCheck__(param): return param >= 0 and param <= 350
 def __invertCheck__(param): return True
-def __pincushionCheck__(param): return True
+def __pincushionCheck__(param): return param > 0 and param <= 0.01
 def __h264Check__(param): return param >= 0 and param <= 100
 def __h265Check__(param): return param >= 0 and param <= 100
 def __JPEGCheck__(param): return param >= 0 and param <= 100

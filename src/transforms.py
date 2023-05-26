@@ -29,7 +29,7 @@ augList = {
     "Sharpen": {"function": sharpen, "default": [5,6,7,8,9,10,11,12], "example":9, "limits":trans.__sharpenCheck__},
     "Rotation": {"function": rotation, "default": [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330], "example":60, "limits":trans.__rotationCheck__},
     "Color Inversion": {"function": invert, "default": [1], "example":1, "limits":trans.__invertCheck__},
-    "Pincushion": {"function": pincushion, "default": [1], "example":1, "limits":trans.__pincushionCheck__},
+    "Pincushion": {"function": pincushion, "default": [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.001, 0.002, 0.003, 0.004, 0.005, 0.01], "example":0.005, "limits":trans.__pincushionCheck__},
     " ": {"function": trans.passthrough, "default":[], "example":[],"limits":None, "line": "Compression Methods"},
     "JPEG Compression": {"function": jpeg_comp, "default": [100,90,80,70,60,50,40,30,20,10], "example":20, "limits":trans.__JPEGCheck__},
     "WebP Compression": {"function": webp_transform, "default": [10,25,50,75,100], "example":10, "limits":trans.__WEBPCheck__},
