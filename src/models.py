@@ -66,6 +66,11 @@ from src.yolox.yolox.utils import fuse_model, get_model_info, postprocess, vis
 from src.yolox.yolox.utils.visualize import _COLORS
 from src.yolox.exps.default.yolox_m import Exp
 
+# YoloNAS imports
+import super_gradients
+from super_gradients.training import models
+from super_gradients.common.object_names import Models
+
 currPath = str(Path(__file__).parent.absolute()) + '/'
 
 class Model(abc.ABC):
@@ -1182,34 +1187,127 @@ class DETR(Model):
         return metrics[0]['AP']
 
 class YOLO_NAS(Model):
-    """
-    Creates and adds models. 
-    Requirment: The network needs to be fitted in four main funtions: run, initialize, deinitialize, and draw.   
-    """
+	# Based off of YoloNAS quickstart, will need to be changed for long-term custom training
     def __init__(self, *network_config) -> None:
-        self.complexOutput = False
+        super().__init__(*network_config)
+        self.weight, _yaml = network_config
         self.isCOCO91 = False
+        with open(_yaml, 'r') as stream:
+            self.YAML = yaml.safe_load(stream)
+        self.img_size = (416, 416)
+        self.conf_thres = 0.5
+        self.iou_thres = 0.6
+        self.max_det = 1000
+        self.img_size = 416
+		
+        self.hide_conf = True
+        self.hide_labels = False
+        self.colors = Colors()
     
     def run(self, input):
-        raise NotImplementedError
+        pred = self.net.predict(input)
+        return pred
 
     def initialize(self, *kwargs):
-        raise NotImplementedError
+        self.net = models.get(Models.YOLO_NAS_S, pretrained_weights="coco")
+        return 0
 
     def deinitialize(self):
-        raise NotImplementedError
+        return self.net
 
-    def draw(self, pred):
-        raise NotImplementedError
+    def draw(self, pred, img, class_filter=None):
+        labels = {"all": [255,255,255]}
+	
+        new_img = np.copy(img)
+		
+        for image_prediction in pred:
+            self.class_names = image_prediction.class_names # Gets all class names in COCO
+            self.labels = image_prediction.prediction.labels
+            self.confidence = image_prediction.prediction.confidence
+            self.bboxes = image_prediction.prediction.bboxes_xyxy
+			
+        print(self.class_names)
+        print(self.labels)
+        print(self.confidence)
+        print(self.bboxes)
+			
+        #detected_labels = []
+        #for l in self.labels:
+            #detected_labels.append(l.astype(int).item())
+            #detected_labels.append(class_names[int(l)])
+		
+        """		
+        ind = 0
+		
+        for b in self.bboxes:
+            x1, y1, x2, y2 = b.astype(int)
+            new_img = cv2.rectangle(new_img, (x1,y1), (x2,y2), (0,0,255), 2)
+            new_img = cv2.putText(new_img, "Text", (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), thickness=2)
+            ind += 1
+		"""
+		
+        annotator = Annotator(new_img, line_width=2)
+        for xyxy, conf, cls in zip(self.bboxes, self.confidence, self.labels):
+            c = cls.astype(int).item()
+            label = None if self.hide_labels else (self.class_names[c] if self.hide_conf else f'{names[c]} {conf:.2f}')
+            _color = self.colors(c, True)
+            if not label in labels:
+                _c = list(_color)
+                labels[label] = [_c[2], _c[1], _c[0]]
+            if class_filter:
+                if class_filter == label:
+                    annotator.box_label(xyxy, label, color=_color)
+            else:
+                annotator.box_label(xyxy, label, color=_color)
+        new_img = annotator.result()
+		
+        #print(detected_labels)
+
+        #detected_classes = []
+        #for l in labels:
+	    #    detected_classes.append(class_names[int(l)])
+
+        #return np_img
+		
+        return {"dst": new_img,
+                "listOfNames": labels}
 
     def draw_single_class(self, pred, img, selected_class):
-        raise NotImplementedError
+        res = self.draw(pred, img, class_filter=selected_class)
+        return {"overlay": res["dst"]}
 
-    def report_accuracy(self):
-        raise NotImplementedError
-
+    def report_accuracy(self, pred:list, gt:list, evalType='voc'):
+        """
+        if len(pred) == 0:
+            return 0
+			
+        allBoundingBoxes = BoundingBoxes()
+        evaluator = Evaluator()
+		
+        for _gt in gt:
+            assert type(_gt) == BoundingBox, "_gt is not BoundingBox type. Instead is %s" % (str(type(_gt)))
+            allBoundingBoxes.addBoundingBox(_gt)
+			
+        for _pred in pred:
+            assert type(_pred) == BoundingBox, "_pred is not BoundingBox type. Instead is %s" % (str(type(_gt)))
+            allBoundingBoxes.addBoundingBox(_pred)
+			
+        if evalType == 'voc':
+            metrics = evaluator.GetPascalVOCMetrics(allBoundingBoxes)
+            print('Printing metrics for YOLO-NAS', metrics)
+			
+        elif evalType == 'coco':
+            assert False
+        else:
+            assert False, "evalType %s is not supported" % (evalType)
+			
+        return metrics[0]['AP']
+        """
+	
+        return 0
+	
     def outputFormat(self):
-        raise NotImplementedError
+        return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
 
     def __call__(self):
         pred = self.run()
@@ -1258,10 +1356,11 @@ _registry = {
         os.path.join(currPath, "yolox/weights/yolox_m.pth"),
         COCO_CLASSES
     ),
-    # 'Object Detection (YOLO_NAS)': YOLO_NAS(
-    #   os.path.join(currPath, "HERE"),
+    'Object Detection (YOLO_NAS)': YOLO_NAS(
+        os.path.join(currPath, 'yolonas', 'yolo_nas_s.pt'),
+        os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml')
     #   os.path.join(currPath, "HERE")
-    # )
+    )
 }
 
 
