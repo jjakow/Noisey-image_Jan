@@ -686,11 +686,14 @@ class YOLOv3_Ultralytics(Model):
             pred = self.model(im, augment=False, visualize=False)
             pred = pred.cpu()
             pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, None, False)[0]
-
+            ###
+            #print(pred)
+			###
             if pred.shape[0] > 0:
                 # Rescale boxes from img_size to im0 size
                 pred[:, :4] = scale_coords(im.shape[2:], pred[:, :4], imageShape).round()
                 #self.predictions = pred
+                print(pred)
                 return pred
             else:
                 return []
@@ -1205,11 +1208,63 @@ class YOLO_NAS(Model):
         self.colors = Colors()
     
     def run(self, input):
+        """
         pred = self.net.predict(input)
         return pred
+        """
+		
+        self.pred = self.net.predict(input, conf=0.5)
+        self.pred_objects = list(self.pred._images_prediction_lst)[0]
+		
+        print("==================================")
+        #print(pred_objects.prediction.bboxes_xyxy[0])
+        #print(pred_objects.prediction.bboxes_xyxy[0][0]) # x
+        #print(pred_objects.prediction.bboxes_xyxy[0][1]) # y
+        #print(pred_objects.prediction.bboxes_xyxy[0][2] - pred_objects.prediction.bboxes_xyxy[0][0]) # w
+        #print(pred_objects.prediction.bboxes_xyxy[0][3] - pred_objects.prediction.bboxes_xyxy[0][0]) # h
+        #print(pred_objects.prediction.confidence[0]) # conf
+        #print(pred_objects.prediction.labels[0].astype(int)) # label
+		
+        num_dets = len(self.pred_objects.prediction.confidence)
+        detections = []
+        det = []
+        for d in range(num_dets):
+            #for i in range(6):
+                #print("{} | {} | {} | {} | {} | {}\n".format(pred_objects.prediction.bboxes_xyxy[i][0], pred_objects.prediction.bboxes_xyxy[i][1], pred_objects.prediction.bboxes_xyxy[i][2], pred_objects.prediction.bboxes_xyxy[i][3], pred_objects.prediction.confidence[i], pred_objects.prediction.labels[i].astype(int)))
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][0])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][1])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][2])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][3])
+            det.append(self.pred_objects.prediction.confidence[d])
+            det.append(self.pred_objects.prediction.labels[d].astype(int))
+            detections.append(det)
+            det = []
+        #print(detections)
+        
+        #print(type(pred)) #ImagesDetectionPrediction
+        #print(type(pred_objects)) #ImageDetectionPrediction
+        
+		#return pred_objects # return ImageDetectionPrediction converted to list(?)
+        return detections
+		
+        """
+        FIELDS:
+            - image
+            - prediction
+                - bboxes_xyxy
+                - confidence
+                - labels
+        """
+		
+        # self.bboxes = pred.prediction.bboxes_xyxy
+		# self.confidence = pred.prediciton.confidence
+        # self.labels = pred.prediction.labels
+        # self.int_labels = self.labels.astype(int)
+        # self.class_names = pred.class_names
+        # self.pred_classes = [self.class_names[i] for i in self.int_labels]
 
     def initialize(self, *kwargs):
-        self.net = models.get(Models.YOLO_NAS_S, pretrained_weights="coco")
+        self.net = models.get(Models.YOLO_NAS_M, pretrained_weights="coco")
         return 0
 
     def deinitialize(self):
@@ -1220,32 +1275,19 @@ class YOLO_NAS(Model):
 	
         new_img = np.copy(img)
 		
-        for image_prediction in pred:
-            self.class_names = image_prediction.class_names # Gets all class names in COCO
-            self.labels = image_prediction.prediction.labels
-            self.confidence = image_prediction.prediction.confidence
-            self.bboxes = image_prediction.prediction.bboxes_xyxy
-			
-        print(self.class_names)
-        print(self.labels)
-        print(self.confidence)
-        print(self.bboxes)
-			
-        #detected_labels = []
-        #for l in self.labels:
-            #detected_labels.append(l.astype(int).item())
-            #detected_labels.append(class_names[int(l)])
+        self.bboxes = self.pred_objects.prediction.bboxes_xyxy
+        self.confidence = self.pred_objects.prediction.confidence
+        self.labels = self.pred_objects.prediction.labels
+        self.int_labels = self.labels.astype(int)
+        self.class_names = self.pred_objects.class_names
+        self.pred_classes = [self.class_names[i] for i in self.int_labels]
 		
-        """		
-        ind = 0
-		
-        for b in self.bboxes:
-            x1, y1, x2, y2 = b.astype(int)
-            new_img = cv2.rectangle(new_img, (x1,y1), (x2,y2), (0,0,255), 2)
-            new_img = cv2.putText(new_img, "Text", (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), thickness=2)
-            ind += 1
-		"""
-		
+        print(len(self.confidence))
+        if len(self.confidence) == 0:
+            print(0)
+        else:
+            print(sum(self.confidence) / len(self.confidence))
+        """
         annotator = Annotator(new_img, line_width=2)
         for xyxy, conf, cls in zip(self.bboxes, self.confidence, self.labels):
             c = cls.astype(int).item()
@@ -1260,14 +1302,23 @@ class YOLO_NAS(Model):
             else:
                 annotator.box_label(xyxy, label, color=_color)
         new_img = annotator.result()
-		
-        #print(detected_labels)
-
-        #detected_classes = []
-        #for l in labels:
-	    #    detected_classes.append(class_names[int(l)])
-
-        #return np_img
+        """
+        #print(pred)
+        if len(pred) > 0:
+            annotator = Annotator(new_img, line_width=2)
+            for *xyxy, conf, cls in reversed(pred):
+                c = int(cls)
+                label = None if self.hide_labels else (self.class_names[c] if self.hide_conf else f'{names[c]} {conf:.2f}')
+                _color = self.colors(c, True)
+                if not label in labels:
+                    _c = list(_color)
+                    labels[label] = [_c[2], _c[1], _c[0]]
+                if class_filter:
+                    if class_filter == label:
+                        annotator.box_label(xyxy, label, color=_color)
+                else:
+                    annotator.box_label(xyxy, label, color=_color)
+                new_img = annotator.result()
 		
         return {"dst": new_img,
                 "listOfNames": labels}
@@ -1276,8 +1327,7 @@ class YOLO_NAS(Model):
         res = self.draw(pred, img, class_filter=selected_class)
         return {"overlay": res["dst"]}
 
-    def report_accuracy(self, pred:list, gt:list, evalType='voc'):
-        """
+    def report_accuracy(self, pred, gt, evalType='voc'):
         if len(pred) == 0:
             return 0
 			
@@ -1302,9 +1352,6 @@ class YOLO_NAS(Model):
             assert False, "evalType %s is not supported" % (evalType)
 			
         return metrics[0]['AP']
-        """
-	
-        return 0
 	
     def outputFormat(self):
         return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
