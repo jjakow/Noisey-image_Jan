@@ -54,13 +54,6 @@ from src.yolov3.utils.augmentations import letterbox
 from src.yolov3.models.common import DetectMultiBackend
 import yaml
 
-# YOLOv5 imports
-#from src import yolov5
-from src.yolov5.utils.plots import Annotator as yolov5_Annotator
-from src.yolov5.utils.plots import Colors as yolov5_Colors
-from src.yolov5.utils.augmentations import letterbox as yolov5_letterbox
-from src.yolov5.models.common import DetectMultiBackend as yolov5_DetectMultiBackend
-
 # import compressive autoendcoding here:
 from src.cae.src.data_loader import preprocess_single as cae_preprocess_single
 from src.cae.src.models.cae_32x32x32_zero_pad_bin import CAE
@@ -72,6 +65,11 @@ from src.yolox.yolox.exp import get_exp
 from src.yolox.yolox.utils import fuse_model, get_model_info, postprocess, vis
 from src.yolox.yolox.utils.visualize import _COLORS
 from src.yolox.exps.default.yolox_m import Exp
+
+# YoloNAS imports
+import super_gradients
+from super_gradients.training import models
+from super_gradients.common.object_names import Models
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
 
@@ -688,11 +686,14 @@ class YOLOv3_Ultralytics(Model):
             pred = self.model(im, augment=False, visualize=False)
             pred = pred.cpu()
             pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, None, False)[0]
-
+            ###
+            #print(pred)
+			###
             if pred.shape[0] > 0:
                 # Rescale boxes from img_size to im0 size
                 pred[:, :4] = scale_coords(im.shape[2:], pred[:, :4], imageShape).round()
                 #self.predictions = pred
+                print(pred)
                 return pred
             else:
                 return []
@@ -736,140 +737,6 @@ class YOLOv3_Ultralytics(Model):
 
     def testCOCO(self, pred):
         
-        pass
-      
-    def report_accuracy(self, pred:list, gt:list, evalType='voc'):
-        """Function takes in prediction boxes and ground truth boxes and
-        returns the mean average precision (mAP) @ IOU 0.5 under VOC2007 criteria (default).
-        Args:
-            pred (list): A list of BoundingBox objects representing each detection from method
-            gt (list): A list of BoundingBox objects representing each object in the ground truth
-        Returns:
-            mAP: a number representing the mAP over all classes for a single image.
-        """        
-        if len(pred) == 0: return 0
-
-        allBoundingBoxes = BoundingBoxes()
-        evaluator = Evaluator()
-
-        # loop through gt:
-        for _gt in gt:
-            assert type(_gt) == BoundingBox, "_gt is not BoundingBox type. Instead is %s"%(str(type(_gt)))
-            allBoundingBoxes.addBoundingBox(_gt)
-
-        for _pred in pred:
-            assert type(_pred) == BoundingBox, "_gt is not BoundingBox type. Instead is %s"%(str(type(_pred)))
-            allBoundingBoxes.addBoundingBox(_pred)
-            print("prediction", _pred)
-
-        #for box in allBoundingBoxes:
-        #    print(box.getAbsoluteBoundingBox(format=BBFormat.XYWH), box.getBBType()) 
-        if evalType == 'voc':
-            metrics = evaluator.GetPascalVOCMetrics(allBoundingBoxes)
-            print('Printing metrics for YOLOv3_Ultralytics', metrics)
-
-        elif evalType == 'coco':
-            assert False
-        else: assert False, "evalType %s not supported"%(evalType) 
-        return metrics[0]['AP']
-
-class YOLOv5(Model):
-    def __init__(self, *network_config) -> None:
-        super().__init__(*network_config)
-        _yaml, self.weight = network_config
-        self.isCOCO91 = False
-        with open(_yaml, 'r') as stream:
-            self.YAML = yaml.safe_load(stream)
-
-        self.img_size = (416,416)
-        if torch.cuda.is_available():
-            self.device = select_device('0')
-        else:
-            self.device = select_device('cpu')
-        self.conf_thres = 0.5
-        self.iou_thres = 0.6
-        self.max_det = 1000
-        self.img_size = 416
-        
-        self.hide_conf = True
-        self.hide_labels = False
-        #self.colors = Colors()  # create instance for 'from utils.plots import colors'
-        self.colors = yolov5_Colors() # create instance for 'from utils.plots import colors'
-
-
-        # Stuff for COCO
-        self.predictions = []
-
-    def initialize(self, *kwargs):
-        #self.model = DetectMultiBackend(self.weight, device=self.device, dnn=False)
-        self.model = yolov5_DetectMultiBackend(self.weight, device=self.device, dnn=False)
-
-        self.names = self.model.names
-
-    def run(self, input):
-        with torch.no_grad():
-            imageShape = input.shape
-            gn = torch.tensor(imageShape)[[1, 0, 1, 0]]  # normalization gain whwh
-            #im = letterbox(input, self.img_size, stride=self.model.stride, auto=False)[0]
-            im = yolov5_letterbox(input, self.img_size, stride=self.model.stride, auto=False)[0]
-
-            im = im.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
-            im = np.ascontiguousarray(im)
-            im = torch.from_numpy(im).to(self.device)
-            im = torch.unsqueeze(im, axis=0)
-            im = im.float()  # uint8 to fp16/32
-            im /= 255  # 0 - 255 to 0.0 - 1.0
-            pred = self.model(im, augment=False, visualize=False)[0]
-            pred = pred.cpu()
-            pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, None, False)[0]
-
-            if pred.shape[0] > 0:
-                # Rescale boxes from img_size to im0 size
-                pred[:, :4] = scale_coords(im.shape[2:], pred[:, :4], imageShape).round()
-                #self.predictions = pred
-                return pred
-            else:
-                return []
-
-    def draw(self, preds, im0, class_filter=None):
-        labels = {"all":[255,255,255]}
-        if len(preds) > 0:
-            names = self.names
-            gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
-            imc = im0  # for save_crop
-            #annotator = Annotator(im0, line_width=2)
-            annotator = yolov5_Annotator(im0, line_width=2)
-            for *xyxy, conf, cls in reversed(preds):
-                c = int(cls)  # integer class
-                label = None if self.hide_labels else (names[c] if self.hide_conf else f'{names[c]} {conf:.2f}')
-                _color = self.colors(c, True)
-                if not label in labels:
-                    _c = list(_color)
-                    labels[label] = [_c[2], _c[1], _c[0]]
-                if class_filter:
-                    if class_filter == label:
-                        annotator.box_label(xyxy, label, color=_color)
-                else:
-                    annotator.box_label(xyxy, label, color=_color)
-                # Stream results
-            im0 = annotator.result()
-        #cv2.imshow('test', im0)
-        #cv2.imwrite('test.png', im0)
-        #cv2.waitKey(-1)
-        return {"dst": im0,
-                "listOfNames":labels}
-
-    def deinitialize(self):
-        del self.model
-
-    def draw_single_class(self, preds, im0, selected_class):
-        res = self.draw(preds, im0, class_filter=selected_class)
-        return {"overlay": res["dst"]}
-
-    def outputFormat(self):
-        return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
-
-    def testCOCO(self, pred):
         pass
       
     def report_accuracy(self, pred:list, gt:list, evalType='voc'):
@@ -1322,11 +1189,391 @@ class DETR(Model):
         else: assert False, "evalType %s not supported"%(evalType) 
         return metrics[0]['AP']
 
+class YOLO_NAS_S(Model):
+	# Based off of YoloNAS quickstart, will need to be changed for long-term custom training
+    def __init__(self, *network_config) -> None:
+        super().__init__(*network_config)
+        self.weight, _yaml = network_config
+        self.isCOCO91 = False
+        with open(_yaml, 'r') as stream:
+            self.YAML = yaml.safe_load(stream)
+        self.img_size = (416, 416)
+        self.conf_thres = 0.5
+        self.iou_thres = 0.6
+        self.max_det = 1000
+        self.img_size = 416
+		
+        self.hide_conf = True
+        self.hide_labels = False
+        self.colors = Colors()
+    
+    def run(self, input):
+        """
+        pred = self.net.predict(input)
+        return pred
+        """
+		
+        self.pred = self.net.predict(input)
+        self.pred_objects = list(self.pred._images_prediction_lst)[0]
+		
+        num_dets = len(self.pred_objects.prediction.confidence)
+        detections = []
+        det = []
+        for d in range(num_dets):
+            #for i in range(6):
+                #print("{} | {} | {} | {} | {} | {}\n".format(pred_objects.prediction.bboxes_xyxy[i][0], pred_objects.prediction.bboxes_xyxy[i][1], pred_objects.prediction.bboxes_xyxy[i][2], pred_objects.prediction.bboxes_xyxy[i][3], pred_objects.prediction.confidence[i], pred_objects.prediction.labels[i].astype(int)))
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][0])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][1])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][2])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][3])
+            det.append(self.pred_objects.prediction.confidence[d])
+            det.append(self.pred_objects.prediction.labels[d].astype(int))
+            detections.append(det)
+            det = []
+        
+		#return pred_objects # return ImageDetectionPrediction converted to list(?)
+        return detections
+
+    def initialize(self, *kwargs):
+        self.net = models.get(Models.YOLO_NAS_S, pretrained_weights="coco")
+        return 0
+
+    def deinitialize(self):
+        return self.net
+
+    def draw(self, pred, img, class_filter=None):
+        labels = {"all": [255,255,255]}
+	
+        new_img = np.copy(img)
+		
+        self.bboxes = self.pred_objects.prediction.bboxes_xyxy
+        self.confidence = self.pred_objects.prediction.confidence
+        self.labels = self.pred_objects.prediction.labels
+        self.int_labels = self.labels.astype(int)
+        self.class_names = self.pred_objects.class_names
+        self.pred_classes = [self.class_names[i] for i in self.int_labels]
+		
+        print(len(self.confidence))
+        if len(self.confidence) == 0:
+            print(0)
+        else:
+            print(sum(self.confidence) / len(self.confidence))
+
+        if len(pred) > 0:
+            annotator = Annotator(new_img, line_width=2)
+            for *xyxy, conf, cls in reversed(pred):
+                c = int(cls)
+                label = None if self.hide_labels else (self.class_names[c] if self.hide_conf else f'{names[c]} {conf:.2f}')
+                _color = self.colors(c, True)
+                if not label in labels:
+                    _c = list(_color)
+                    labels[label] = [_c[2], _c[1], _c[0]]
+                if class_filter:
+                    if class_filter == label:
+                        annotator.box_label(xyxy, label, color=_color)
+                else:
+                    annotator.box_label(xyxy, label, color=_color)
+                new_img = annotator.result()
+		
+        return {"dst": new_img,
+                "listOfNames": labels}
+
+    def draw_single_class(self, pred, img, selected_class):
+        res = self.draw(pred, img, class_filter=selected_class)
+        return {"overlay": res["dst"]}
+
+    def report_accuracy(self, pred, gt, evalType='voc'):
+        if len(pred) == 0:
+            return 0
+			
+        allBoundingBoxes = BoundingBoxes()
+        evaluator = Evaluator()
+		
+        for _gt in gt:
+            assert type(_gt) == BoundingBox, "_gt is not BoundingBox type. Instead is %s" % (str(type(_gt)))
+            allBoundingBoxes.addBoundingBox(_gt)
+			
+        for _pred in pred:
+            assert type(_pred) == BoundingBox, "_pred is not BoundingBox type. Instead is %s" % (str(type(_gt)))
+            allBoundingBoxes.addBoundingBox(_pred)
+			
+        if evalType == 'voc':
+            metrics = evaluator.GetPascalVOCMetrics(allBoundingBoxes)
+            print('Printing metrics for YOLO-NAS', metrics)
+			
+        elif evalType == 'coco':
+            assert False
+        else:
+            assert False, "evalType %s is not supported" % (evalType)
+			
+        return metrics[0]['AP']
+	
+    def outputFormat(self):
+        return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
+
+    def __call__(self):
+        pred = self.run()
+        return pred
+
+class YOLO_NAS_M(Model):
+	# Based off of YoloNAS quickstart, will need to be changed for long-term custom training
+    def __init__(self, *network_config) -> None:
+        super().__init__(*network_config)
+        self.weight, _yaml = network_config
+        self.isCOCO91 = False
+        with open(_yaml, 'r') as stream:
+            self.YAML = yaml.safe_load(stream)
+        self.img_size = (416, 416)
+        self.conf_thres = 0.5
+        self.iou_thres = 0.6
+        self.max_det = 1000
+        self.img_size = 416
+		
+        self.hide_conf = True
+        self.hide_labels = False
+        self.colors = Colors()
+    
+    def run(self, input):
+        """
+        pred = self.net.predict(input)
+        return pred
+        """
+		
+        self.pred = self.net.predict(input)
+        self.pred_objects = list(self.pred._images_prediction_lst)[0]
+		
+        num_dets = len(self.pred_objects.prediction.confidence)
+        detections = []
+        det = []
+        for d in range(num_dets):
+            #for i in range(6):
+                #print("{} | {} | {} | {} | {} | {}\n".format(pred_objects.prediction.bboxes_xyxy[i][0], pred_objects.prediction.bboxes_xyxy[i][1], pred_objects.prediction.bboxes_xyxy[i][2], pred_objects.prediction.bboxes_xyxy[i][3], pred_objects.prediction.confidence[i], pred_objects.prediction.labels[i].astype(int)))
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][0])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][1])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][2])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][3])
+            det.append(self.pred_objects.prediction.confidence[d])
+            det.append(self.pred_objects.prediction.labels[d].astype(int))
+            detections.append(det)
+            det = []
+        
+		#return pred_objects # return ImageDetectionPrediction converted to list(?)
+        return detections
+
+    def initialize(self, *kwargs):
+        self.net = models.get(Models.YOLO_NAS_M, pretrained_weights="coco")
+        return 0
+
+    def deinitialize(self):
+        return self.net
+
+    def draw(self, pred, img, class_filter=None):
+        labels = {"all": [255,255,255]}
+	
+        new_img = np.copy(img)
+		
+        self.bboxes = self.pred_objects.prediction.bboxes_xyxy
+        self.confidence = self.pred_objects.prediction.confidence
+        self.labels = self.pred_objects.prediction.labels
+        self.int_labels = self.labels.astype(int)
+        self.class_names = self.pred_objects.class_names
+        self.pred_classes = [self.class_names[i] for i in self.int_labels]
+		
+        print(len(self.confidence))
+        if len(self.confidence) == 0:
+            print(0)
+        else:
+            print(sum(self.confidence) / len(self.confidence))
+
+        if len(pred) > 0:
+            annotator = Annotator(new_img, line_width=2)
+            for *xyxy, conf, cls in reversed(pred):
+                c = int(cls)
+                label = None if self.hide_labels else (self.class_names[c] if self.hide_conf else f'{names[c]} {conf:.2f}')
+                _color = self.colors(c, True)
+                if not label in labels:
+                    _c = list(_color)
+                    labels[label] = [_c[2], _c[1], _c[0]]
+                if class_filter:
+                    if class_filter == label:
+                        annotator.box_label(xyxy, label, color=_color)
+                else:
+                    annotator.box_label(xyxy, label, color=_color)
+                new_img = annotator.result()
+		
+        return {"dst": new_img,
+                "listOfNames": labels}
+
+    def draw_single_class(self, pred, img, selected_class):
+        res = self.draw(pred, img, class_filter=selected_class)
+        return {"overlay": res["dst"]}
+
+    def report_accuracy(self, pred, gt, evalType='voc'):
+        if len(pred) == 0:
+            return 0
+			
+        allBoundingBoxes = BoundingBoxes()
+        evaluator = Evaluator()
+		
+        for _gt in gt:
+            assert type(_gt) == BoundingBox, "_gt is not BoundingBox type. Instead is %s" % (str(type(_gt)))
+            allBoundingBoxes.addBoundingBox(_gt)
+			
+        for _pred in pred:
+            assert type(_pred) == BoundingBox, "_pred is not BoundingBox type. Instead is %s" % (str(type(_gt)))
+            allBoundingBoxes.addBoundingBox(_pred)
+			
+        if evalType == 'voc':
+            metrics = evaluator.GetPascalVOCMetrics(allBoundingBoxes)
+            print('Printing metrics for YOLO-NAS', metrics)
+			
+        elif evalType == 'coco':
+            assert False
+        else:
+            assert False, "evalType %s is not supported" % (evalType)
+			
+        return metrics[0]['AP']
+	
+    def outputFormat(self):
+        return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
+
+    def __call__(self):
+        pred = self.run()
+        return pred
+
+
+class YOLO_NAS_L(Model):
+	# Based off of YoloNAS quickstart, will need to be changed for long-term custom training
+    def __init__(self, *network_config) -> None:
+        super().__init__(*network_config)
+        self.weight, _yaml = network_config
+        self.isCOCO91 = False
+        with open(_yaml, 'r') as stream:
+            self.YAML = yaml.safe_load(stream)
+        self.img_size = (416, 416)
+        self.conf_thres = 0.5
+        self.iou_thres = 0.6
+        self.max_det = 1000
+        self.img_size = 416
+		
+        self.hide_conf = True
+        self.hide_labels = False
+        self.colors = Colors()
+    
+    def run(self, input):
+        """
+        pred = self.net.predict(input)
+        return pred
+        """
+		
+        self.pred = self.net.predict(input)
+        self.pred_objects = list(self.pred._images_prediction_lst)[0]
+		
+        num_dets = len(self.pred_objects.prediction.confidence)
+        detections = []
+        det = []
+        for d in range(num_dets):
+            #for i in range(6):
+                #print("{} | {} | {} | {} | {} | {}\n".format(pred_objects.prediction.bboxes_xyxy[i][0], pred_objects.prediction.bboxes_xyxy[i][1], pred_objects.prediction.bboxes_xyxy[i][2], pred_objects.prediction.bboxes_xyxy[i][3], pred_objects.prediction.confidence[i], pred_objects.prediction.labels[i].astype(int)))
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][0])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][1])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][2])
+            det.append(self.pred_objects.prediction.bboxes_xyxy[d][3])
+            det.append(self.pred_objects.prediction.confidence[d])
+            det.append(self.pred_objects.prediction.labels[d].astype(int))
+            detections.append(det)
+            det = []
+        
+		#return pred_objects # return ImageDetectionPrediction converted to list(?)
+        return detections
+
+    def initialize(self, *kwargs):
+        self.net = models.get(Models.YOLO_NAS_L, pretrained_weights="coco")
+        return 0
+
+    def deinitialize(self):
+        return self.net
+
+    def draw(self, pred, img, class_filter=None):
+        labels = {"all": [255,255,255]}
+	
+        new_img = np.copy(img)
+		
+        self.bboxes = self.pred_objects.prediction.bboxes_xyxy
+        self.confidence = self.pred_objects.prediction.confidence
+        self.labels = self.pred_objects.prediction.labels
+        self.int_labels = self.labels.astype(int)
+        self.class_names = self.pred_objects.class_names
+        self.pred_classes = [self.class_names[i] for i in self.int_labels]
+		
+        print(len(self.confidence))
+        if len(self.confidence) == 0:
+            print(0)
+        else:
+            print(sum(self.confidence) / len(self.confidence))
+
+        if len(pred) > 0:
+            annotator = Annotator(new_img, line_width=2)
+            for *xyxy, conf, cls in reversed(pred):
+                c = int(cls)
+                label = None if self.hide_labels else (self.class_names[c] if self.hide_conf else f'{names[c]} {conf:.2f}')
+                _color = self.colors(c, True)
+                if not label in labels:
+                    _c = list(_color)
+                    labels[label] = [_c[2], _c[1], _c[0]]
+                if class_filter:
+                    if class_filter == label:
+                        annotator.box_label(xyxy, label, color=_color)
+                else:
+                    annotator.box_label(xyxy, label, color=_color)
+                new_img = annotator.result()
+		
+        return {"dst": new_img,
+                "listOfNames": labels}
+
+    def draw_single_class(self, pred, img, selected_class):
+        res = self.draw(pred, img, class_filter=selected_class)
+        return {"overlay": res["dst"]}
+
+    def report_accuracy(self, pred, gt, evalType='voc'):
+        if len(pred) == 0:
+            return 0
+			
+        allBoundingBoxes = BoundingBoxes()
+        evaluator = Evaluator()
+		
+        for _gt in gt:
+            assert type(_gt) == BoundingBox, "_gt is not BoundingBox type. Instead is %s" % (str(type(_gt)))
+            allBoundingBoxes.addBoundingBox(_gt)
+			
+        for _pred in pred:
+            assert type(_pred) == BoundingBox, "_pred is not BoundingBox type. Instead is %s" % (str(type(_gt)))
+            allBoundingBoxes.addBoundingBox(_pred)
+			
+        if evalType == 'voc':
+            metrics = evaluator.GetPascalVOCMetrics(allBoundingBoxes)
+            print('Printing metrics for YOLO-NAS', metrics)
+			
+        elif evalType == 'coco':
+            assert False
+        else:
+            assert False, "evalType %s is not supported" % (evalType)
+			
+        return metrics[0]['AP']
+	
+    def outputFormat(self):
+        return "{5:.0f} {4:f} {0:.0f} {1:.0f} {2:.0f} {3:.0f}"
+
+    def __call__(self):
+        pred = self.run()
+        return pred
+
+
 _registry = {
     'Face Detection (YOLOv3)': YOLOv3(
          os.path.join(currPath, 'obj_detector/cfg', 'face.names'),
          os.path.join(currPath, 'obj_detector/cfg', 'yolov3-face.cfg'),
-         os.path.join(currPath,'obj_detector/weights','yolov3.weights')
+         os.path.join(currPath,'obj_detector/weights','yolov3-face_last.weights')
     ),
     'Face Detection (MTCNN)': MTCNN(
         os.path.join(currPath, 'mtcnn/weights', 'pnet.npy'),
@@ -1365,9 +1612,20 @@ _registry = {
         os.path.join(currPath, "yolox/weights/yolox_m.pth"),
         COCO_CLASSES
     ),
-    'Face Detection (YOLOv5)': YOLOv5(
-        os.path.join(currPath, 'yolov5', 'models', 'yolov5s.yaml'),
-        os.path.join(currPath, 'yolov5', 'yolov5s.pt')
+    'Object Detection (YOLO_NAS S)': YOLO_NAS_S(
+        os.path.join(currPath, 'yolonas', 'yolo_nas_s.pt'),
+        os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml')
+    #   os.path.join(currPath, "HERE")
+    ),
+    'Object Detection (YOLO_NAS M)': YOLO_NAS_M(
+        os.path.join(currPath, 'yolonas', 'yolo_nas_m.pt'),
+        os.path.join(currPath, 'yolonas', 'yolo_nas_m_arch_params.yaml')
+    #   os.path.join(currPath, "HERE")
+    ),
+    'Object Detection (YOLO_NAS L)': YOLO_NAS_L(
+        os.path.join(currPath, 'yolonas', 'yolo_nas_l.pt'),
+        os.path.join(currPath, 'yolonas', 'yolo_nas_l_arch_params.yaml')
+    #   os.path.join(currPath, "HERE")
     )
 }
 
