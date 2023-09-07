@@ -320,9 +320,17 @@ class YOLOv3(Model):
         return -1
     
     def draw(self, pred, img):
-        np_img, detectedNames = detect._draw_and_return_output_image(img, pred, 416, self.classes)
+        np_img, detectedNames, dict = detect._draw_and_return_output_image(img, pred, 416, self.classes)
+        #print(detectedNames)
+        #print(len(pred))
+		
+        #dict = {}
+        #dict["face"] = len(pred)
+        #dict["all"] = len(pred)
+		
         return {"dst": np_img,
-                "listOfNames":detectedNames}
+                "listOfNames":detectedNames,
+				"classes": dict} #dict
 
     def draw_single_class(self, pred, img, selected_class):
         np_img = detect._draw_and_return_output_image_single_class(img, pred, selected_class, self.classes)
@@ -700,13 +708,14 @@ class YOLOv3_Ultralytics(Model):
                 # Rescale boxes from img_size to im0 size
                 pred[:, :4] = scale_coords(im.shape[2:], pred[:, :4], imageShape).round()
                 #self.predictions = pred
-                print(pred)
+                #print(pred)
                 return pred
             else:
                 return []
 
     def draw(self, preds, im0, class_filter=None):
         labels = {"all":[255,255,255]}
+        dict = {}
         if len(preds) > 0:
             names = self.names
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
@@ -719,6 +728,12 @@ class YOLOv3_Ultralytics(Model):
                 if not label in labels:
                     _c = list(_color)
                     labels[label] = [_c[2], _c[1], _c[0]]
+					
+                if label in dict.keys():
+                    dict[label] = dict.get(label) + 1
+                else:
+                    dict[label] = 1
+					
                 if class_filter:
                     if class_filter == label:
                         annotator.box_label(xyxy, label, color=_color)
@@ -726,11 +741,16 @@ class YOLOv3_Ultralytics(Model):
                     annotator.box_label(xyxy, label, color=_color)
                 # Stream results
             im0 = annotator.result()
+            dict["all"] = len(preds)
         #cv2.imshow('test', im0)
         #cv2.imwrite('test.png', im0)
         #cv2.waitKey(-1)
+		
+        #print(labels)
+        #print(preds)
         return {"dst": im0,
-                "listOfNames":labels}
+                "listOfNames":labels,
+                "classes": dict}
 
     def deinitialize(self):
         del self.model
@@ -851,6 +871,7 @@ class YOLOX(Model):
         
 
         labels = {"all":[255,255,255]}
+        dict = {}
 
         for i in range(preds.shape[0]):
             bboxes = preds[i,:4].int().tolist()
@@ -880,8 +901,14 @@ class YOLOX(Model):
             im0 = cv2.putText(im0, text, (bboxes[0], bboxes[1] + txt_size[1]), font, 0.4, txt_color, thickness=1)
             if not label in labels:
                 labels[label] = [color[2], color[1], color[0]]
+            
+            if label in dict.keys():
+                dict[label] = dict.get(label) + 1
+            else:
+                dict[label] = 1
+        dict["all"] = len(preds)
 
-        return {"dst":im0, "listOfNames":labels}
+        return {"dst":im0, "listOfNames":labels, "classes": dict}
 
     def draw_single_class(self, preds, im0, selected_class):
         res = self.draw(preds, im0, class_filter=selected_class)
@@ -1256,6 +1283,7 @@ class YOLOv5(Model):
 
     def draw(self, preds, im0, class_filter=None):
         labels = {"all":[255,255,255]}
+        dict = {}
         if len(preds) > 0:
             names = self.names
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
@@ -1274,13 +1302,22 @@ class YOLOv5(Model):
                         annotator.box_label(xyxy, label, color=_color)
                 else:
                     annotator.box_label(xyxy, label, color=_color)
+                if label in dict.keys():
+                    dict[label] = dict.get(label) + 1
+                else:
+                    dict[label] = 1
+					
                 # Stream results
             im0 = annotator.result()
+            dict["all"] = len(preds)
+        else:
+            dict["all"] = 0
         #cv2.imshow('test', im0)
         #cv2.imwrite('test.png', im0)
         #cv2.waitKey(-1)
         return {"dst": im0,
-                "listOfNames":labels}
+                "listOfNames":labels,
+                "classes": dict}
 
     def deinitialize(self):
         del self.model
@@ -1394,7 +1431,7 @@ class YOLO_NAS_S(Model):
         self.class_names = self.pred_objects.class_names
         self.pred_classes = [self.class_names[i] for i in self.int_labels]
 		
-        print(self.pred_classes) # list of detected classes
+        #print(self.pred_classes) # list of detected classes
 		
         # If class_filter != None:
         #	- Just call draw_single_class()???
@@ -1402,11 +1439,21 @@ class YOLO_NAS_S(Model):
 		#		-- Logically easiest solution
 		# Need to check if possible for NAS to only predict on 1 class
 		
-        print(len(self.confidence))
-        if len(self.confidence) == 0:
-            print(0)
-        else:
-            print(sum(self.confidence) / len(self.confidence))
+        dict = {}
+        for c in self.pred_classes:
+            if c in dict.keys():
+                dict[c] = dict.get(c) + 1
+            else:
+                dict[c] = 1
+        dict["all"] = len(self.confidence)
+        #print(dict)
+        #print("==========================")
+		
+        #print(len(self.confidence))
+        #if len(self.confidence) == 0:
+        #    print(0)
+        #else:
+        #    print(sum(self.confidence) / len(self.confidence))
 
         if len(pred) > 0:
             annotator = Annotator(new_img, line_width=2)
@@ -1425,7 +1472,8 @@ class YOLO_NAS_S(Model):
                 new_img = annotator.result()
 		
         return {"dst": new_img,
-                "listOfNames": labels}
+                "listOfNames": labels,
+				"classes": dict}
 
     def draw_single_class(self, pred, img, selected_class):
         res = self.draw(pred, img, class_filter=selected_class)
@@ -1528,11 +1576,15 @@ class YOLO_NAS_M(Model):
         self.class_names = self.pred_objects.class_names
         self.pred_classes = [self.class_names[i] for i in self.int_labels]
 		
-        print(len(self.confidence))
-        if len(self.confidence) == 0:
-            print(0)
-        else:
-            print(sum(self.confidence) / len(self.confidence))
+        dict = {}
+        for c in self.pred_classes:
+            if c in dict.keys():
+                dict[c] = dict.get(c) + 1
+            else:
+                dict[c] = 1
+        dict["all"] = len(self.confidence)
+        print(dict)
+        print("==========================")
 
         if len(pred) > 0:
             annotator = Annotator(new_img, line_width=2)
@@ -1551,7 +1603,8 @@ class YOLO_NAS_M(Model):
                 new_img = annotator.result()
 		
         return {"dst": new_img,
-                "listOfNames": labels}
+                "listOfNames": labels,
+				"classes": dict}
 
     def draw_single_class(self, pred, img, selected_class):
         res = self.draw(pred, img, class_filter=selected_class)
@@ -1655,11 +1708,15 @@ class YOLO_NAS_L(Model):
         self.class_names = self.pred_objects.class_names
         self.pred_classes = [self.class_names[i] for i in self.int_labels]
 		
-        print(len(self.confidence))
-        if len(self.confidence) == 0:
-            print(0)
-        else:
-            print(sum(self.confidence) / len(self.confidence))
+        dict = {}
+        for c in self.pred_classes:
+            if c in dict.keys():
+                dict[c] = dict.get(c) + 1
+            else:
+                dict[c] = 1
+        dict["all"] = len(self.confidence)
+        print(dict)
+        print("==========================")
 
         if len(pred) > 0:
             annotator = Annotator(new_img, line_width=2)
@@ -1678,7 +1735,8 @@ class YOLO_NAS_L(Model):
                 new_img = annotator.result()
 		
         return {"dst": new_img,
-                "listOfNames": labels}
+                "listOfNames": labels,
+				"classes": dict}
 
     def draw_single_class(self, pred, img, selected_class):
         res = self.draw(pred, img, class_filter=selected_class)
