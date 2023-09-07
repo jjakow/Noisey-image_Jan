@@ -388,14 +388,16 @@ class mainWindow(QtWidgets.QMainWindow):
         if(dst is None ):
             return
 
-        if(current.text() == "all"):
+        class_text = current.text().split(' (')[0]
+
+        if(class_text == "all"):
             dst_qt = convert_cvimg_to_qimg(dst)
             self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(dst_qt))
 
         else:
             pred = qListItem.data(QtCore.Qt.UserRole)['uncompressed_pred']
             model = models._registry[data['model']]
-            imgs = model.draw_single_class(pred, originalImg, current.text())
+            imgs = model.draw_single_class(pred, originalImg, class_text)
             qImg_overlay = convert_cvimg_to_qimg(imgs["overlay"])
             self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(qImg_overlay))
 
@@ -417,14 +419,16 @@ class mainWindow(QtWidgets.QMainWindow):
         if(dst is None ):
             return
 
-        if(current.text() == "all"):
+        class_text = current.text().split(' (')[0]
+
+        if(class_text == "all"):
             dst_qt = convert_cvimg_to_qimg(dst)
             self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(dst_qt))
 
         else:
             pred = qListItem.data(QtCore.Qt.UserRole)['augmented_pred']
             model = models._registry[data['model']]
-            imgs = model.draw_single_class(pred, noseImg, current.text())
+            imgs = model.draw_single_class(pred, noseImg, class_text)
             qImg_overlay = convert_cvimg_to_qimg(imgs["overlay"])
             self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(qImg_overlay))
 
@@ -454,8 +458,12 @@ class mainWindow(QtWidgets.QMainWindow):
 
         names = uncompressed["listOfNames"]
         data['uncompressed_names'] = names
+        cls_unc = uncompressed["classes"] # breaks at everything EXCEPT NAS (for now)
+        #print(cls)
+		
         for x in names:
-            i = QtWidgets.QListWidgetItem(x)
+            n = "{} ({})".format(x, cls_unc[x])
+            i = QtWidgets.QListWidgetItem(n)
             i.setBackground(QtGui.QColor(names[x][0], names[x][1], names[x][2]))
             self.ui.uncompressed.addItem(i)
 
@@ -466,13 +474,16 @@ class mainWindow(QtWidgets.QMainWindow):
 
         names = augmented["listOfNames"]
         data['augmented_names'] = names
+        cls_aug = augmented["classes"] # breaks at everything EXCEPT NAS (for now)
         for x in names:
-            i = QtWidgets.QListWidgetItem(x)
+            n = "{} ({})".format(x, cls_aug[x])
+            i = QtWidgets.QListWidgetItem(n)
             i.setBackground(QtGui.QColor(names[x][0], names[x][1], names[x][2]))
             self.ui.augmented.addItem(i)
 
         qListItem.setData(QtCore.Qt.UserRole, data)
         self.ui.tabWidget.setCurrentIndex(0)
+		
 
  
     def run_model(self):
