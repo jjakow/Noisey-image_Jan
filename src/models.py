@@ -1836,7 +1836,10 @@ _registry = {
     'Object Detection (YOLO_NAS L)': YOLO_NAS_L(
         os.path.join(currPath, 'yolonas', 'yolo_nas_l.pt'),
         os.path.join(currPath, 'yolonas', 'yolo_nas_l_arch_params.yaml')
-    #   os.path.join(currPath, "HERE")
+    ),
+    'Object Detection (YOLO_NAS S AUG)': YOLO_NAS_S(
+        os.path.join(currPath, 'yolonas_aug', 'yolo_nas_s_aug_v1.pt'),
+        os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml')
     )
 }
 
