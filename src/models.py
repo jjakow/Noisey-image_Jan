@@ -1381,6 +1381,11 @@ class YOLO_NAS_S(Model):
         self.max_det = 1000
         self.img_size = 416
 		
+        #if torch.cuda.is_available():
+            #self.device = select_device('0')
+        #else:
+            #self.device = select_device('cpu')
+		
         self.hide_conf = True
         self.hide_labels = False
         self.colors = Colors()
@@ -1413,7 +1418,10 @@ class YOLO_NAS_S(Model):
         return detections
 
     def initialize(self, *kwargs):
-        self.net = models.get(Models.YOLO_NAS_S, pretrained_weights="coco")
+		# /tank_v1-3_ckpt_latest.pth
+		# 81 classes
+        self.net = models.get(Models.YOLO_NAS_S, num_classes=1, checkpoint_path="C:/Users/ajcmo/Desktop/WORK/Noisey-image/src/yolonas_tank/tank_v1-3_ckpt_latest.pth") # pretrained_weights="coco") , num_classes=79)
+        #self.net = yolov5_DetectMultiBackend(self.weight, device=self.device, dnn=False)
         return 0
 
     def deinitialize(self):
@@ -1470,7 +1478,7 @@ class YOLO_NAS_S(Model):
                 else:
                     annotator.box_label(xyxy, label, color=_color)
                 new_img = annotator.result()
-		
+        #print(self.class_names)
         return {"dst": new_img,
                 "listOfNames": labels,
 				"classes": dict}
@@ -1837,10 +1845,18 @@ _registry = {
         os.path.join(currPath, 'yolonas', 'yolo_nas_l.pt'),
         os.path.join(currPath, 'yolonas', 'yolo_nas_l_arch_params.yaml')
     ),
-    'Object Detection (YOLO_NAS S AUG)': YOLO_NAS_S(
+    'Object Detection (YOLO_NAS S - Augmented Dataset)': YOLO_NAS_S(
         os.path.join(currPath, 'yolonas_aug', 'yolo_nas_s_aug_v1.pt'),
         os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml')
-    )
+    ),
+    'Object Detection (YOLO_NAS S - 10 Classes)': YOLO_NAS_S(
+        os.path.join(currPath, 'yolonas_10c', 'yolo_nas_s_10c.pt'),
+        os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml')
+    ),
+	'Object Detection (YOLO NAS S - Tank Class)': YOLO_NAS_S(
+        os.path.join(currPath, 'yolonas_tank', 'yolo_nas_s_tank.pt'),
+		os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml')
+	)
 }
 
 

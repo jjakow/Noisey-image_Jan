@@ -16,6 +16,9 @@ import json
 import numpy as np
 import yaml
 
+import uuid
+import itertools
+
 from src.utils.images import convertCV2QT
 import matplotlib.pyplot as plt
 
@@ -185,6 +188,9 @@ class ExperimentWorker(QObject):
                 assembler += len(dets)
             else:
                 pass
+        elif self.config.modelName == 'Object Detection (YOLO_NAS)':
+            print("YOLO NAS REPORT ACCURACY")
+            pass
         else: raise Exception('model name %s is not recognized in _registry'%(self.config.modelName))
         return assembler
 
@@ -231,32 +237,55 @@ class ExperimentWorker(QObject):
                 maxArgLen = len(self.config.mainAug.__pipeline__[0].args)
                 # create variables for simple counting rather than mAP calculation:
                 counter = {}
-                for j in range(maxArgLen):
-                    _count = None
-                    for i, imgPath in enumerate(self.config.imagePaths):
-                        self.logProgress.emit("Running column %i of Augmentations"%(j))
-                        j_subFolder = '_'.join(["_".join(aug.title.split(" ")) for aug in self.config.mainAug])
-                        j_subFolder += '_'+str(j)
+                augLevels = []
+				
+                for aug in self.config.mainAug:
+                    augLevels.append(aug.args)
+					
+                print(list(itertools.product(augLevels[0], augLevels[1])))
+				# Iterate through augmentations (top first)
+                for aug in self.config.mainAug:
+                    counter[aug.title] = []
+                    count_temp = []
+					
+					# Go for every level in the aug (must match)
+                    for j in range(maxArgLen):
+                        _count = None
+						
+                        for i, imgPath in enumerate(self.config.imagePaths):
+                            self.logProgress.emit("Running column %i of Augmentations"%(j))
+                            j_subFolder = ''.join("".join(aug.title.split(" ")))
+                            j_subFolder += ''+str(j)
 
-                        try: os.mkdir( os.path.join(self.savePath, exp_path, j_subFolder) )
-                        except FileExistsError: print("Folder path already exists...")
+                            try: os.mkdir( os.path.join(self.savePath, exp_path, j_subFolder) )
+                            except FileExistsError: print("Folder path already exists...")
 
-                        _img = cv2.imread(imgPath)
+                            _img = cv2.imread(imgPath)
                         
-                        for aug in self.config.mainAug:
+							# Apply augmentations
+                            #for augs in self.config.mainAug:
                             _args = aug.args
                             _img = aug(_img, _args[j])
+                            
+							# Save aug image to file
+                            #filename = str(uuid.uuid4())
+                            filename = j_subFolder
+                            cv2.imwrite("%s.jpg" % (filename), _img)
         
-                        dets = self.config.model.run(_img)
-                        _count = self.calculateStat(dets, _count, i, os.path.splitext(imgPath.split('/')[-1])[0])
+					        # Count dets on individual img
+                            dets = self.config.model.run(_img)
+                            _count = self.calculateStat(dets, _count, i, os.path.splitext(imgPath.split('/')[-1])[0])
 
-                        self.writeDets(dets, os.path.join(self.savePath, exp_path, j_subFolder), imgPath)
-                        self.logProgress.emit('Progress: (%i/%i)'%(i,len(self.config.imagePaths)))
-                        self.progress.emit(i)
+                            self.writeDets(dets, os.path.join(self.savePath, exp_path, j_subFolder), imgPath)
+                            self.logProgress.emit('Progress: (%i/%i)'%(i,len(self.config.imagePaths)))
+                            self.progress.emit(i)
 
-                    if type(_count) == int: _count /= len(self.config.imagePaths)
-                    counter.append(_count)
-                counter[aug.title] = [counter]
+                        if type(_count) == int: _count /= len(self.config.imagePaths)
+                        #counter.append(_count)
+                        count_temp.append(_count)
+						
+                    #counter[aug.title] = [counter]
+                    counter[aug.title] = [count_temp]
             else:
                 # create variables for simple counting rather than mAP calculation:
                 counter = {}
@@ -285,7 +314,9 @@ class ExperimentWorker(QObject):
                                 imgPath = imgPath['file_name']
                                 imgPath = os.path.join(self.config.labels['root'], imgPath)
                                 _img = cv2.imread(imgPath)
-                                _img = aug(_img, request_param=aug.args[j])
+                                #_img = aug(_img, request_param=aug.args[j])
+                                #filename = str(uuid.uuid4())
+                                cv2.imwrite("%s.jpg" % (filename), _img)
                                 dets = self.config.model.run(_img)
 
                                 if i > 5000: # run the first 50 images
@@ -299,6 +330,8 @@ class ExperimentWorker(QObject):
                             else:
                                 _img = cv2.imread(imgPath)
                                 _img = aug(_img, request_param=aug.args[j])
+                                #filename = str(uuid.uuid4())
+                                #cv2.imwrite("%s.jpg" % (filename), _img)
                                 dets = self.config.model.run(_img)
                                 self.writeDets(dets, new_sub_dir, imgPath)
                                 

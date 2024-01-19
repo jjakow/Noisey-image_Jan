@@ -8,6 +8,7 @@ import io
 import src.models
 import numpy as np
 import cv2
+from PIL import Image
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
 
@@ -539,6 +540,26 @@ def pincushion(image, param=0.005):
     cam[1,1] = 10.        # define focal length y
     new_image = cv2.undistort(image, cam, dist_coeff)
     return new_image
+	
+# Scale by 2^P, P = param (0 = Full, 1 = Half, 2 = Quarter, etc)
+def sizescale(image, param):
+    if (param == 0):
+        return image
+
+    scale = 1 / np.power(2, param)
+    height, width, channel = image.shape
+    resized = cv2.resize(image, None, fx=scale, fy=scale)
+    rh, rw, rc = resized.shape
+    background = np.zeros([height, width,3],dtype=np.uint8)
+    background.fill(255)
+    xoff = yoff = int(((height - rh) / 2))
+    background[yoff:yoff+rh, xoff:xoff+rw] = resized
+	
+    #print(height, width)
+    #print("=====")
+    #print(rh, rw)
+	
+    return background
 
 def cae(image, patches):  
     # Run the autoencoder with the given image
@@ -549,6 +570,7 @@ def passthrough(images, param):
     return images
 
 #################### EXCEPTION HANDLERS ##################
+def __sizescaleCheck__(param): return param >= 0
 def __intensityCheck__(param): return param >= 0 and param <= 1
 def __gaussianNoiseCheck__(param): return param > 0
 def __gaussianBlurCheck__(param): return param > 0
@@ -566,9 +588,9 @@ def __saturationCheck__(param): return param >= 0
 def __altMosaicCheck__(param): return param > 0
 def __bilinearCheck__(param): return param >= 0 and param <= 100
 def __sharpenCheck__(param): return param in [5,6,7,8,9,10,11,12]
-def __rotationCheck__(param): return param >= 0 and param <= 350
-def __invertCheck__(param): return True
-def __pincushionCheck__(param): return param > 0 and param <= 0.01
+#def __rotationCheck__(param): return param >= 0 and param <= 350
+#def __invertCheck__(param): return True
+#def __pincushionCheck__(param): return param > 0 and param <= 0.01
 def __h264Check__(param): return param >= 0 and param <= 100
 def __h265Check__(param): return param >= 0 and param <= 100
 def __JPEGCheck__(param): return param >= 0 and param <= 100
