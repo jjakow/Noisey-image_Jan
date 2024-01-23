@@ -73,7 +73,7 @@
       </size>
      </property>
      <property name="text">
-      <string>&lt;</string>
+      <string>Enter</string>
      </property>
     </widget>
    </item>

@@ -50,17 +50,19 @@ def dim_intensity(image, factor, seed=-1):
     """
     # check if factor is int (constant) or tuple (randomized range with uniform distribution):
     hsv_img = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    if type(factor) == float:
-        assert factor <= 1 and factor >= 0
+    param = (-0.25 * factor) + 1.25
+	
+    if type(param) == float:
+        #assert factor <= 1 and factor >= 0
         # adjust value channel:
-        value = hsv_img[:, :, 2].astype('float64')*factor
+        value = hsv_img[:, :, 2].astype('float64')*param
         hsv_img[:, :, 2] = value.astype('uint8')
         image = cv2.cvtColor(hsv_img, cv2.COLOR_HSV2RGB)
         return image
-    elif type(factor) == tuple:
+    elif type(param) == tuple:
         if seed != -1:
             np.random.seed(seed)
-        lower, upper = factor
+        lower, upper = param
         assert upper <= 1 and upper >= 0
         assert lower <= 1 and lower >= 0
         assert upper >= lower
@@ -93,8 +95,11 @@ def gaussian_noise(image, std, seed=-1):
         return combined.astype('uint8')
     else: assert False
 
-def gaussian_blur(image, parameter):   
-    parameter = int(parameter)
+# 1, 2, 3, 4, 5
+def gaussian_blur(image, parameter): 
+	# 13, 29, 57, 121, 293
+    p = (10*parameter) + np.power(3, parameter)  
+    parameter = int(p)
     image_copy = np.copy(image)
     cols = image_copy.shape[0]
     rows = image_copy.shape[1]
@@ -151,12 +156,14 @@ def jpeg_comp(image, quality, return_encoded=False):
         dec_img = cv2.imdecode(enc_img, 1)
         return dec_img
 
+# 1, 2, 3, 4, 5
 def saltAndPapper_noise(image, prob=0.01):
     '''
     Add salt and pepper noise to image
     prob: Probability of the noise
     '''
     #image = image.copy()
+    p = (5 * prob) / 35.0 # 30.0 - 40.0
     if len(image.shape) == 2:
         black = 0
         white = 255            
@@ -169,8 +176,8 @@ def saltAndPapper_noise(image, prob=0.01):
             black = np.array([0, 0, 0, 255], dtype='uint8')
             white = np.array([255, 255, 255, 255], dtype='uint8')
     probs = np.random.random(image.shape[:2])
-    image[probs < (prob / 2)] = black
-    image[probs > 1 - (prob / 2)] = white
+    image[probs < (p / 2)] = black
+    image[probs > 1 - (p / 2)] = white
     return image
 
 def flipAxis(image, mode):
@@ -431,8 +438,10 @@ def bilinear(image, percent, return_encoded=False):
 
     return final_img
 
+# 1, 2, 3, 4, 5
 def ffmpeg_h264_to_tmp_video(i0, quant_lvl):
     #i0 = cv2.imread(input_file)
+    param = 10*(int(quant_lvl) + 2)
     h,w,c = i0.shape
     # encode into png (lossless):
     i1 = cv2.imencode('.png', i0)[1]
@@ -450,7 +459,7 @@ def ffmpeg_h264_to_tmp_video(i0, quant_lvl):
         fp = tempfile.NamedTemporaryFile(delete=True, suffix=".mp4", mode='wb')
     output_file = fp.name
     stream = ffmpeg.input(i0_fp.name)
-    stream = ffmpeg.output(stream, output_file, vcodec="libx264", qp=quant_lvl, vf="format=yuv444p,scale=%i:%i"%(w,h))
+    stream = ffmpeg.output(stream, output_file, vcodec="libx264", qp=param, vf="format=yuv444p,scale=%i:%i"%(w,h))
     ffmpeg.run(stream, overwrite_output=True, quiet=True)
 
     cap = cv2.VideoCapture(output_file)
@@ -513,9 +522,14 @@ def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
 
     return frame
 
+# 1, 2, 3, 4, 5
 def sharpen(image, param):
-    kernel = np.array([[-1,-1,-1],[-1,param,-1],[-1,-1,-1]])
-    sharp = cv2.filter2D(image, -1, kernel)
+    #p = int(param) + 6
+    #kernel = np.array([[-1,-1,-1],[-1,p,-1],[-1,-1,-1]])
+    #sharp = cv2.filter2D(image, -1, kernel)
+    #return sharp
+
+    sharp = cv2.addWeighted(image, (param*1.1), image, 0, (-25*param))
     return sharp
     
 def rotation(image, param):
@@ -542,17 +556,19 @@ def pincushion(image, param=0.005):
     return new_image
 	
 # Scale by 2^P, P = param (0 = Full, 1 = Half, 2 = Quarter, etc)
+# 1, 2, 3, 4, 5
 def sizescale(image, param):
-    if (param == 0):
+    if (param == 1):
         return image
 
-    scale = 1 / np.power(2, param)
+    scale = 1 / np.power(2, (param-1))
     height, width, channel = image.shape
     resized = cv2.resize(image, None, fx=scale, fy=scale)
     rh, rw, rc = resized.shape
     background = np.zeros([height, width,3],dtype=np.uint8)
     background.fill(255)
-    xoff = yoff = int(((height - rh) / 2))
+    xoff = int(((width - rw) / 2))
+    yoff = int(((height - rh) / 2))
     background[yoff:yoff+rh, xoff:xoff+rw] = resized
 	
     #print(height, width)
@@ -565,17 +581,29 @@ def cae(image, patches):
     # Run the autoencoder with the given image
     image = cae_encoder.run(image, patches)
     return image
+	
+def jpg_compression(image, param, return_encoded=False):
+    quality = 20 - (4*param)
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
+    result, enc_img = cv2.imencode('.jpg', image, encode_param)
+    
+    if return_encoded:
+        return enc_img
+
+    if result is True:
+        dec_img = cv2.imdecode(enc_img, 1)
+        return dec_img
 
 def passthrough(images, param):
     return images
 
 #################### EXCEPTION HANDLERS ##################
-def __sizescaleCheck__(param): return param >= 0
-def __intensityCheck__(param): return param >= 0 and param <= 1
+def __sizescaleCheck__(param): return param > 0
+def __intensityCheck__(param): return param > 0
 def __gaussianNoiseCheck__(param): return param > 0
 def __gaussianBlurCheck__(param): return param > 0
 def __rainCheck__(param): return param >= 0 and param <= 2
-def __saltPepperCheck__(param): return param >= 0 and param <= 1.0
+def __saltPepperCheck__(param): return param > 0
 #def __flipAxisCheck__(param): return True
 # Changing axis constraints to allow horizontal and diagonal flip
 def __flipAxisCheck__(param): return param >= -1 and param <= 1
@@ -587,7 +615,7 @@ def __speckleNoiseCheck__(param): return param >= 1 and param <= 2
 def __saturationCheck__(param): return param >= 0
 def __altMosaicCheck__(param): return param > 0
 def __bilinearCheck__(param): return param >= 0 and param <= 100
-def __sharpenCheck__(param): return param in [5,6,7,8,9,10,11,12]
+def __sharpenCheck__(param): return param > 0
 #def __rotationCheck__(param): return param >= 0 and param <= 350
 #def __invertCheck__(param): return True
 #def __pincushionCheck__(param): return param > 0 and param <= 0.01
@@ -596,3 +624,4 @@ def __h265Check__(param): return param >= 0 and param <= 100
 def __JPEGCheck__(param): return param >= 0 and param <= 100
 def __WEBPCheck__(param): return param >= 0 and param <= 100
 def __compressiveAutoCheck__(param): return param >= 0
+def __jpgCompressionCheck__(param): return param > 0

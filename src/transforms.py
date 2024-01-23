@@ -11,11 +11,13 @@ from src.transform_funcs import *
 import src.transform_funcs as trans
 
 augList = {
-    "Size": {"function": sizescale, "default": [0, 1, 2, 3, 4], "example": 1, "limits": trans.__sizescaleCheck__},
-    "Blur": {"function": gaussian_blur, "default": [13, 23, 33, 43, 53], "example":33, "limits":trans.__gaussianBlurCheck__},
-    "Salt and Pepper": {"function": saltAndPapper_noise, "default": [x/50 for x in range(5)], "example":0.25, "limits":trans.__saltPepperCheck__},
-    "Contrast": {"function": sharpen, "default": [7,8,9,10,11], "example":9, "limits":trans.__sharpenCheck__},
-    "Compression": {"function": ffmpeg_h264_to_tmp_video, "default":[30,40,50,60,70], "example":50, "limits":trans.__h264Check__},
+    "Size": {"function": sizescale, "default": [1, 2, 3, 4, 5], "example": 2, "limits": trans.__sizescaleCheck__},
+    "Gaussian Blur": {"function": gaussian_blur, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__gaussianBlurCheck__},
+    "Salt and Pepper": {"function": saltAndPapper_noise, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__saltPepperCheck__},
+    "Contrast": {"function": sharpen, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__sharpenCheck__},
+	"Intensity": {"function": dim_intensity, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__intensityCheck__},
+    "Image H264 Compression": {"function": ffmpeg_h264_to_tmp_video, "default":[1, 2, 3, 4, 5], "example":3, "limits":trans.__h264Check__},
+    "JPG Compression": {"function": jpg_compression, "default": [1, 2, 3, 4, 5], "example": 3, "limits":trans.__jpgCompressionCheck__}
 
     #"TEST": {"function": passthrough, "default": [], "example": [], "limits": None, "line": "Sizing Methods"},
 	#"Size": {"function": sizescale, "default": [0, 1, 2, 3, 4, 5], "example": 1, "limits": trans.__sizescaleCheck__},
