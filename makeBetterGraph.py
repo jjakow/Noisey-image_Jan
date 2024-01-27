@@ -16,6 +16,7 @@ def makemAPGraph(path, augName, modelName):
     map50s = map50s.item()
     with open( os.path.join(path, 'meta.yaml') , 'r') as f:
         metadata = yaml.safe_load(f)
+    #print(metadata.keys())
     plt.figure(figsize=(7.5,5))
     print(map50s)
     print()

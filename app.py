@@ -28,6 +28,8 @@ from src import models
 from src.utils.weights import Downloader
 from src.dataParser import ReadYAMLProgressWindow, yamlWorker
 
+import uuid
+
 CURRENT_PATH = str(Path(__file__).parent.absolute()) + '/'
 TEMP_PATH = CURRENT_PATH + 'src/tmp_results/'
 DEFAULT_PATH = CURRENT_PATH + 'imgs/default_imgs/'
@@ -101,7 +103,7 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.pushButton_4.clicked.connect(self.setToDefault)
 
         # Augmentation Generator:
-        #self.ui.compoundAug.setChecked(True)
+        self.ui.compoundAug.setChecked(True)
         self.ui.addAug.clicked.connect(self.addWindow.show)
         #self.ui.demoAug.clicked.connect(self.addWindow.demoAug)
         self.ui.loadAug.clicked.connect(self.addWindow.__loadFileDialog__)
@@ -191,6 +193,8 @@ class mainWindow(QtWidgets.QMainWindow):
     def apply_augmentations(self, img):
         for aug in mainAug:
             img = aug(img, example=True)
+            #filename = str(uuid.uuid4())
+            #cv2.imwrite("%s.jpg" % (filename), img)
         return img
 
     def changePreviewImage(self, *kwargs):
@@ -563,7 +567,7 @@ class mainWindow(QtWidgets.QMainWindow):
                     return -1
                 imgPaths.append(file_path)
 
-        config = ExperimentConfig(mainAug, self.ui.compoundAug.isChecked(), imgPaths, _model, comboModelType, labels=self.labels, labelType=self.label_eval)
+        config = ExperimentConfig(mainAug, self.ui.compoundAug.isChecked(), self.ui.sequentialAug.isChecked(), self.ui.normalAug.isChecked(), imgPaths, _model, comboModelType, labels=self.labels, labelType=self.label_eval)
         self.experiment = ExperimentDialog(config, self)
         #self.experiment.setModal(True)
         self.experiment.show()
@@ -577,7 +581,7 @@ class mainWindow(QtWidgets.QMainWindow):
         # self.addWindow.__updateViewer__()
         # self.addWindow.__reloadAugs__()
         #self.ui.checkBox_2.setChecked(False)
-        self.ui.compoundAug.setChecked(False)
+        self.ui.compoundAug.setChecked(True)
         self.ui.comboBox.setCurrentIndex(0)
     
         self.default_img()
