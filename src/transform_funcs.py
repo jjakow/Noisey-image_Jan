@@ -52,6 +52,8 @@ def dim_intensity(image, factor, seed=-1):
     hsv_img = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     param = (-0.25 * factor) + 1.25
 	
+    #print("Intensity applied")
+	
     if type(param) == float:
         #assert factor <= 1 and factor >= 0
         # adjust value channel:
@@ -100,6 +102,7 @@ def gaussian_blur(image, parameter):
 	# 13, 29, 57, 121, 293
     p = (10*parameter) + np.power(3, parameter)  
     parameter = int(p)
+    #print("Gaussian Blur applied")
     image_copy = np.copy(image)
     cols = image_copy.shape[0]
     rows = image_copy.shape[1]
@@ -164,6 +167,7 @@ def saltAndPapper_noise(image, prob=0.01):
     '''
     #image = image.copy()
     p = (5 * prob) / 35.0 # 30.0 - 40.0
+    #print("Salt & Pepper applied")
     if len(image.shape) == 2:
         black = 0
         white = 255            
@@ -441,7 +445,7 @@ def bilinear(image, percent, return_encoded=False):
 # 1, 2, 3, 4, 5
 def ffmpeg_h264_to_tmp_video(i0, quant_lvl):
     #i0 = cv2.imread(input_file)
-    param = 10*(int(quant_lvl) + 2)
+    param = quant_lvl #10*(int(quant_lvl) + 2)
     h,w,c = i0.shape
     # encode into png (lossless):
     i1 = cv2.imencode('.png', i0)[1]
@@ -528,7 +532,7 @@ def sharpen(image, param):
     #kernel = np.array([[-1,-1,-1],[-1,p,-1],[-1,-1,-1]])
     #sharp = cv2.filter2D(image, -1, kernel)
     #return sharp
-
+    #print("Contrast applied")
     sharp = cv2.addWeighted(image, (param*1.1), image, 0, (-25*param))
     return sharp
     
@@ -560,7 +564,7 @@ def pincushion(image, param=0.005):
 def sizescale(image, param):
     if (param == 1):
         return image
-
+    #print("Size applied")
     scale = 1 / np.power(2, (param-1))
     height, width, channel = image.shape
     resized = cv2.resize(image, None, fx=scale, fy=scale)
@@ -586,7 +590,7 @@ def jpg_compression(image, param, return_encoded=False):
     quality = 20 - (4*param)
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     result, enc_img = cv2.imencode('.jpg', image, encode_param)
-    
+    #print("JPG Compression applied")
     if return_encoded:
         return enc_img
 

@@ -187,13 +187,17 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.compoundAug = QCheckBox(self.centralwidget)
+        self.normalAug = QRadioButton(self.centralwidget) #QCheckBox
+        self.normalAug.setObjectName(u"normalAug")
+        self.normalAug.setEnabled(True)
+        self.compoundAug = QRadioButton(self.centralwidget) #QCheckBox
         self.compoundAug.setObjectName(u"compoundAug")
         self.compoundAug.setEnabled(True)
-        self.sequentialAug = QCheckBox(self.centralwidget)
+        self.sequentialAug = QRadioButton(self.centralwidget)
         self.sequentialAug.setObjectName(u"sequentialAug")
         self.sequentialAug.setEnabled(True)
 
+        self.horizontalLayout_2.addWidget(self.normalAug)
         self.horizontalLayout_2.addWidget(self.compoundAug)
         self.horizontalLayout_2.addWidget(self.sequentialAug)
 
@@ -438,6 +442,7 @@ class Ui_MainWindow(object):
         self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"Default", None))
         self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Select a model:", None))
+        self.normalAug.setText(QCoreApplication.translate("MainWindow", u"Normal Augmentations", None))
         self.compoundAug.setText(QCoreApplication.translate("MainWindow", u"Compound Augmentations", None))
         self.sequentialAug.setText(QCoreApplication.translate("MainWindow", u"Sequential Augmentations", None))
         self.preview.setText("")
