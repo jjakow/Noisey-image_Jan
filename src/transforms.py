@@ -16,38 +16,38 @@ augList = {
     "Salt and Pepper": {"function": saltAndPapper_noise, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__saltPepperCheck__},
     "Contrast": {"function": sharpen, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__sharpenCheck__},
 	"Intensity": {"function": dim_intensity, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__intensityCheck__},
-    "Image H264 Compression": {"function": ffmpeg_h264_to_tmp_video, "default":[1, 2, 3, 4, 5], "example":3, "limits":trans.__h264Check__},
-    "JPG Compression": {"function": jpg_compression, "default": [1, 2, 3, 4, 5], "example": 3, "limits":trans.__jpgCompressionCheck__}
+    "JPG Compression": {"function": jpg_compression, "default": [1, 2, 3, 4, 5], "example": 3, "limits":trans.__jpgCompressionCheck__},
 
-    #"TEST": {"function": passthrough, "default": [], "example": [], "limits": None, "line": "Sizing Methods"},
+    " ": {"function": passthrough, "default": [], "example": [], "limits": None, "line": "Other Augmentations"},
 	#"Size": {"function": sizescale, "default": [0, 1, 2, 3, 4, 5], "example": 1, "limits": trans.__sizescaleCheck__},
-    #"Flip Axis": {"function": flipAxis, "default": [-1, 0, 1], "example": -1, "limits":trans.__flipAxisCheck__},
-    #"Barrel": {"function": barrel, "default": [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.001, 0.002, 0.003, 0.004, 0.005, 0.01], "example":0.005, "limits":trans.__barrelCheck__},
-    #"Fisheye": {"function": fisheye, "default": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], "example":0.4, "limits":trans.__fishEyeCheck__},
-    #"Simple Mosaic": {"function": alternate_mosaic, "default":[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "example":2, "limits":trans.__altMosaicCheck__}, # 1x1 - 5x5
+    "Flip Axis": {"function": flipAxis, "default": [-1, 0, 1], "example": -1, "limits":trans.__flipAxisCheck__},
+    "Barrel": {"function": barrel, "default": [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.001, 0.002, 0.003, 0.004, 0.005, 0.01], "example":0.005, "limits":trans.__barrelCheck__},
+    "Fisheye": {"function": fisheye, "default": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], "example":0.4, "limits":trans.__fishEyeCheck__},
+    "Simple Mosaic": {"function": alternate_mosaic, "default":[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "example":2, "limits":trans.__altMosaicCheck__}, # 1x1 - 5x5
     # ==============================
 	#" ": {"function": trans.passthrough, "default":[], "example":[],"limits":None, "line": "Blurring Methods"},
     #"Gaussian Blur": {"function": gaussian_blur, "default": [3, 13, 23, 33, 43, 53, 63, 73, 83], "example":33, "limits":trans.__gaussianBlurCheck__},
     #"Intensity": {"function": dim_intensity, "default": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], "example":0.5, "limits":trans.__intensityCheck__},
-    #"Rain": {"function": rain, "default": [0,1,2], "example":1, "limits":trans.__rainCheck__},
-    #"Black and White": {"function": black_white, "default":[0,1,2], "example":0, "limits":trans.__blackWhiteCheck__}, 
-    #"Saturation" : {"function": saturation, "default":[50], "example":50, "limits":trans.__saturationCheck__},
+    "Rain": {"function": rain, "default": [0,1,2], "example":1, "limits":trans.__rainCheck__},
+    "Black and White": {"function": black_white, "default":[0,1,2], "example":0, "limits":trans.__blackWhiteCheck__}, 
+    "Saturation" : {"function": saturation, "default":[50], "example":50, "limits":trans.__saturationCheck__},
     # ==============================
 	#"  ": {"function": trans.passthrough, "default":[], "example":[],"limits":None, "line": "Noising Methods"},
-    #"Gaussian Noise": {"function": gaussian_noise, "default": [1,10,15,20,25,30,35,40,45,50,55,60], "example":25, "limits":trans.__gaussianNoiseCheck__},
+    "Gaussian Noise": {"function": gaussian_noise, "default": [1,10,15,20,25,30,35,40,45,50,55,60], "example":25, "limits":trans.__gaussianNoiseCheck__},
     #"Salt and Pepper": {"function": saltAndPapper_noise, "default": [x/100 for x in range(12)], "example":0.25, "limits":trans.__saltPepperCheck__},
-	#"Speckle Noise": {"function": speckle_noise, "default": [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2], "example":1.5, "limits":trans.__speckleNoiseCheck__},
+	"Speckle Noise": {"function": speckle_noise, "default": [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2], "example":1.5, "limits":trans.__speckleNoiseCheck__},
 	# ==============================
 	#"   ": {"function": trans.passthrough, "default":[], "example":[],"limits":None, "line": "Compression Methods"},
-    #"Bilinear Resizing": {"function": bilinear, "default": [10,20,30,40,50,60,70,80,90,95], "example":25, "limits":trans.__bilinearCheck__},
+    "Bilinear Resizing": {"function": bilinear, "default": [10,20,30,40,50,60,70,80,90,95], "example":25, "limits":trans.__bilinearCheck__},
     #"JPEG Compression": {"function": jpeg_comp, "default": [100,90,80,70,60,50,40,30,20,10], "example":20, "limits":trans.__JPEGCheck__},
-    #"WebP Compression": {"function": webp_transform, "default": [10,25,50,75,100], "example":10, "limits":trans.__WEBPCheck__},
-    #"Compressive Autoencoder": {"function": cae, "default": [140,148,156,164,172,180,188,196], "example":172, "limits":trans.__compressiveAutoCheck__},
+    "WebP Compression": {"function": webp_transform, "default": [10,25,50,75,100], "example":10, "limits":trans.__WEBPCheck__},
+    "Compressive Autoencoder": {"function": cae, "default": [140,148,156,164,172,180,188,196], "example":172, "limits":trans.__compressiveAutoCheck__},
+    "Image H264 Compression": {"function": ffmpeg_h264_to_tmp_video, "default":[1, 2, 3, 4, 5], "example":3, "limits":trans.__h264Check__},
     #"Image H264": {"function": ffmpeg_h264_to_tmp_video, "default":[0,10,20,30,40,50,60,70,80,90,100], "example":60, "limits":trans.__h264Check__},
-    #"Image H265": {"function": ffmpeg_h265_to_tmp_video, "default":[0,5,10,15,20,25,30,35,40,45,50], "example":45, "limits":trans.__h265Check__}
+    "Image H265": {"function": ffmpeg_h265_to_tmp_video, "default":[0,5,10,15,20,25,30,35,40,45,50], "example":45, "limits":trans.__h265Check__}
 	
     #"Flip Axis": {"function": flipAxis, "default": [-1], "example": -1, "limits":trans.__flipAxisCheck__},
-    #"Simple Mosaic": {"function": simple_mosaic, "default":[], "example":[], "limits":trans.__simpleMosaicCheck__},
+    # "Simple Mosaic": {"function": simple_mosaic, "default":[], "example":[], "limits":trans.__simpleMosaicCheck__},
     #"Sharpen": {"function": sharpen, "default": [5,6,7,8,9,10,11,12], "example":9, "limits":trans.__sharpenCheck__},
     #"Rotation": {"function": rotation, "default": [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330], "example":60, "limits":trans.__rotationCheck__},
     #"Color Inversion": {"function": invert, "default": [1], "example":1, "limits":trans.__invertCheck__},

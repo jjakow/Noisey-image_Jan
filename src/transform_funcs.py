@@ -8,7 +8,7 @@ import io
 import src.models
 import numpy as np
 import cv2
-from PIL import Image
+from PIL import Image, ImageOps
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
 
@@ -36,8 +36,20 @@ def letterbox_image(image, size):
     new_image[h_start:h_start+nh, w_start:w_start+nw, :] = image
     return new_image, (nh, nw)
 
+def adjust_gamma(image, gamma=1.0):
+    invGamma = 1.0 / gamma
+    table = np.array([((i / 255.0) ** invGamma) * 255
+        for i in np.arange(0, 256)]).astype("uint8")
+    return cv2.LUT(image, table)
+
 def dim_intensity(image, factor, seed=-1):
-    """
+    gamma_vals = [2, 1.33, 1, 0.67, 0.5]
+    adjusted = adjust_gamma(image, gamma=gamma_vals[int(factor)-1])
+    return adjusted
+
+"""
+def dim_intensity(image, factor, seed=-1):
+    
     Dims the intensity of the image by the give factor/range of factor. 
     
         |Parameters: 
@@ -47,10 +59,10 @@ def dim_intensity(image, factor, seed=-1):
         
         |Returns: 
             |image (numpy array): The dimed image  
-    """
+    
     # check if factor is int (constant) or tuple (randomized range with uniform distribution):
     hsv_img = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    param = (-0.25 * factor) + 1.25
+    param = (-0.20 * factor) + 1.20
 	
     #print("Intensity applied")
 	
@@ -75,6 +87,7 @@ def dim_intensity(image, factor, seed=-1):
         return image
     else:
         assert False, "factor type needs to be a float or tuple"
+"""
 
 def gaussian_noise(image, std, seed=-1):
     mean = 2
@@ -100,7 +113,9 @@ def gaussian_noise(image, std, seed=-1):
 # 1, 2, 3, 4, 5
 def gaussian_blur(image, parameter): 
 	# 13, 29, 57, 121, 293
-    p = (10*parameter) + np.power(3, parameter)  
+    #p = (10*parameter) + np.power(3, parameter)
+    # 15, 30, 45, 60, 75
+    p = 14*parameter + 1
     parameter = int(p)
     #print("Gaussian Blur applied")
     image_copy = np.copy(image)
@@ -166,7 +181,8 @@ def saltAndPapper_noise(image, prob=0.01):
     prob: Probability of the noise
     '''
     #image = image.copy()
-    p = (5 * prob) / 35.0 # 30.0 - 40.0
+    #p = (5 * prob) / 35.0 # 30.0 - 40.0
+    p = prob / 10.0
     #print("Salt & Pepper applied")
     if len(image.shape) == 2:
         black = 0
@@ -533,7 +549,15 @@ def sharpen(image, param):
     #sharp = cv2.filter2D(image, -1, kernel)
     #return sharp
     #print("Contrast applied")
-    sharp = cv2.addWeighted(image, (param*1.1), image, 0, (-25*param))
+    
+    #sharp = cv2.addWeighted(image, (param*1.1), image, 0, (-25*param))
+    
+    contrast = int(-22 * param)
+    alpha = float(131 * (contrast + 127)) / (127 * (131 - contrast))
+    gamma = 127 * (1 - alpha)
+	
+    sharp = cv2.addWeighted(image, alpha, image, 0, gamma)
+	
     return sharp
     
 def rotation(image, param):
@@ -586,8 +610,59 @@ def cae(image, patches):
     image = cae_encoder.run(image, patches)
     return image
 	
+def encode_preprocess(image):
+    image = ImageOps.grayscale(image)
+    dim = max(image.size)
+    new_dim = 2 ** int(math.ceil(math.log(dim, 2)))
+    return ImageOps.pad(image, (new_dim, new_dim))
+	
+def get_haar_step(i, k):
+    transform = np.zeros((2**k, 2**k))
+    for j in range(2 ** (k-i-1)):
+        transform[2*j, j] = 0.5
+        transform[2*j + 1, j] = 0.5
+    offset = 2 ** (k-i-1)
+    for j in range(offset):
+        transform[2*j, offset + j] = 0.5
+        transform[2*j + 1, offset + j]=  -0.5
+    for j in range(2 ** (k-i), 2 ** k):
+        transform[j, j] = 1
+    return transform
+
+def get_haar_transform(k):
+    transform = np.eye(2 ** k)
+    for i in range(k):
+        transform = transform @ get_haar_step(i, k)
+    return transform
+	
+def haar_encode(a):
+    k = int(np.ceil(np.log2(len(a))))
+    assert a.shape == (k,k)
+    row_encoder = get_haar_transform(k)
+    return row_encoder.T @ a @ row_encoder
+	
+def haar_decode(a):
+    k = int(np.ceil(np.log2(len(a))))
+    assert a.shape == (k,k)
+    row_decoder = np.linalg.inv(get_haar_transform(k))
+    return row_decoder.T @ a @ row_decoder
+	
+def truncate_values(a, threshold):
+    return np.where(np.abs(a) < threshold, 0, a)
+	
+"""
+def jpg_compression(image, param, encoded=False):
+    im = encode_preprocess(image)
+    A = np.array(im)
+    E = haar_encode(A)
+    threshold = 8
+    E = truncate_values(E, threshold)
+    D = haar_decode(E)
+    return D
+"""
+
 def jpg_compression(image, param, return_encoded=False):
-    quality = 20 - (4*param)
+    quality = 21 - (3*param)
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     result, enc_img = cv2.imencode('.jpg', image, encode_param)
     #print("JPG Compression applied")
@@ -597,6 +672,7 @@ def jpg_compression(image, param, return_encoded=False):
     if result is True:
         dec_img = cv2.imdecode(enc_img, 1)
         return dec_img
+
 
 def passthrough(images, param):
     return images
