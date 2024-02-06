@@ -124,14 +124,16 @@ class ExperimentWorker(QObject):
                 _out[aug.title] = aug.args
             yaml.dump(_out, f)
 
-    def writeGraph(self, inData:dict, outPath:str):
-       # TODO: figure out a better workaround for this:
-       np.save(os.path.join(outPath, 'graphing.npy'), inData)
-       title = ""
-       for aug in self.config.mainAug:
+    def writeGraph(self, inData:dict, outPath:str, isCompound:bool):
+        # TODO: figure out a better workaround for this:
+        np.save(os.path.join(outPath, 'graphing.npy'), inData)
+        title = ""
+        for aug in self.config.mainAug:
            title = aug.title
            break
-       makemAPGraph(outPath, title, self.config.modelName)
+        if (isCompound):
+           title = "Compound"
+        makemAPGraph(outPath, title, self.config.modelName, isCompound)
 
     def calculateStat(self, dets, assembler, i, filename):
         if self.config.modelName == 'Object Detection (YOLOv3)':
@@ -234,7 +236,7 @@ class ExperimentWorker(QObject):
                 self.logProgress.emit('\tProgress: (%i/%i)'%(i,len(self.config.imagePaths)))
                 self.progress.emit(i)
         else:
-            if self.config.isSequential: # isCompound
+            if self.config.isSequential:
                 # apply sequentially (all args must be of the same length):
                 maxArgLen = len(self.config.mainAug.__pipeline__[0].args)
                 # create variables for simple counting rather than mAP calculation:
@@ -245,19 +247,6 @@ class ExperimentWorker(QObject):
                 for aug in self.config.mainAug:
                     augLevels.append(aug.args)
                     augTitles.append(aug.title)
-                    #print(aug)
-                    #print(aug.title)
-                    #print("==========")
-
-                combs = list(itertools.product(*augLevels))
-                #print(combs)
-                #print(len(combs))
-				# Iterate through augmentations (top first)
-				
-                #for c in combs:
-                #    for i in range(len(c)):
-                #        print("%s: %f" % (augTitles[i], c[i]))
-                #    print("=====")
 				
                 for aug in self.config.mainAug:
                     counter[aug.title] = []
@@ -278,7 +267,6 @@ class ExperimentWorker(QObject):
                             _img = cv2.imread(imgPath)
                         
 							# Apply augmentations
-                            #for augs in self.config.mainAug:
                             _args = aug.args
                             _img = aug(_img, _args[j])
                             
@@ -296,7 +284,6 @@ class ExperimentWorker(QObject):
                             self.progress.emit(i)
 
                         if type(_count) == int: _count /= len(self.config.imagePaths)
-                        #counter.append(_count)
                         count_temp.append(_count)
 						
                     #counter[aug.title] = [counter]
@@ -314,21 +301,27 @@ class ExperimentWorker(QObject):
                     numAugs += 1
 
                 combs = list(itertools.product(*augLevels)) # List of all aug combinations as tuples
-                counter["Salt and Pepper"] = []   #Compound
-                count_temp = []
+                counter["Compound"] = []   #Compound
+                count_temp = [0.0, 0.0, 0.0, 0.0, 0.0] # Holds count of shared detections for each aug level
+                currAug = -1 # Current augment level (initialized to -1)
+				
+				# Iterate through every possible combination
                 for c in combs:
-                    #counter[aug.title] = []
-                    #count_temp = []
                     isEqualLevel = False
 					
+					# Detections only counted where all selected augs are at the same level (unique set of length 1, or 2 w/ zeroes)
                     unique = np.unique(c)
                     if (len(unique) == 1 or (len(unique) == 2 and unique[0] == 0)):
                         isEqualLevel = True
+                        currAug += 1
 
                     for j, imgPath in enumerate(self.config.imagePaths):
+                        # NEED TO CHANGE HOW JSUBFOLDER IS TREATED - ALL SHOULD BE CALLED "COMPOUND_X"
+						# Maybe use currAug to keep track of state???
+						
                         self.logProgress.emit("Running column %i of Augmentations"%(j))
-                        j_subFolder = ''.join("".join(aug.title.split(" ")))
-                        j_subFolder += ''+str(j)
+                        j_subFolder = "Compound" #j_subFolder = ''.join("".join(aug.title.split(" ")))
+                        j_subFolder += ''+str(currAug) #j_subFolder += ''+str(j)
 
                         try: os.mkdir( os.path.join(self.savePath, exp_path, j_subFolder) )
                         except FileExistsError: pass #print("Folder path already exists...")
@@ -343,15 +336,13 @@ class ExperimentWorker(QObject):
                         _img = cv2.imread(imgPath)
                         _count = None
 
-                        #for i in range(numAugs):
-                            #print(i)
-                            #_img = aug(_img, c[i])
+                        # Apply each aug specified by level in comb
                         currentAug = 0
                         for aug in self.config.mainAug:
                             _img = aug(_img, c[currentAug])
                             currentAug += 1
-                        #print("=====")
 
+                        # Modify base filename by current aug levels
                         filename = list("000000")
                         if "Size" in augTitles:
                             filename[0] = str(int(c[augTitles.index("Size")]))
@@ -363,25 +354,33 @@ class ExperimentWorker(QObject):
                             filename[3] = str(int(c[augTitles.index("Contrast")]))
                         if "Intensity" in augTitles:
                             filename[4] = str(int(c[augTitles.index("Intensity")]))
-                        if "Image H264 Compression" in augTitles:
+                        if "JPG Compression" in augTitles:
                             filename[5] = str(int(c[augTitles.index("JPG Compression")]))
                         filename_save = "".join(filename)
 
                         cv2.imwrite("%s/%s/%s.jpg" % (exp_path, imgName, filename_save), _img)
 
-                        #COUNT DETS
                         dets = self.config.model.run(_img)
                         _count = self.calculateStat(dets, _count, j, os.path.splitext(imgPath.split('/')[-1])[0])
+
+                        # TESTING BB COORD SAVING FOR TEXT FILES
+                        #print("===================================")
+                        #print("JSubFolder: ", j_subFolder)
+                        #print("ImgName: ", imgName)
+                        #print("ExpPath: ", exp_path)
+                        #print("SavePath:", self.savePath)
 
                         self.writeDets(dets, os.path.join(self.savePath, exp_path, j_subFolder), imgPath)
                         self.logProgress.emit('Progress: (%i/%i)'%(j,len(self.config.imagePaths)))
                         self.progress.emit(j)
                     
+                        # Amend counter list
                         if isEqualLevel:
                             if type(_count) == int: _count /= len(self.config.imagePaths)
-                            count_temp.append(_count)
-                            #print("HERE")
-                            counter["Salt and Pepper"] = [count_temp]
+                            #count_temp.append(_count)
+                            count_temp[currAug] += _count
+                            
+                            counter["Compound"] = [count_temp]
             
             elif self.config.isNormal:
                 # create variables for simple counting rather than mAP calculation:
@@ -459,12 +458,14 @@ class ExperimentWorker(QObject):
                             if type(_count) == int: _count /= len(self.config.imagePaths)
                             count_temp.append(_count)
                     counter[aug.title].append(count_temp)
+                #print(counter)
+                #print("==================")
 
         #if self.config.model.complexOutput:
         if useLowerThres:
             self.config.model.conf_thres = old_thres
-        print(counter)
-        self.writeGraph(counter, os.path.join(self.savePath, exp_path))
+        #print(counter)
+        self.writeGraph(counter, os.path.join(self.savePath, exp_path), self.config.isCompound)
 
         # clean up model
         self.config.model.deinitialize()
@@ -496,6 +497,7 @@ class ExperimentResultWorker(QObject):
 
     def run(self):
         if self.config.isCompound or self.config.isSequential:
+            #print(self.argPosition)
             _folder_path = os.path.join(self.parentPath, self.folders[self.argPosition])
         elif self.config.isNormal:
             _title = "_".join(self.config.mainAug.__pipeline__[self.augPosition].title.split(" "))
@@ -573,12 +575,17 @@ class ExperimentResultWorker(QObject):
         _graphs = np.load(os.path.join(self.parentPath, 'graphing.npy'), allow_pickle=True)
         _name = self.config.modelName
         _graphs = _graphs.item()
-        _graphs = [_graphs[aug.title][0] for aug in self.config.mainAug]
+        #print("*MAINAUG:*")
+        #print(self.config.mainAug)
+        if not self.config.isCompound:
+            _graphs = [_graphs[aug.title][0] for aug in self.config.mainAug]
+        else:
+            _graphs = [_graphs["Compound"][0]]
 
         if self.config.modelName == 'Semantic Segmentation' and len(_graphs.shape) > 1:
             _graphs = _graphs.squeeze(2)
 
-        if self.config.isSequential: #if self.config.isCompound:
+        if self.config.isSequential or self.config.isCompound:
             # segmentation specific stuff:
             if self.config.modelName == 'Semantic Segmentation':
                 _graphs = _graphs.squeeze(0)

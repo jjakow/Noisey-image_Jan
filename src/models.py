@@ -1420,7 +1420,7 @@ class YOLO_NAS_S(Model):
     def initialize(self, *kwargs):
 		# /tank_v1-3_ckpt_latest.pth
 		# 81 classes
-        self.net = models.get(Models.YOLO_NAS_S, num_classes=1, checkpoint_path="C:/Users/ajcmo/Desktop/WORK/Noisey-image/src/yolonas_tank/tank_v1-3_ckpt_latest.pth") # pretrained_weights="coco") , num_classes=79)
+        self.net = models.get(Models.YOLO_NAS_S, num_classes=80, pretrained_weights="coco") # checkpoint_path="C:/Users/ajcmo/Desktop/WORK/Noisey-image/src/yolonas_tank/tank_v1-3_ckpt_latest.pth"
         #self.net = yolov5_DetectMultiBackend(self.weight, device=self.device, dnn=False)
         return 0
 
