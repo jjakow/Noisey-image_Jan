@@ -1371,7 +1371,12 @@ class YOLO_NAS_S(Model):
 	# Based off of YoloNAS quickstart, will need to be changed for long-term custom training
     def __init__(self, *network_config) -> None:
         super().__init__(*network_config)
-        self.weight, _yaml = network_config
+        self.weight, _yaml = network_config[:2]
+        self.ckpt = None
+        self.cls = None
+        if len(network_config) > 2: # if network_config[2] is not None:
+            self.ckpt = network_config[2] # Checkpoint
+            self.cls = network_config[3] # Num classes
         self.isCOCO91 = False
         with open(_yaml, 'r') as stream:
             self.YAML = yaml.safe_load(stream)
@@ -1420,8 +1425,10 @@ class YOLO_NAS_S(Model):
     def initialize(self, *kwargs):
 		# /tank_v1-3_ckpt_latest.pth
 		# 81 classes
-        self.net = models.get(Models.YOLO_NAS_S, num_classes=80, pretrained_weights="coco") # checkpoint_path="C:/Users/ajcmo/Desktop/WORK/Noisey-image/src/yolonas_tank/tank_v1-3_ckpt_latest.pth"
-        #self.net = yolov5_DetectMultiBackend(self.weight, device=self.device, dnn=False)
+        if self.ckpt is None and self.cls is None:
+            self.net = models.get(Models.YOLO_NAS_S, num_classes=80, pretrained_weights="coco") # checkpoint_path="C:/Users/ajcmo/Desktop/WORK/Noisey-image/src/yolonas_tank/tank_v1-3_ckpt_latest.pth"
+        else:
+            self.net = models.get(Models.YOLO_NAS_S, num_classes=self.cls, checkpoint_path=self.ckpt)
         return 0
 
     def deinitialize(self):
@@ -1845,17 +1852,19 @@ _registry = {
         os.path.join(currPath, 'yolonas', 'yolo_nas_l.pt'),
         os.path.join(currPath, 'yolonas', 'yolo_nas_l_arch_params.yaml')
     ),
-    'Object Detection (YOLO_NAS S - Augmented Dataset)': YOLO_NAS_S(
-        os.path.join(currPath, 'yolonas_aug', 'yolo_nas_s_aug_v1.pt'),
-        os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml')
-    ),
-    'Object Detection (YOLO_NAS S - 10 Classes)': YOLO_NAS_S(
-        os.path.join(currPath, 'yolonas_10c', 'yolo_nas_s_10c.pt'),
-        os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml')
-    ),
+    #'Object Detection (YOLO_NAS S - Augmented Dataset)': YOLO_NAS_S(
+    #    os.path.join(currPath, 'yolonas_aug', 'yolo_nas_s_aug_v1.pt'),
+    #    os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml') # "C:/Users/ajcmo/Desktop/WORK/Noisey-image/src/yolonas_aug/tank_v1-3_ckpt_latest.pth"
+    #),
+    #'Object Detection (YOLO_NAS S - 10 Classes)': YOLO_NAS_S(
+    #    os.path.join(currPath, 'yolonas_10c', 'yolo_nas_s_10c.pt'),
+    #    os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml') # "C:/Users/ajcmo/Desktop/WORK/Noisey-image/src/yolonas_10c/tank_v1-3_ckpt_latest.pth"
+    #),
 	'Object Detection (YOLO NAS S - Tank Class)': YOLO_NAS_S(
         os.path.join(currPath, 'yolonas_tank', 'yolo_nas_s_tank.pt'),
-		os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml')
+		os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml'),
+		"C:/Users/ajcmo/Desktop/WORK/Noisey-image/src/yolonas_tank/tank_v1-3_ckpt_latest.pth",
+		1
 	)
 }
 
