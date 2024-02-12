@@ -589,7 +589,7 @@ def sizescale(image, param):
     if (param == 1):
         return image
     #print("Size applied")
-    scale = 1 / np.power(2, (param-1))
+    scale = 1 / np.power(1.5, (param-1)) # 67% dimensional reduction
     height, width, channel = image.shape
     resized = cv2.resize(image, None, fx=scale, fy=scale)
     rh, rw, rc = resized.shape

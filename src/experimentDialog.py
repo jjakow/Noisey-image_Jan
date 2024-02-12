@@ -356,7 +356,8 @@ class ExperimentWorker(QObject):
                             filename[4] = str(int(c[augTitles.index("Intensity")]))
                         if "JPG Compression" in augTitles:
                             filename[5] = str(int(c[augTitles.index("JPG Compression")]))
-                        filename_save = "".join(filename)
+                        imgEnd = "".join(filename)
+                        filename_save = imgName + "_" + imgEnd
 
                         cv2.imwrite("%s/%s/%s.jpg" % (exp_path, imgName, filename_save), _img)
 
