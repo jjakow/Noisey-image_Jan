@@ -163,17 +163,6 @@ def rain(image, intensity=1):
 
     return image_RGB
 
-def jpeg_comp(image, quality, return_encoded=False):
-    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
-    result, enc_img = cv2.imencode('.jpg', image, encode_param)
-    
-    if return_encoded:
-        return enc_img
-
-    if result is True:
-        dec_img = cv2.imdecode(enc_img, 1)
-        return dec_img
-
 # 1, 2, 3, 4, 5
 def saltAndPapper_noise(image, prob=0.01):
     '''
@@ -609,57 +598,6 @@ def cae(image, patches):
     # Run the autoencoder with the given image
     image = cae_encoder.run(image, patches)
     return image
-	
-def encode_preprocess(image):
-    image = ImageOps.grayscale(image)
-    dim = max(image.size)
-    new_dim = 2 ** int(math.ceil(math.log(dim, 2)))
-    return ImageOps.pad(image, (new_dim, new_dim))
-	
-def get_haar_step(i, k):
-    transform = np.zeros((2**k, 2**k))
-    for j in range(2 ** (k-i-1)):
-        transform[2*j, j] = 0.5
-        transform[2*j + 1, j] = 0.5
-    offset = 2 ** (k-i-1)
-    for j in range(offset):
-        transform[2*j, offset + j] = 0.5
-        transform[2*j + 1, offset + j]=  -0.5
-    for j in range(2 ** (k-i), 2 ** k):
-        transform[j, j] = 1
-    return transform
-
-def get_haar_transform(k):
-    transform = np.eye(2 ** k)
-    for i in range(k):
-        transform = transform @ get_haar_step(i, k)
-    return transform
-	
-def haar_encode(a):
-    k = int(np.ceil(np.log2(len(a))))
-    assert a.shape == (k,k)
-    row_encoder = get_haar_transform(k)
-    return row_encoder.T @ a @ row_encoder
-	
-def haar_decode(a):
-    k = int(np.ceil(np.log2(len(a))))
-    assert a.shape == (k,k)
-    row_decoder = np.linalg.inv(get_haar_transform(k))
-    return row_decoder.T @ a @ row_decoder
-	
-def truncate_values(a, threshold):
-    return np.where(np.abs(a) < threshold, 0, a)
-	
-"""
-def jpg_compression(image, param, encoded=False):
-    im = encode_preprocess(image)
-    A = np.array(im)
-    E = haar_encode(A)
-    threshold = 8
-    E = truncate_values(E, threshold)
-    D = haar_decode(E)
-    return D
-"""
 
 def jpg_compression(image, param, return_encoded=False):
     quality = 21 - (3*param)
