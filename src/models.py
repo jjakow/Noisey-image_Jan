@@ -1863,7 +1863,8 @@ _registry = {
 	'Object Detection (YOLO NAS S - Tank Class)': YOLO_NAS_S(
         os.path.join(currPath, 'yolonas_tank', 'yolo_nas_s_tank.pt'),
 		os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml'),
-		"C:/Users/ajcmo/Desktop/WORK/Noisey-image/src/yolonas_tank/tank_v1-3_ckpt_latest.pth",
+		#"C:/Users/IRIS_Showcase/Documents/Noisey-image-comp/src/yolonas_tank/tank_v1-3_ckpt_latest.pth",
+        "./src/yolonas_tank/tank_v1-3_ckpt_latest.pth",
 		1
 	)
 }
