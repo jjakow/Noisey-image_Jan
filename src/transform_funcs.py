@@ -43,7 +43,7 @@ def adjust_gamma(image, gamma=1.0):
     return cv2.LUT(image, table)
 
 def dim_intensity(image, factor, seed=-1):
-    gamma_vals = [2, 1.33, 1, 0.67, 0.5]
+    gamma_vals = [6, 3, 1, 0.333, 0.167]
     adjusted = adjust_gamma(image, gamma=gamma_vals[int(factor)-1])
     return adjusted
 
@@ -600,7 +600,7 @@ def cae(image, patches):
     return image
 
 def jpg_compression(image, param, return_encoded=False):
-    quality = 21 - (3*param)
+    quality = 19 - (3*param) # 16, 13, 10, 7, 4
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     result, enc_img = cv2.imencode('.jpg', image, encode_param)
     #print("JPG Compression applied")
