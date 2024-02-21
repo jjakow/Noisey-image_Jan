@@ -43,7 +43,7 @@ def adjust_gamma(image, gamma=1.0):
     return cv2.LUT(image, table)
 
 def dim_intensity(image, factor, seed=-1):
-    gamma_vals = [2, 1.33, 1, 0.67, 0.5]
+    gamma_vals = [10, 5, 2.5, 1, 0.5] #[6, 3, 1, 0.333, 0.167]
     adjusted = adjust_gamma(image, gamma=gamma_vals[int(factor)-1])
     return adjusted
 
@@ -162,17 +162,6 @@ def rain(image, intensity=1):
     image_RGB= cv2.cvtColor(image_HLS,cv2.COLOR_HLS2RGB)
 
     return image_RGB
-
-def jpeg_comp(image, quality, return_encoded=False):
-    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
-    result, enc_img = cv2.imencode('.jpg', image, encode_param)
-    
-    if return_encoded:
-        return enc_img
-
-    if result is True:
-        dec_img = cv2.imdecode(enc_img, 1)
-        return dec_img
 
 # 1, 2, 3, 4, 5
 def saltAndPapper_noise(image, prob=0.01):
@@ -543,16 +532,9 @@ def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
     return frame
 
 # 1, 2, 3, 4, 5
-def sharpen(image, param):
-    #p = int(param) + 6
-    #kernel = np.array([[-1,-1,-1],[-1,p,-1],[-1,-1,-1]])
-    #sharp = cv2.filter2D(image, -1, kernel)
-    #return sharp
-    #print("Contrast applied")
+def contrast(image, param):
     
-    #sharp = cv2.addWeighted(image, (param*1.1), image, 0, (-25*param))
-    
-    contrast = int(-22 * param)
+    contrast = int(-12 * param) # -22
     alpha = float(131 * (contrast + 127)) / (127 * (131 - contrast))
     gamma = 127 * (1 - alpha)
 	
@@ -589,7 +571,7 @@ def sizescale(image, param):
     if (param == 1):
         return image
     #print("Size applied")
-    scale = 1 / np.power(2, (param-1))
+    scale = 1 / np.power(1.5, (param-1)) # 67% dimensional reduction
     height, width, channel = image.shape
     resized = cv2.resize(image, None, fx=scale, fy=scale)
     rh, rw, rc = resized.shape
@@ -609,60 +591,9 @@ def cae(image, patches):
     # Run the autoencoder with the given image
     image = cae_encoder.run(image, patches)
     return image
-	
-def encode_preprocess(image):
-    image = ImageOps.grayscale(image)
-    dim = max(image.size)
-    new_dim = 2 ** int(math.ceil(math.log(dim, 2)))
-    return ImageOps.pad(image, (new_dim, new_dim))
-	
-def get_haar_step(i, k):
-    transform = np.zeros((2**k, 2**k))
-    for j in range(2 ** (k-i-1)):
-        transform[2*j, j] = 0.5
-        transform[2*j + 1, j] = 0.5
-    offset = 2 ** (k-i-1)
-    for j in range(offset):
-        transform[2*j, offset + j] = 0.5
-        transform[2*j + 1, offset + j]=  -0.5
-    for j in range(2 ** (k-i), 2 ** k):
-        transform[j, j] = 1
-    return transform
-
-def get_haar_transform(k):
-    transform = np.eye(2 ** k)
-    for i in range(k):
-        transform = transform @ get_haar_step(i, k)
-    return transform
-	
-def haar_encode(a):
-    k = int(np.ceil(np.log2(len(a))))
-    assert a.shape == (k,k)
-    row_encoder = get_haar_transform(k)
-    return row_encoder.T @ a @ row_encoder
-	
-def haar_decode(a):
-    k = int(np.ceil(np.log2(len(a))))
-    assert a.shape == (k,k)
-    row_decoder = np.linalg.inv(get_haar_transform(k))
-    return row_decoder.T @ a @ row_decoder
-	
-def truncate_values(a, threshold):
-    return np.where(np.abs(a) < threshold, 0, a)
-	
-"""
-def jpg_compression(image, param, encoded=False):
-    im = encode_preprocess(image)
-    A = np.array(im)
-    E = haar_encode(A)
-    threshold = 8
-    E = truncate_values(E, threshold)
-    D = haar_decode(E)
-    return D
-"""
 
 def jpg_compression(image, param, return_encoded=False):
-    quality = 21 - (3*param)
+    quality = 19 - (3*param)
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     result, enc_img = cv2.imencode('.jpg', image, encode_param)
     #print("JPG Compression applied")
@@ -695,7 +626,7 @@ def __speckleNoiseCheck__(param): return param >= 1 and param <= 2
 def __saturationCheck__(param): return param >= 0
 def __altMosaicCheck__(param): return param > 0
 def __bilinearCheck__(param): return param >= 0 and param <= 100
-def __sharpenCheck__(param): return param > 0
+def __contrastCheck__(param): return param > 0
 #def __rotationCheck__(param): return param >= 0 and param <= 350
 #def __invertCheck__(param): return True
 #def __pincushionCheck__(param): return param > 0 and param <= 0.01
