@@ -43,7 +43,7 @@ def adjust_gamma(image, gamma=1.0):
     return cv2.LUT(image, table)
 
 def dim_intensity(image, factor, seed=-1):
-    gamma_vals = [6, 3, 1, 0.333, 0.167]
+    gamma_vals = [10, 5, 2.5, 1, 0.5] #[6, 3, 1, 0.333, 0.167]
     adjusted = adjust_gamma(image, gamma=gamma_vals[int(factor)-1])
     return adjusted
 
@@ -532,16 +532,9 @@ def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
     return frame
 
 # 1, 2, 3, 4, 5
-def sharpen(image, param):
-    #p = int(param) + 6
-    #kernel = np.array([[-1,-1,-1],[-1,p,-1],[-1,-1,-1]])
-    #sharp = cv2.filter2D(image, -1, kernel)
-    #return sharp
-    #print("Contrast applied")
+def contrast(image, param):
     
-    #sharp = cv2.addWeighted(image, (param*1.1), image, 0, (-25*param))
-    
-    contrast = int(-22 * param)
+    contrast = int(-12 * param) # -22
     alpha = float(131 * (contrast + 127)) / (127 * (131 - contrast))
     gamma = 127 * (1 - alpha)
 	
@@ -600,7 +593,7 @@ def cae(image, patches):
     return image
 
 def jpg_compression(image, param, return_encoded=False):
-    quality = 19 - (3*param) # 16, 13, 10, 7, 4
+    quality = 19 - (3*param)
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     result, enc_img = cv2.imencode('.jpg', image, encode_param)
     #print("JPG Compression applied")
@@ -633,7 +626,7 @@ def __speckleNoiseCheck__(param): return param >= 1 and param <= 2
 def __saturationCheck__(param): return param >= 0
 def __altMosaicCheck__(param): return param > 0
 def __bilinearCheck__(param): return param >= 0 and param <= 100
-def __sharpenCheck__(param): return param > 0
+def __contrastCheck__(param): return param > 0
 #def __rotationCheck__(param): return param >= 0 and param <= 350
 #def __invertCheck__(param): return True
 #def __pincushionCheck__(param): return param > 0 and param <= 0.01

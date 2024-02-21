@@ -11,12 +11,12 @@ from src.transform_funcs import *
 import src.transform_funcs as trans
 
 augList = {
-    "Size": {"function": sizescale, "default": [1, 2, 3, 4, 5], "example": 2, "limits": trans.__sizescaleCheck__},
-    "Gaussian Blur": {"function": gaussian_blur, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__gaussianBlurCheck__},
-    "Salt and Pepper": {"function": saltAndPapper_noise, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__saltPepperCheck__},
-    "Contrast": {"function": sharpen, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__sharpenCheck__},
-	"Intensity": {"function": dim_intensity, "default": [1, 2, 3, 4, 5], "example":2, "limits":trans.__intensityCheck__},
-    "JPG Compression": {"function": jpg_compression, "default": [1, 2, 3, 4, 5], "example": 3, "limits":trans.__jpgCompressionCheck__},
+    "Size": {"function": sizescale, "default": [1, 2, 3, 4, 5], "example": 1, "limits": trans.__sizescaleCheck__},
+    "Gaussian Blur": {"function": gaussian_blur, "default": [1, 2, 3, 4, 5], "example":1, "limits":trans.__gaussianBlurCheck__},
+    "Salt and Pepper": {"function": saltAndPapper_noise, "default": [1, 2, 3, 4, 5], "example":1, "limits":trans.__saltPepperCheck__},
+    "Contrast": {"function": contrast, "default": [1, 2, 3, 4, 5], "example":1, "limits":trans.__contrastCheck__},
+	"Intensity": {"function": dim_intensity, "default": [1, 2, 3, 4, 5], "example":1, "limits":trans.__intensityCheck__},
+    "JPG Compression": {"function": jpg_compression, "default": [1, 2, 3, 4, 5], "example": 1, "limits":trans.__jpgCompressionCheck__},
 
     " ": {"function": passthrough, "default": [], "example": [], "limits": None, "line": "Other Augmentations"},
 	#"Size": {"function": sizescale, "default": [0, 1, 2, 3, 4, 5], "example": 1, "limits": trans.__sizescaleCheck__},
