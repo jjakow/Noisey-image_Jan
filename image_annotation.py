@@ -19,6 +19,7 @@ def main():
     template_lbl = [] # Size = 5
     new_lbl = [] # Size = N
     
+    
     print("Gathering images...")
     
     # Get image names
@@ -38,54 +39,69 @@ def main():
         with open ("%s/%s.txt" % (lbl_dir, img_list[i]), 'w') as output_file:
         
             if (aug_comb[0] == '1'):
-                with open("%s/size1.txt" % (template_dir), 'r') as input_file:
+                with open("%s/%s" % (template_dir, template_lbl[0]), 'r') as input_file:
                     for line in input_file:
                         output_file.write(line)
                         
             if (aug_comb[0] == '2'):
-                with open("%s/size2.txt" % (template_dir), 'r') as input_file:
+                with open("%s/%s" % (template_dir, template_lbl[1]), 'r') as input_file:
                     for line in input_file:
                         output_file.write(line)
                         
             if (aug_comb[0] == '3'):
-                with open("%s/size3.txt" % (template_dir), 'r') as input_file:
+                with open("%s/%s" % (template_dir, template_lbl[2]), 'r') as input_file:
                     for line in input_file:
                         output_file.write(line)
                         
             if (aug_comb[0] == '4'):
-                with open("%s/size1.txt" % (template_dir), 'r') as input_file:
+                with open("%s/%s" % (template_dir, template_lbl[3]), 'r') as input_file:
                     for line in input_file:
                         output_file.write(line)
                         
             if (aug_comb[0] == '5'):
-                with open("%s/size5.txt" % (template_dir), 'r') as input_file:
+                with open("%s/%s" % (template_dir, template_lbl[4]), 'r') as input_file:
                     for line in input_file:
                         output_file.write(line)
                         
     print("Image Annotation Complete!")
     
-    print("==========")
+    print("====================")
     
     num_train = int(round((len(img_list) * 0.8), -2))
     num_valid = len(img_list) - num_train
     
     train_idx = random.sample(range(len(img_list)), num_train)
     
-    print("Reallocating training set...")
+    print("Reallocating training image set...")
     
     for i in train_idx:
         img_to_move = "%s.jpg" % (img_list[i])
         shutil.move("%s/%s" % (img_dir, img_to_move), "%s/%s" % (train_img_dir, img_to_move))
         
-    print("Reallocating validation set...")
+    print("Reallocating validation image set...")
         
     for img in glob.glob("%s/*.jpg" % (img_dir)):
         img_to_move = os.path.basename(img)
         shutil.move("%s/%s" % (img_dir, img_to_move), "%s/%s" % (valid_img_dir, img_to_move))
     
-    print("Image Reallocation Complete!")
-    
     # RELOCATE LABELS HERE
+    
+    print("Reallocating training label set...")
+    
+    for lbl in glob.glob("%s/*.txt" % (lbl_dir)):
+        new_lbl.append(os.path.splitext(os.path.basename(lbl))[0])
+        
+    for i in train_idx:
+        lbl_to_move = "%s.txt" % (new_lbl[i])
+        shutil.move("%s/%s" % (lbl_dir, lbl_to_move), "%s/%s" % (train_lbl_dir, lbl_to_move))
+    
+    print("Reallocating validation label set...")
+    
+    for lbl in glob.glob("%s/*.txt" % (lbl_dir)):
+        lbl_to_move = os.path.basename(lbl)
+        shutil.move("%s/%s" % (lbl_dir, lbl_to_move), "%s/%s" % (valid_lbl_dir, lbl_to_move))
+    
+    print("Image & Label Reallocation Complete!")
 
 if __name__ == "__main__":
     main()
