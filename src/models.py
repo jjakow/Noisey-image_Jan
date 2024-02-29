@@ -1866,6 +1866,14 @@ _registry = {
 		#"C:/Users/IRIS_Showcase/Documents/Noisey-image-comp/src/yolonas_tank/tank_v1-3_ckpt_latest.pth",
         "./src/yolonas_tank/tank_v1-3_ckpt_latest.pth",
 		1
+	),
+    
+    'Object Detection (YOLO NAS S - Tank Class - COMPOUND)': YOLO_NAS_S(
+        os.path.join(currPath, 'yolonas_tank', 'yolo_nas_s_tank.pt'),
+		os.path.join(currPath, 'yolonas', 'yolo_nas_s_arch_params.yaml'),
+		#"C:/Users/IRIS_Showcase/Documents/Noisey-image-comp/src/yolonas_tank/tank_v1-3_ckpt_latest.pth",
+        "./src/yolonas_tank/tank_comp_v1-2_ckpt_latest.pth",
+		1
 	)
 }
 
