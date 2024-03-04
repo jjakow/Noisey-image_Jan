@@ -24,9 +24,12 @@ import cv2
 from src.utils.images import convert_cvimg_to_qimg
 from src.transforms import AugDialog, mainAug
 from src.experimentDialog import ExperimentConfig, ExperimentDialog
+from src.tuningPanel import TuningPanel
 from src import models
 from src.utils.weights import Downloader
 from src.dataParser import ReadYAMLProgressWindow, yamlWorker
+
+import uuid
 
 CURRENT_PATH = str(Path(__file__).parent.absolute()) + '/'
 TEMP_PATH = CURRENT_PATH + 'src/tmp_results/'
@@ -99,9 +102,10 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.pushButton_2.clicked.connect(self.startExperiment)
         self.ui.pushButton_3.clicked.connect(self.close)
         self.ui.pushButton_4.clicked.connect(self.setToDefault)
+        self.ui.pushButton_5.clicked.connect(self.startTuning)
 
         # Augmentation Generator:
-        #self.ui.compoundAug.setChecked(True)
+        self.ui.compoundAug.setChecked(True)
         self.ui.addAug.clicked.connect(self.addWindow.show)
         #self.ui.demoAug.clicked.connect(self.addWindow.demoAug)
         self.ui.loadAug.clicked.connect(self.addWindow.__loadFileDialog__)
@@ -191,6 +195,8 @@ class mainWindow(QtWidgets.QMainWindow):
     def apply_augmentations(self, img):
         for aug in mainAug:
             img = aug(img, example=True)
+            #filename = str(uuid.uuid4())
+            #cv2.imwrite("%s.jpg" % (filename), img)
         return img
 
     def changePreviewImage(self, *kwargs):
@@ -346,6 +352,7 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.pushButton_2.setEnabled(value)
         #self.ui.pushButton_3.setEnabled(value)
         self.ui.pushButton_4.setEnabled(value)
+        self.ui.pushButton_5.setEnabled(value)
         self.ui.compoundAug.setEnabled(value)
         #self.ui.checkBox_2.setEnabled(value)
         self.ui.upListAug.setEnabled(value)
@@ -388,14 +395,16 @@ class mainWindow(QtWidgets.QMainWindow):
         if(dst is None ):
             return
 
-        if(current.text() == "all"):
+        class_text = current.text().split(' (')[0]
+
+        if(class_text == "all"):
             dst_qt = convert_cvimg_to_qimg(dst)
             self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(dst_qt))
 
         else:
             pred = qListItem.data(QtCore.Qt.UserRole)['uncompressed_pred']
             model = models._registry[data['model']]
-            imgs = model.draw_single_class(pred, originalImg, current.text())
+            imgs = model.draw_single_class(pred, originalImg, class_text)
             qImg_overlay = convert_cvimg_to_qimg(imgs["overlay"])
             self.ui.original_2.setPixmap(QtGui.QPixmap.fromImage(qImg_overlay))
 
@@ -417,14 +426,16 @@ class mainWindow(QtWidgets.QMainWindow):
         if(dst is None ):
             return
 
-        if(current.text() == "all"):
+        class_text = current.text().split(' (')[0]
+
+        if(class_text == "all"):
             dst_qt = convert_cvimg_to_qimg(dst)
             self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(dst_qt))
 
         else:
             pred = qListItem.data(QtCore.Qt.UserRole)['augmented_pred']
             model = models._registry[data['model']]
-            imgs = model.draw_single_class(pred, noseImg, current.text())
+            imgs = model.draw_single_class(pred, noseImg, class_text)
             qImg_overlay = convert_cvimg_to_qimg(imgs["overlay"])
             self.ui.preview_2.setPixmap(QtGui.QPixmap.fromImage(qImg_overlay))
 
@@ -454,8 +465,12 @@ class mainWindow(QtWidgets.QMainWindow):
 
         names = uncompressed["listOfNames"]
         data['uncompressed_names'] = names
+        cls_unc = uncompressed["classes"] # breaks at everything EXCEPT NAS (for now)
+        #print(cls)
+		
         for x in names:
-            i = QtWidgets.QListWidgetItem(x)
+            n = "{} ({})".format(x, cls_unc[x])
+            i = QtWidgets.QListWidgetItem(n)
             i.setBackground(QtGui.QColor(names[x][0], names[x][1], names[x][2]))
             self.ui.uncompressed.addItem(i)
 
@@ -466,13 +481,16 @@ class mainWindow(QtWidgets.QMainWindow):
 
         names = augmented["listOfNames"]
         data['augmented_names'] = names
+        cls_aug = augmented["classes"] # breaks at everything EXCEPT NAS (for now)
         for x in names:
-            i = QtWidgets.QListWidgetItem(x)
+            n = "{} ({})".format(x, cls_aug[x])
+            i = QtWidgets.QListWidgetItem(n)
             i.setBackground(QtGui.QColor(names[x][0], names[x][1], names[x][2]))
             self.ui.augmented.addItem(i)
 
         qListItem.setData(QtCore.Qt.UserRole, data)
         self.ui.tabWidget.setCurrentIndex(0)
+		
 
  
     def run_model(self):
@@ -552,7 +570,7 @@ class mainWindow(QtWidgets.QMainWindow):
                     return -1
                 imgPaths.append(file_path)
 
-        config = ExperimentConfig(mainAug, self.ui.compoundAug.isChecked(), imgPaths, _model, comboModelType, labels=self.labels, labelType=self.label_eval)
+        config = ExperimentConfig(mainAug, self.ui.compoundAug.isChecked(), self.ui.sequentialAug.isChecked(), self.ui.normalAug.isChecked(), imgPaths, _model, comboModelType, labels=self.labels, labelType=self.label_eval)
         self.experiment = ExperimentDialog(config, self)
         #self.experiment.setModal(True)
         self.experiment.show()
@@ -566,10 +584,14 @@ class mainWindow(QtWidgets.QMainWindow):
         # self.addWindow.__updateViewer__()
         # self.addWindow.__reloadAugs__()
         #self.ui.checkBox_2.setChecked(False)
-        self.ui.compoundAug.setChecked(False)
+        self.ui.compoundAug.setChecked(True)
         self.ui.comboBox.setCurrentIndex(0)
     
         self.default_img()
+		
+    def startTuning(self):
+        self.tuning = TuningPanel()
+        self.tuning.show()
         
 
 if __name__ == '__main__':
