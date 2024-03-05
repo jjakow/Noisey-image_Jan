@@ -24,6 +24,7 @@ import cv2
 from src.utils.images import convert_cvimg_to_qimg
 from src.transforms import AugDialog, mainAug
 from src.experimentDialog import ExperimentConfig, ExperimentDialog
+from src.tuningPanel import TuningPanel
 from src import models
 from src.utils.weights import Downloader
 from src.dataParser import ReadYAMLProgressWindow, yamlWorker
@@ -101,6 +102,7 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.pushButton_2.clicked.connect(self.startExperiment)
         self.ui.pushButton_3.clicked.connect(self.close)
         self.ui.pushButton_4.clicked.connect(self.setToDefault)
+        self.ui.pushButton_5.clicked.connect(self.startTuning)
 
         # Augmentation Generator:
         self.ui.compoundAug.setChecked(True)
@@ -350,6 +352,7 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.pushButton_2.setEnabled(value)
         #self.ui.pushButton_3.setEnabled(value)
         self.ui.pushButton_4.setEnabled(value)
+        self.ui.pushButton_5.setEnabled(value)
         self.ui.compoundAug.setEnabled(value)
         #self.ui.checkBox_2.setEnabled(value)
         self.ui.upListAug.setEnabled(value)
@@ -585,6 +588,10 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.comboBox.setCurrentIndex(0)
     
         self.default_img()
+		
+    def startTuning(self):
+        self.tuning = TuningPanel()
+        self.tuning.show()
         
 
 if __name__ == '__main__':
