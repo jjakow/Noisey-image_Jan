@@ -8,6 +8,10 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBo
 from superqt import QLabeledDoubleRangeSlider
 
 import sys
+import cv2
+
+from src.transforms import AugmentationPipeline, augList
+from src.utils.images import convert_cvimg_to_qimg
 
 class TuningPanel(QMainWindow):
     def __init__(self):
@@ -16,53 +20,55 @@ class TuningPanel(QMainWindow):
         self.genImages()
 		
     def genImages(self):
-        #self.filepath = 'C:/Users/ajcmo/Desktop/WORK/Noisey-image/imgs/default_imgs/tank_iso.jpg'
+        filepath = 'C:/Users/ajcmo/Desktop/WORK/Noisey-image/imgs/default_imgs/tank_iso.jpg'
+        img = cv2.imread(filepath)
+        qt_img = convert_cvimg_to_qimg(img)
         #print(self.ui.width())
-        pm = QPixmap('C:/Users/ajcmo/Desktop/WORK/Noisey-image/imgs/default_imgs/tank_iso.jpg')
-        pm = pm.scaled(self.ui.width() / 6, self.ui.height() / 6, Qt.KeepAspectRatio, Qt.FastTransformation)
+        pm = QPixmap(qt_img)
+        pm = pm.scaled(self.ui.width() / 7, self.ui.height() / 6, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.ui.original.setPixmap(pm)
         #self.ui.original.resize(pm.width(),pm.height())
 		
-		# First row
-        self.ui.aug_11.setPixmap(pm)
-        self.ui.aug_12.setPixmap(pm)
-        self.ui.aug_13.setPixmap(pm)
-        self.ui.aug_14.setPixmap(pm)
-        self.ui.aug_15.setPixmap(pm)
+        matrix_id = [self.ui.aug_11, self.ui.aug_12, self.ui.aug_13, self.ui.aug_14, self.ui.aug_15,
+					self.ui.aug_21, self.ui.aug_22, self.ui.aug_23, self.ui.aug_24, self.ui.aug_25,
+					self.ui.aug_31, self.ui.aug_32, self.ui.aug_33, self.ui.aug_34, self.ui.aug_35,
+					self.ui.aug_41, self.ui.aug_42, self.ui.aug_43, self.ui.aug_44, self.ui.aug_45,
+					self.ui.aug_51, self.ui.aug_52, self.ui.aug_53, self.ui.aug_54, self.ui.aug_55]
 		
-		# Second row
-        self.ui.aug_21.setPixmap(pm)
-        self.ui.aug_22.setPixmap(pm)
-        self.ui.aug_23.setPixmap(pm)
-        self.ui.aug_24.setPixmap(pm)
-        self.ui.aug_25.setPixmap(pm)
+		# Setting up aug pipeline for tuning (6 augs)
+        tuningAug = AugmentationPipeline(augList)
+        tuningAug.clear()
+        tuningAug.append("Size")
+        tuningAug.append("Gaussian Blur")
+        tuningAug.append("Salt and Pepper")
+        tuningAug.append("Contrast")
+        tuningAug.append("Intensity")
+        tuningAug.append("JPG Compression")
 		
-		# Third row
-        self.ui.aug_31.setPixmap(pm)
-        self.ui.aug_32.setPixmap(pm)
-        self.ui.aug_33.setPixmap(pm)
-        self.ui.aug_34.setPixmap(pm)
-        self.ui.aug_35.setPixmap(pm)
+        cnt = 0
+        #aug_img = img
+        for i in range(5):
+            for j in range(5):
+                aug_img = img
+                for aug in tuningAug:
+                    if (aug.title == "Size"):
+                        aug_img = aug(aug_img, aug.args[i])
+                    else:
+                        aug_img = aug(aug_img, aug.args[j])
+                aug_qt_img = convert_cvimg_to_qimg(aug_img)
+                aug_pm = QPixmap(aug_qt_img)
+                aug_pm = aug_pm.scaled(self.ui.width() / 7, self.ui.height() / 6, Qt.KeepAspectRatio, Qt.FastTransformation)
+                matrix_id[cnt].setPixmap(aug_pm)
+                cnt += 1
 		
-		# Fourth row
-        self.ui.aug_41.setPixmap(pm)
-        self.ui.aug_42.setPixmap(pm)
-        self.ui.aug_43.setPixmap(pm)
-        self.ui.aug_44.setPixmap(pm)
-        self.ui.aug_45.setPixmap(pm)
-		
-		# Fifth row
-        self.ui.aug_51.setPixmap(pm)
-        self.ui.aug_52.setPixmap(pm)
-        self.ui.aug_53.setPixmap(pm)
-        self.ui.aug_54.setPixmap(pm)
-        self.ui.aug_55.setPixmap(pm)
-		
-        #self.ui.aug_1_slider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        #self.ui.aug_1_slider.setRange(0.0, 10.0)
-        #self.ui.aug_1_slider.setValue((2.0, 8.0))
-        #self.ui.aug_1_slider.show()
+        #print(self.ui.horizontalSlider.TickPosition())
 		
         self.ui.horizontalSlider = QLabeledDoubleRangeSlider()
         self.ui.horizontalSlider.setRange(0.0, 10.0)
         self.ui.horizontalSlider.setValue((2.0, 8.0))
+        self.ui.horizontalSlider.show()
+		
+        #rangedSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
+        #rangedSlider.setRange(0.0, 10.0)
+        #rangedSlider.setValue((2.0, 8.0))
+        #rangedSlider.show()
