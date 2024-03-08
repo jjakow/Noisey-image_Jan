@@ -117,6 +117,8 @@ def gaussian_blur(image, parameter):
     # 15, 30, 45, 60, 75
     p = 14*parameter + 1
     parameter = int(p)
+    if (parameter % 2 == 0):
+        parameter = parameter + 1
     #print("Gaussian Blur applied")
     image_copy = np.copy(image)
     cols = image_copy.shape[0]
