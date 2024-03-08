@@ -105,6 +105,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
+        self.pushButton_5 = QPushButton(self.centralwidget)
+        self.pushButton_5.setObjectName(u"pushButton_5")
+        self.pushButton_5.setStyleSheet(u"background-color: rgb(158, 90, 214);")
+
+        self.horizontalLayout_5.addWidget(self.pushButton_5)
+
         self.horizontalLayout_5.addItem(self.horizontalSpacer_3)
 
         self.pushButton_2 = QPushButton(self.centralwidget)
@@ -437,6 +443,7 @@ class Ui_MainWindow(object):
         self.label_10.setText(QCoreApplication.translate("MainWindow", u"Uncompressed Detections", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Augmentation Generator", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Models", None))
+        self.pushButton_5.setText(QCoreApplication.translate("MainWindow", u"Tune Parameters", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Generate Images", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Run Preview", None))
         self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"Default", None))
