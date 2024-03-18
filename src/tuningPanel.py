@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QDialog, QDesktopWidget
 from PyQt5 import uic, QtWidgets
-from PyQt5.QtCore import Qt, QObject, QThread, pyqtSignal, QSize
-from PyQt5.QtGui import QPixmap, QIcon, QFont
+from PyQt5.QtCore import * #Qt, QObject, QThread, pyqtSignal, QSize
+from PyQt5.QtGui import * #QPixmap, QIcon, QFont
 from src.mplwidget import MplWidget
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import * #QApplication, QMainWindow, QPushButton, QLabel, QCheckBox, QVBoxLayout, QWidget
 
 from superqt import QLabeledDoubleRangeSlider
 
@@ -22,11 +22,17 @@ class TuningPanel(QMainWindow):
         self.imagePath = None
 		
 		# Create standard augmentation level matrix
-        self.matrixArgs = [[1,2,3,4,5],
-		                    [1,2,3,4,5],
-							[1,2,3,4,5],
-							[1,2,3,4,5],
-							[1,2,3,4,5]]
+        self.matrixArgs = [[7.5,10.7,25.0,21.4,30.0],
+		                    [0.375,0.53,0.75,1.07,1.5],
+							[1.0,1.4,2.0,2.8,4.0],
+							[5.0,7.14,10.0,14.0,20.0],
+							[22.5,32.14,45.0,64.28,90.0]]
+		
+		#[[10,15,20,25,30],
+		#[0.3,0.6,0.9,1.2,1.5],
+		#[0.5,1,1.5,1.2,1.5],
+		#[7,8.5,10,11.5,13],
+		#[80,82.5,85,87.5,90]]
         self.blurSlider = None
         self.genImages()
         self.placeSliders()
@@ -69,61 +75,62 @@ class TuningPanel(QMainWindow):
 	# Places the sliders on the UI
     def placeSliders(self):
 		# Slider for Gaussian Blur 
-        self.blurLabel = QLabel()
+        self.blurLabel = QLabel() #QCheckBox()
         self.blurLabel.setObjectName(u"blurLabel")
         self.blurLabel.setAlignment(Qt.AlignCenter)
+        #self.blurLabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.blurLabel.setText("Gaussian Blur")
         self.blurSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        self.blurSlider.setRange(1.0, 5.0)
-        self.blurSlider.setValue((1.0, 2.0, 3.0, 4.0, 5.0))
+        self.blurSlider.setRange(10.0, 60.0)
+        self.blurSlider.setValue((7.5,10.7,25.0,21.4,30.0))
         self.blurSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.blurLabel)
         self.ui.sliderLayout.addWidget(self.blurSlider)
         
 		# Slider for Salt & Pepper 
-        self.saltpepLabel = QLabel()
-        self.saltpepLabel.setObjectName(u"blurLabel")
+        self.saltpepLabel = QLabel() #QCheckBox()
+        self.saltpepLabel.setObjectName(u"saltPepLabel")
         self.saltpepLabel.setAlignment(Qt.AlignCenter)
         self.saltpepLabel.setText("Salt & Pepper")
         self.saltpepSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        self.saltpepSlider.setRange(1.0, 5.0)
-        self.saltpepSlider.setValue((1.0, 2.0, 3.0, 4.0, 5.0))
+        self.saltpepSlider.setRange(0.0, 4.0)
+        self.saltpepSlider.setValue((0.375,0.53,0.75,1.07,1.5))
         self.saltpepSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.saltpepLabel)
         self.ui.sliderLayout.addWidget(self.saltpepSlider)
 		
 		# Slider for Contrast
-        self.contLabel = QLabel()
-        self.contLabel.setObjectName(u"blurLabel")
+        self.contLabel = QLabel() #QCheckBox()
+        self.contLabel.setObjectName(u"contLabel")
         self.contLabel.setAlignment(Qt.AlignCenter)
         self.contLabel.setText("Contrast")
         self.contSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        self.contSlider.setRange(1.0, 5.0)
-        self.contSlider.setValue((1.0, 2.0, 3.0, 4.0, 5.0))
+        self.contSlider.setRange(0.0, 10.0)
+        self.contSlider.setValue((1.0,1.4,2.0,2.8,4.0))
         self.contSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.contLabel)
         self.ui.sliderLayout.addWidget(self.contSlider)
 		
 		# Slider for Intensity
-        self.intLabel = QLabel()
-        self.intLabel.setObjectName(u"blurLabel")
+        self.intLabel = QLabel() #QCheckBox()
+        self.intLabel.setObjectName(u"intLabel")
         self.intLabel.setAlignment(Qt.AlignCenter)
         self.intLabel.setText("Intensity")
         self.intSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        self.intSlider.setRange(1.0, 5.0)
-        self.intSlider.setValue((1.0, 2.0, 3.0, 4.0, 5.0))
+        self.intSlider.setRange(4.0, 16.0)
+        self.intSlider.setValue((5.0,7.14,10.0,14.0,20.0))
         self.intSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.intLabel)
         self.ui.sliderLayout.addWidget(self.intSlider)
 		
 		# Slider for JPG Compression
-        self.compLabel = QLabel()
-        self.compLabel.setObjectName(u"blurLabel")
+        self.compLabel = QLabel() #QCheckBox()
+        self.compLabel.setObjectName(u"compLabel")
         self.compLabel.setAlignment(Qt.AlignCenter)
         self.compLabel.setText("JPG Compression")
         self.compSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        self.compSlider.setRange(1.0, 5.0)
-        self.compSlider.setValue((1.0, 2.0, 3.0, 4.0, 5.0))
+        self.compSlider.setRange(80.0, 100.0)
+        self.compSlider.setValue((22.5,32.14,45.0,64.28,90.0))
         self.compSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.compLabel)
         self.ui.sliderLayout.addWidget(self.compSlider)
@@ -137,6 +144,7 @@ class TuningPanel(QMainWindow):
 		
 		# Connect button to re-generate matrix
         self.ui.regenMatrix.clicked.connect(self.genImages)
+        self.ui.resetSlidersButton.clicked.connect(self.resetSliders)
 		
 	# Re-generates the augmentation matrix
     def genImages(self):
@@ -217,4 +225,11 @@ class TuningPanel(QMainWindow):
         self.matrixArgs[2] = self.contSlider.value()
         self.matrixArgs[3] = self.intSlider.value()
         self.matrixArgs[4] = self.compSlider.value()
+		
+    def resetSliders(self):
+        self.blurSlider.setValue((7.5,10.7,25.0,21.4,30.0))
+        self.saltpepSlider.setValue((0.375,0.53,0.75,1.07,1.5))
+        self.contSlider.setValue((0.625,0.89,1.25,1.78,2.5))
+        self.intSlider.setValue((5.0,7.14,10.0,14.0,20.0))
+        self.compSlider.setValue((22.5,32.14,45.0,64.28,90.0))
         
