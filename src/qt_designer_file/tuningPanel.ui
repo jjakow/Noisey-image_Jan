@@ -13,6 +13,12 @@
     <height>800</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
@@ -37,9 +43,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>139</y>
+      <y>179</y>
       <width>251</width>
-      <height>551</height>
+      <height>511</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="sliderLayout"/>
@@ -59,8 +65,8 @@
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
+      <weight>75</weight>
+      <bold>true</bold>
       <kerning>false</kerning>
      </font>
     </property>
@@ -147,6 +153,29 @@
      </rect>
     </property>
     <layout class="QVBoxLayout" name="y_label_col"/>
+   </widget>
+   <widget class="QPushButton" name="resetSlidersButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>150</y>
+      <width>249</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(90, 214, 158)</string>
+    </property>
+    <property name="text">
+     <string>Reset Sliders</string>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
