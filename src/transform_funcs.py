@@ -43,7 +43,7 @@ def adjust_gamma(image, gamma=1.0):
     return cv2.LUT(image, table)
 
 def dim_intensity(image, factor, seed=-1):
-    gamma_vals = [10, 5, 2.5, 1, 0.5] #[6, 3, 1, 0.333, 0.167]
+    gamma_vals = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.01] #[6, 3, 1, 0.333, 0.167]
     adjusted = adjust_gamma(image, gamma=gamma_vals[int(factor)-1])
     return adjusted
 
@@ -115,8 +115,9 @@ def gaussian_blur(image, parameter):
 	# 13, 29, 57, 121, 293
     #p = (10*parameter) + np.power(3, parameter)
     # 15, 30, 45, 60, 75
-    p = 14*parameter + 1
-    parameter = int(p)
+    #p = 14*parameter + 1
+    #parameter = int(p)
+    parameter = int(parameter)
     if (parameter % 2 == 0):
         parameter = parameter + 1
     #print("Gaussian Blur applied")
@@ -595,7 +596,7 @@ def cae(image, patches):
     return image
 
 def jpg_compression(image, param, return_encoded=False):
-    quality = 19 - (3*param)
+    quality = 100-param #19 - (3*param)
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     result, enc_img = cv2.imencode('.jpg', image, encode_param)
     #print("JPG Compression applied")
