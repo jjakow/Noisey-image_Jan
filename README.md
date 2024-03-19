@@ -80,5 +80,33 @@ An example of *en masse* is loading in a YAML file in `./imgs/test_labels.yaml`.
 
 **NOTE:** Caching old results if the Augmentation Pipeline stays the same is not implemented. Will be available in upcoming update.
 
+## YOLO-NAS Pre-Trained Weights
+
+In order to perform inference using any of the YOLO-NAS models, you will need to download the following files and place them in the corresponding directories:
+
+[yolo_nas_s.pt](https://drive.google.com/uc?export=download&id=1xkZbZs_XkVZ4vmKqrg6sveOgyNnWPGhB) => /src/yolonas
+
+[yolo_nas_s_arch_params.yaml](https://drive.google.com/uc?export=download&id=1aMGoI3jp0HUkgCLz9h9UFopL-MYKl_TL) => /src/yolonas
+
+[yolo_nas_m.pt](https://drive.google.com/uc?export=download&id=1jMVzXevuJhqBXNoQ933OoUGhYL3lh0Gq) => /src/yolonas
+
+[yolo_nas_m_arch_params.yaml](https://drive.google.com/uc?export=download&id=15YHYnat98IuAlEla8srbBFwrwfzXfmFS) => /src/yolonas
+
+[yolo_nas_l.pt](https://drive.google.com/uc?export=download&id=1_RVlfwfZHDTYiPEzrlZ70uzWoB2mujov) => /src/yolonas
+
+[yolo_nas_l_arch_params.yaml](https://drive.google.com/uc?export=download&id=1H-W8FTIvJhJbvN3iz99OJ4uitoM3iEu4) => /src/yolonas
+
+[tank_v1-3_ckpt_latest.pth](https://drive.google.com/uc?export=download&id=1iCQQPFOJSXsF5wvqe_mK6o3bvxolqPj5) => /src/yolonas_tank
+
+## Degredation Parameter Settings
+
+From the main window, you can press the "Parameter Settings" button, colored in purple and located on the lower-right hand corner. This will open a new window that allows you to tweak the parameters of five select augmentations: Gaussian Blur, Salt & Pepper, Contrast, Intensity, and JPEG Compression.
+
+From this new window, called the Tuning Panel, there are three main components: the original image, the sliders, and the augmentation matrix.
+
+The original image is located at the top-left corner, and is the image that will be used as a template to generate all other augmentations on the matrix. You can change this image by clicking "File > Open Image" and selecting the image of your choice.
+
+The sliders are a set of five multi-handle sliders 
+
 ## Running Experiments (TODO)
 Experiments still buggy (especially graphing)
