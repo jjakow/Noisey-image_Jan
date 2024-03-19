@@ -102,11 +102,15 @@ In order to perform inference using any of the YOLO-NAS models, you will need to
 
 From the main window, you can press the "Parameter Settings" button, colored in purple and located on the lower-right hand corner. This will open a new window that allows you to tweak the parameters of five select augmentations: Gaussian Blur, Salt & Pepper, Contrast, Intensity, and JPEG Compression.
 
+![Image showing sidebar that filters only cars out working](./docs/source/images/tuningPanel.png)
+
 From this new window, called the Tuning Panel, there are three main components: the original image, the sliders, and the augmentation matrix.
 
 The original image is located at the top-left corner, and is the image that will be used as a template to generate all other augmentations on the matrix. You can change this image by clicking "File > Open Image" and selecting the image of your choice.
 
-The sliders are a set of five multi-handle sliders 
+The sliders are a set of five multi-handle sliders for each of the aforementioned augmentations. Each slider itself has five handles, one the corresponds to each level. For example, the left-most handle corresponds to Level 1 and the right-most handle corresponds to Level 5. You can move each handle freely within the slider range. To enact these parameter changes, press the "Regenerate Matrix" button. To reset each of the sliders to their original positions, press the "Reset Sliders" button.
+
+Covering the majority of the panel is the augmentation matrix. This is a 5x5 grid of augmented images from the original image. On the Y-axis are labels for each Size augmentation, ranging from Level 1 (top row) to Level 5 (bottom row). Along the X-axis are labels for each column, denoted as "Y11111" through "Y55555", where Y corresponds to the current level of Size. Once the "Regenerate Matrix" button is pressed, the entire grid will update and generate new augmented images based on the changed parameter values.
 
 ## Running Experiments (TODO)
 Experiments still buggy (especially graphing)
