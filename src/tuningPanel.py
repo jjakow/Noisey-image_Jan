@@ -22,11 +22,11 @@ class TuningPanel(QMainWindow):
         self.imagePath = None
 		
 		# Create standard augmentation level matrix
-        self.matrixArgs = [[7.5,10.7,25.0,21.4,30.0],
+        self.matrixArgs = [[7.5,10.7,15.0,21.4,30.0],
 		                    [0.375,0.53,0.75,1.07,1.5],
-							[1.0,1.4,2.0,2.8,4.0],
+							[0.5,1.0,1.5,2.0,2.5],
 							[5.0,7.14,10.0,14.0,20.0],
-							[22.5,32.14,45.0,64.28,90.0]]
+							[80.0,82.5,85.0,87.5,90.0]]
 		
 		#[[10,15,20,25,30],
 		#[0.3,0.6,0.9,1.2,1.5],
@@ -82,7 +82,7 @@ class TuningPanel(QMainWindow):
         self.blurLabel.setText("Gaussian Blur")
         self.blurSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
         self.blurSlider.setRange(10.0, 60.0)
-        self.blurSlider.setValue((7.5,10.7,25.0,21.4,30.0))
+        self.blurSlider.setValue((7.5,10.7,15.0,21.4,30.0))
         self.blurSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.blurLabel)
         self.ui.sliderLayout.addWidget(self.blurSlider)
@@ -106,7 +106,7 @@ class TuningPanel(QMainWindow):
         self.contLabel.setText("Contrast")
         self.contSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
         self.contSlider.setRange(0.0, 10.0)
-        self.contSlider.setValue((1.0,1.4,2.0,2.8,4.0))
+        self.contSlider.setValue((0.5,1.0,1.5,2.0,2.5))
         self.contSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.contLabel)
         self.ui.sliderLayout.addWidget(self.contSlider)
@@ -130,7 +130,7 @@ class TuningPanel(QMainWindow):
         self.compLabel.setText("JPG Compression")
         self.compSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
         self.compSlider.setRange(80.0, 100.0)
-        self.compSlider.setValue((22.5,32.14,45.0,64.28,90.0))
+        self.compSlider.setValue((80.0,82.5,85.0,87.5,90.0))
         self.compSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.compLabel)
         self.ui.sliderLayout.addWidget(self.compSlider)
@@ -227,9 +227,9 @@ class TuningPanel(QMainWindow):
         self.matrixArgs[4] = self.compSlider.value()
 		
     def resetSliders(self):
-        self.blurSlider.setValue((7.5,10.7,25.0,21.4,30.0))
+        self.blurSlider.setValue((7.5,10.7,15.0,21.4,30.0))
         self.saltpepSlider.setValue((0.375,0.53,0.75,1.07,1.5))
-        self.contSlider.setValue((0.625,0.89,1.25,1.78,2.5))
+        self.contSlider.setValue((0.5,1.0,1.5,2.0,2.5))
         self.intSlider.setValue((5.0,7.14,10.0,14.0,20.0))
-        self.compSlider.setValue((22.5,32.14,45.0,64.28,90.0))
+        self.compSlider.setValue((80.0,82.5,85.0,87.5,90.0))
         
