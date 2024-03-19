@@ -34,3 +34,4 @@ tifffile==2020.9.3
 tqdm==4.62.3
 typing-extensions==3.10.0.2
 urllib3==1.26.7
+superqt==0.5.0
