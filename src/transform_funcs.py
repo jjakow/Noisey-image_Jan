@@ -43,7 +43,8 @@ def adjust_gamma(image, gamma=1.0):
     return cv2.LUT(image, table)
 
 def dim_intensity(image, factor, seed=-1):
-    gamma_vals = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.01] #[6, 3, 1, 0.333, 0.167]
+    #gamma_vals = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.01] #[6, 3, 1, 0.333, 0.167]
+    gamma_vals = [4,2.5,1,0.85,0.7]
     adjusted = adjust_gamma(image, gamma=gamma_vals[int(factor)-1])
     return adjusted
 
@@ -117,7 +118,9 @@ def gaussian_blur(image, parameter):
     # 15, 30, 45, 60, 75
     #p = 14*parameter + 1
     #parameter = int(p)
+    blur_vals = [7,10,15,21,30]
     parameter = int(parameter)
+    parameter = blur_vals[int(parameter)-1]
     if (parameter % 2 == 0):
         parameter = parameter + 1
     #print("Gaussian Blur applied")
@@ -174,8 +177,11 @@ def saltAndPapper_noise(image, prob=0.01):
     '''
     #image = image.copy()
     #p = (5 * prob) / 35.0 # 30.0 - 40.0
-    p = prob / 10.0
+    #p = prob / 10.0
     #print("Salt & Pepper applied")
+    saltpep_vals = [0.375,0.53,0.75,1.07,1.5]
+    p = saltpep_vals[int(prob)-1] / 10
+    
     if len(image.shape) == 2:
         black = 0
         white = 255            
@@ -536,8 +542,9 @@ def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
 
 # 1, 2, 3, 4, 5
 def contrast(image, param):
-    
-    contrast = int(-12 * param) # -22
+    cont_vals = [0.625,0.89,1.25,1.78,2.5]
+    factor = cont_vals[int(param)-1]
+    contrast = int(-12 * factor)
     alpha = float(131 * (contrast + 127)) / (127 * (131 - contrast))
     gamma = 127 * (1 - alpha)
 	
@@ -596,7 +603,9 @@ def cae(image, patches):
     return image
 
 def jpg_compression(image, param, return_encoded=False):
-    quality = 100-param #19 - (3*param)
+    comp_vals = [80.0,82.5,85.0,87.5,90.0]
+    #quality = 100-param #19 - (3*param)
+    quality = 100-comp_vals[int(param)-1]
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     result, enc_img = cv2.imencode('.jpg', image, encode_param)
     #print("JPG Compression applied")
