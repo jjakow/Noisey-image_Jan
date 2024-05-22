@@ -302,26 +302,21 @@ class ExperimentWorker(QObject):
 
                 combs = list(itertools.product(*augLevels)) # List of all aug combinations as tuples
                 counter["Compound"] = []   #Compound
-                count_temp = [0.0, 0.0, 0.0, 0.0, 0.0] # Holds count of shared detections for each aug level
-                currAug = -1 # Current augment level (initialized to -1)
+                count_temp = []
 				
-				# Iterate through every possible combination
                 for c in combs:
+                    #counter[aug.title] = []
+                    #count_temp = []
                     isEqualLevel = False
 					
-					# Detections only counted where all selected augs are at the same level (unique set of length 1, or 2 w/ zeroes)
                     unique = np.unique(c)
                     if (len(unique) == 1 or (len(unique) == 2 and unique[0] == 0)):
                         isEqualLevel = True
-                        currAug += 1
 
                     for j, imgPath in enumerate(self.config.imagePaths):
-                        # NEED TO CHANGE HOW JSUBFOLDER IS TREATED - ALL SHOULD BE CALLED "COMPOUND_X"
-						# Maybe use currAug to keep track of state???
-						
                         self.logProgress.emit("Running column %i of Augmentations"%(j))
-                        j_subFolder = "Compound" #j_subFolder = ''.join("".join(aug.title.split(" ")))
-                        j_subFolder += ''+str(currAug) #j_subFolder += ''+str(j)
+                        j_subFolder = ''.join("".join(aug.title.split(" ")))
+                        j_subFolder += ''+str(j)
 
                         try: os.mkdir( os.path.join(self.savePath, exp_path, j_subFolder) )
                         except FileExistsError: pass #print("Folder path already exists...")
@@ -336,13 +331,11 @@ class ExperimentWorker(QObject):
                         _img = cv2.imread(imgPath)
                         _count = None
 
-                        # Apply each aug specified by level in comb
                         currentAug = 0
                         for aug in self.config.mainAug:
                             _img = aug(_img, c[currentAug])
                             currentAug += 1
 
-                        # Modify base filename by current aug levels
                         filename = list("000000")
                         if "Size" in augTitles:
                             filename[0] = str(int(c[augTitles.index("Size")]))
@@ -356,31 +349,23 @@ class ExperimentWorker(QObject):
                             filename[4] = str(int(c[augTitles.index("Intensity")]))
                         if "JPG Compression" in augTitles:
                             filename[5] = str(int(c[augTitles.index("JPG Compression")]))
-                        imgEnd = "".join(filename)
-                        filename_save = imgName + "_" + imgEnd
+                        filename_save = "".join(filename)
 
                         cv2.imwrite("%s/%s/%s.jpg" % (exp_path, imgName, filename_save), _img)
 
+                        #COUNT DETS
+                        #if isEqualLevel:
                         dets = self.config.model.run(_img)
                         _count = self.calculateStat(dets, _count, j, os.path.splitext(imgPath.split('/')[-1])[0])
-
-                        # TESTING BB COORD SAVING FOR TEXT FILES
-                        #print("===================================")
-                        #print("JSubFolder: ", j_subFolder)
-                        #print("ImgName: ", imgName)
-                        #print("ExpPath: ", exp_path)
-                        #print("SavePath:", self.savePath)
 
                         self.writeDets(dets, os.path.join(self.savePath, exp_path, j_subFolder), imgPath)
                         self.logProgress.emit('Progress: (%i/%i)'%(j,len(self.config.imagePaths)))
                         self.progress.emit(j)
                     
-                        # Amend counter list
                         if isEqualLevel:
                             if type(_count) == int: _count /= len(self.config.imagePaths)
-                            #count_temp.append(_count)
-                            count_temp[currAug] += _count
-                            
+                            count_temp.append(_count)
+                            #print("HERE")
                             counter["Compound"] = [count_temp]
             
             elif self.config.isNormal:
@@ -459,13 +444,11 @@ class ExperimentWorker(QObject):
                             if type(_count) == int: _count /= len(self.config.imagePaths)
                             count_temp.append(_count)
                     counter[aug.title].append(count_temp)
-                #print(counter)
-                #print("==================")
 
         #if self.config.model.complexOutput:
         if useLowerThres:
             self.config.model.conf_thres = old_thres
-        #print(counter)
+        print(counter)
         self.writeGraph(counter, os.path.join(self.savePath, exp_path), self.config.isCompound)
 
         # clean up model

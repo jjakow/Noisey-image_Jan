@@ -8,6 +8,7 @@ import io
 import src.models
 import numpy as np
 import cv2
+from PIL import Image, ImageOps
 
 currPath = str(Path(__file__).parent.absolute()) + '/'
 
@@ -35,8 +36,21 @@ def letterbox_image(image, size):
     new_image[h_start:h_start+nh, w_start:w_start+nw, :] = image
     return new_image, (nh, nw)
 
+def adjust_gamma(image, gamma=1.0):
+    invGamma = 1.0 / gamma
+    table = np.array([((i / 255.0) ** invGamma) * 255
+        for i in np.arange(0, 256)]).astype("uint8")
+    return cv2.LUT(image, table)
+
 def dim_intensity(image, factor, seed=-1):
-    """
+    #gamma_vals = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.01] #[6, 3, 1, 0.333, 0.167]
+    gamma_vals = [4,2.5,1,0.85,0.7]
+    adjusted = adjust_gamma(image, gamma=gamma_vals[int(factor)-1])
+    return adjusted
+
+"""
+def dim_intensity(image, factor, seed=-1):
+    
     Dims the intensity of the image by the give factor/range of factor. 
     
         |Parameters: 
@@ -46,20 +60,24 @@ def dim_intensity(image, factor, seed=-1):
         
         |Returns: 
             |image (numpy array): The dimed image  
-    """
+    
     # check if factor is int (constant) or tuple (randomized range with uniform distribution):
     hsv_img = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    if type(factor) == float:
-        assert factor <= 1 and factor >= 0
+    param = (-0.20 * factor) + 1.20
+	
+    #print("Intensity applied")
+	
+    if type(param) == float:
+        #assert factor <= 1 and factor >= 0
         # adjust value channel:
-        value = hsv_img[:, :, 2].astype('float64')*factor
+        value = hsv_img[:, :, 2].astype('float64')*param
         hsv_img[:, :, 2] = value.astype('uint8')
         image = cv2.cvtColor(hsv_img, cv2.COLOR_HSV2RGB)
         return image
-    elif type(factor) == tuple:
+    elif type(param) == tuple:
         if seed != -1:
             np.random.seed(seed)
-        lower, upper = factor
+        lower, upper = param
         assert upper <= 1 and upper >= 0
         assert lower <= 1 and lower >= 0
         assert upper >= lower
@@ -70,6 +88,7 @@ def dim_intensity(image, factor, seed=-1):
         return image
     else:
         assert False, "factor type needs to be a float or tuple"
+"""
 
 def gaussian_noise(image, std, seed=-1):
     mean = 2
@@ -92,8 +111,19 @@ def gaussian_noise(image, std, seed=-1):
         return combined.astype('uint8')
     else: assert False
 
-def gaussian_blur(image, parameter):   
+# 1, 2, 3, 4, 5
+def gaussian_blur(image, parameter): 
+	# 13, 29, 57, 121, 293
+    #p = (10*parameter) + np.power(3, parameter)
+    # 15, 30, 45, 60, 75
+    #p = 14*parameter + 1
+    #parameter = int(p)
+    blur_vals = [7,10,15,21,30]
     parameter = int(parameter)
+    parameter = blur_vals[int(parameter)-1]
+    if (parameter % 2 == 0):
+        parameter = parameter + 1
+    #print("Gaussian Blur applied")
     image_copy = np.copy(image)
     cols = image_copy.shape[0]
     rows = image_copy.shape[1]
@@ -139,23 +169,19 @@ def rain(image, intensity=1):
 
     return image_RGB
 
-def jpeg_comp(image, quality, return_encoded=False):
-    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
-    result, enc_img = cv2.imencode('.jpg', image, encode_param)
-    
-    if return_encoded:
-        return enc_img
-
-    if result is True:
-        dec_img = cv2.imdecode(enc_img, 1)
-        return dec_img
-
+# 1, 2, 3, 4, 5
 def saltAndPapper_noise(image, prob=0.01):
     '''
     Add salt and pepper noise to image
     prob: Probability of the noise
     '''
     #image = image.copy()
+    #p = (5 * prob) / 35.0 # 30.0 - 40.0
+    #p = prob / 10.0
+    #print("Salt & Pepper applied")
+    saltpep_vals = [0.375,0.53,0.75,1.07,1.5]
+    p = saltpep_vals[int(prob)-1] / 10
+    
     if len(image.shape) == 2:
         black = 0
         white = 255            
@@ -168,8 +194,8 @@ def saltAndPapper_noise(image, prob=0.01):
             black = np.array([0, 0, 0, 255], dtype='uint8')
             white = np.array([255, 255, 255, 255], dtype='uint8')
     probs = np.random.random(image.shape[:2])
-    image[probs < (prob / 2)] = black
-    image[probs > 1 - (prob / 2)] = white
+    image[probs < (p / 2)] = black
+    image[probs > 1 - (p / 2)] = white
     return image
 
 def flipAxis(image, mode):
@@ -430,8 +456,10 @@ def bilinear(image, percent, return_encoded=False):
 
     return final_img
 
+# 1, 2, 3, 4, 5
 def ffmpeg_h264_to_tmp_video(i0, quant_lvl):
     #i0 = cv2.imread(input_file)
+    param = quant_lvl #10*(int(quant_lvl) + 2)
     h,w,c = i0.shape
     # encode into png (lossless):
     i1 = cv2.imencode('.png', i0)[1]
@@ -449,7 +477,7 @@ def ffmpeg_h264_to_tmp_video(i0, quant_lvl):
         fp = tempfile.NamedTemporaryFile(delete=True, suffix=".mp4", mode='wb')
     output_file = fp.name
     stream = ffmpeg.input(i0_fp.name)
-    stream = ffmpeg.output(stream, output_file, vcodec="libx264", qp=quant_lvl, vf="format=yuv444p,scale=%i:%i"%(w,h))
+    stream = ffmpeg.output(stream, output_file, vcodec="libx264", qp=param, vf="format=yuv444p,scale=%i:%i"%(w,h))
     ffmpeg.run(stream, overwrite_output=True, quiet=True)
 
     cap = cv2.VideoCapture(output_file)
@@ -512,21 +540,96 @@ def ffmpeg_h265_to_tmp_video(i0, quant_lvl):
 
     return frame
 
+# 1, 2, 3, 4, 5
+def contrast(image, param):
+    cont_vals = [0.625,0.89,1.25,1.78,2.5]
+    factor = cont_vals[int(param)-1]
+    contrast = int(-12 * factor)
+    alpha = float(131 * (contrast + 127)) / (127 * (131 - contrast))
+    gamma = 127 * (1 - alpha)
+	
+    sharp = cv2.addWeighted(image, alpha, image, 0, gamma)
+	
+    return sharp
+    
+def rotation(image, param):
+    center = tuple(np.array(image.shape[1::-1])/2)
+    mat = cv2.getRotationMatrix2D(center, param, 1.0)
+    rotate = cv2.warpAffine(image, mat, image.shape[1::-1])
+    return rotate
+    
+def invert(image, param):
+    invert = cv2.bitwise_not(image)
+    return invert
+
+def pincushion(image, param=0.005):
+    height, width, channel = image.shape
+    k1, k2, p1, p2 = 0, 0, param, param # Need to find right order of parameters for pinching
+    dist_coeff = np.array([[k1],[k2],[p1],[p2]])
+    # assume unit matrix for camera
+    cam = np.eye(3,dtype=np.float32)
+    cam[0,2] = width/2.0  # define center x
+    cam[1,2] = height/2.0 # define center y
+    cam[0,0] = 10.        # define focal length x
+    cam[1,1] = 10.        # define focal length y
+    new_image = cv2.undistort(image, cam, dist_coeff)
+    return new_image
+	
+# Scale by 2^P, P = param (0 = Full, 1 = Half, 2 = Quarter, etc)
+# 1, 2, 3, 4, 5
+def sizescale(image, param):
+    if (param == 1):
+        return image
+    #print("Size applied")
+    scale = 1 / np.power(1.5, (param-1)) # 67% dimensional reduction
+    height, width, channel = image.shape
+    resized = cv2.resize(image, None, fx=scale, fy=scale)
+    rh, rw, rc = resized.shape
+    background = np.zeros([height, width,3],dtype=np.uint8)
+    background.fill(255)
+    xoff = int(((width - rw) / 2))
+    yoff = int(((height - rh) / 2))
+    background[yoff:yoff+rh, xoff:xoff+rw] = resized
+	
+    #print(height, width)
+    #print("=====")
+    #print(rh, rw)
+	
+    return background
+
 def cae(image, patches):  
     # Run the autoencoder with the given image
     image = cae_encoder.run(image, patches)
     return image
 
+def jpg_compression(image, param, return_encoded=False):
+    comp_vals = [80.0,82.5,85.0,87.5,90.0]
+    #quality = 100-param #19 - (3*param)
+    quality = 100-comp_vals[int(param)-1]
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
+    result, enc_img = cv2.imencode('.jpg', image, encode_param)
+    #print("JPG Compression applied")
+    if return_encoded:
+        return enc_img
+
+    if result is True:
+        dec_img = cv2.imdecode(enc_img, 1)
+        return dec_img
+
+
 def passthrough(images, param):
     return images
 
 #################### EXCEPTION HANDLERS ##################
-def __intensityCheck__(param): return param >= 0 and param <= 1
+def __sizescaleCheck__(param): return param > 0
+def __intensityCheck__(param): return param > 0
 def __gaussianNoiseCheck__(param): return param > 0
 def __gaussianBlurCheck__(param): return param > 0
 def __rainCheck__(param): return param >= 0 and param <= 2
-def __saltPepperCheck__(param): return param >= 0 and param <= 1.0
-def __flipAxisCheck__(param): return True
+def __saltPepperCheck__(param): return param > 0
+#def __flipAxisCheck__(param): return True
+# Changing axis constraints to allow horizontal and diagonal flip
+def __flipAxisCheck__(param): return param >= -1 and param <= 1
 def __fishEyeCheck__(param): return param > 0 and param <= 1
 def __barrelCheck__(param): return param > 0 and param <= 0.01
 def __simpleMosaicCheck__(param): return True
@@ -535,8 +638,13 @@ def __speckleNoiseCheck__(param): return param >= 1 and param <= 2
 def __saturationCheck__(param): return param >= 0
 def __altMosaicCheck__(param): return param > 0
 def __bilinearCheck__(param): return param >= 0 and param <= 100
+def __contrastCheck__(param): return param > 0
+#def __rotationCheck__(param): return param >= 0 and param <= 350
+#def __invertCheck__(param): return True
+#def __pincushionCheck__(param): return param > 0 and param <= 0.01
 def __h264Check__(param): return param >= 0 and param <= 100
 def __h265Check__(param): return param >= 0 and param <= 100
 def __JPEGCheck__(param): return param >= 0 and param <= 100
 def __WEBPCheck__(param): return param >= 0 and param <= 100
 def __compressiveAutoCheck__(param): return param >= 0
+def __jpgCompressionCheck__(param): return param > 0

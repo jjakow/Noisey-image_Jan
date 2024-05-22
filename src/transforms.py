@@ -11,26 +11,47 @@ from src.transform_funcs import *
 import src.transform_funcs as trans
 
 augList = {
-    "Intensity": {"function": dim_intensity, "default": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], "example":0.5, "limits":trans.__intensityCheck__},
-    "Gaussian Noise": {"function": gaussian_noise, "default": [1,10,15,20,25,30,35,40,45,50,55,60], "example":25, "limits":trans.__gaussianNoiseCheck__},
-    "Gaussian Blur": {"function": gaussian_blur, "default": [3, 13, 23, 33, 43, 53, 63, 73, 83], "example":33, "limits":trans.__gaussianBlurCheck__},
-    "Rain": {"function": rain, "default": [0,1,2], "example":1, "limits":trans.__rainCheck__},
-    "Salt and Pepper": {"function": saltAndPapper_noise, "default": [x/100 for x in range(12)], "example":0.25, "limits":trans.__saltPepperCheck__},
-    "Flip Axis": {"function": flipAxis, "default": [-1], "example": -1, "limits":trans.__flipAxisCheck__},
-    "Fisheye": {"function": fisheye, "default": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], "example":0.4, "limits":trans.__fishEyeCheck__},
+    "Size": {"function": sizescale, "default": [1, 2, 3, 4, 5], "example": 1, "limits": trans.__sizescaleCheck__},
+    "Gaussian Blur": {"function": gaussian_blur, "default": [1, 2, 3, 4, 5], "example":1, "limits":trans.__gaussianBlurCheck__},
+    "Salt and Pepper": {"function": saltAndPapper_noise, "default": [1, 2, 3, 4, 5], "example":1, "limits":trans.__saltPepperCheck__},
+    "Contrast": {"function": contrast, "default": [1, 2, 3, 4, 5], "example":1, "limits":trans.__contrastCheck__},
+	"Intensity": {"function": dim_intensity, "default": [1, 2, 3, 4, 5], "example":1, "limits":trans.__intensityCheck__},
+    "JPG Compression": {"function": jpg_compression, "default": [1, 2, 3, 4, 5], "example": 1, "limits":trans.__jpgCompressionCheck__},
+
+    " ": {"function": passthrough, "default": [], "example": [], "limits": None, "line": "Other Augmentations"},
+	#"Size": {"function": sizescale, "default": [0, 1, 2, 3, 4, 5], "example": 1, "limits": trans.__sizescaleCheck__},
+    "Flip Axis": {"function": flipAxis, "default": [-1, 0, 1], "example": -1, "limits":trans.__flipAxisCheck__},
     "Barrel": {"function": barrel, "default": [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.001, 0.002, 0.003, 0.004, 0.005, 0.01], "example":0.005, "limits":trans.__barrelCheck__},
-    #"Simple Mosaic": {"function": simple_mosaic, "default":[], "example":[], "limits":trans.__simpleMosaicCheck__},
-    "Black and White": {"function": black_white, "default":[0,1,2], "example":0, "limits":trans.__blackWhiteCheck__}, 
-    "Speckle Noise": {"function": speckle_noise, "default": [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2], "example":1.5, "limits":trans.__speckleNoiseCheck__},
-    "Saturation" : {"function": saturation, "default":[50], "example":50, "limits":trans.__saturationCheck__},
+    "Fisheye": {"function": fisheye, "default": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], "example":0.4, "limits":trans.__fishEyeCheck__},
     "Simple Mosaic": {"function": alternate_mosaic, "default":[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "example":2, "limits":trans.__altMosaicCheck__}, # 1x1 - 5x5
+    # ==============================
+	#" ": {"function": trans.passthrough, "default":[], "example":[],"limits":None, "line": "Blurring Methods"},
+    #"Gaussian Blur": {"function": gaussian_blur, "default": [3, 13, 23, 33, 43, 53, 63, 73, 83], "example":33, "limits":trans.__gaussianBlurCheck__},
+    #"Intensity": {"function": dim_intensity, "default": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1], "example":0.5, "limits":trans.__intensityCheck__},
+    "Rain": {"function": rain, "default": [0,1,2], "example":1, "limits":trans.__rainCheck__},
+    "Black and White": {"function": black_white, "default":[0,1,2], "example":0, "limits":trans.__blackWhiteCheck__}, 
+    "Saturation" : {"function": saturation, "default":[50], "example":50, "limits":trans.__saturationCheck__},
+    # ==============================
+	#"  ": {"function": trans.passthrough, "default":[], "example":[],"limits":None, "line": "Noising Methods"},
+    "Gaussian Noise": {"function": gaussian_noise, "default": [1,10,15,20,25,30,35,40,45,50,55,60], "example":25, "limits":trans.__gaussianNoiseCheck__},
+    #"Salt and Pepper": {"function": saltAndPapper_noise, "default": [x/100 for x in range(12)], "example":0.25, "limits":trans.__saltPepperCheck__},
+	"Speckle Noise": {"function": speckle_noise, "default": [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2], "example":1.5, "limits":trans.__speckleNoiseCheck__},
+	# ==============================
+	#"   ": {"function": trans.passthrough, "default":[], "example":[],"limits":None, "line": "Compression Methods"},
     "Bilinear Resizing": {"function": bilinear, "default": [10,20,30,40,50,60,70,80,90,95], "example":25, "limits":trans.__bilinearCheck__},
-    " ": {"function": trans.passthrough, "default":[], "example":[],"limits":None, "line": "Compression Methods"},
-    "JPEG Compression": {"function": jpeg_comp, "default": [100,90,80,70,60,50,40,30,20,10], "example":20, "limits":trans.__JPEGCheck__},
+    #"JPEG Compression": {"function": jpeg_comp, "default": [100,90,80,70,60,50,40,30,20,10], "example":20, "limits":trans.__JPEGCheck__},
     "WebP Compression": {"function": webp_transform, "default": [10,25,50,75,100], "example":10, "limits":trans.__WEBPCheck__},
     "Compressive Autoencoder": {"function": cae, "default": [140,148,156,164,172,180,188,196], "example":172, "limits":trans.__compressiveAutoCheck__},
-    "Image H264": {"function": ffmpeg_h264_to_tmp_video, "default":[0,10,20,30,40,50,60,70,80,90,100], "example":60, "limits":trans.__h264Check__},
+    "Image H264 Compression": {"function": ffmpeg_h264_to_tmp_video, "default":[1, 2, 3, 4, 5], "example":3, "limits":trans.__h264Check__},
+    #"Image H264": {"function": ffmpeg_h264_to_tmp_video, "default":[0,10,20,30,40,50,60,70,80,90,100], "example":60, "limits":trans.__h264Check__},
     "Image H265": {"function": ffmpeg_h265_to_tmp_video, "default":[0,5,10,15,20,25,30,35,40,45,50], "example":45, "limits":trans.__h265Check__}
+	
+    #"Flip Axis": {"function": flipAxis, "default": [-1], "example": -1, "limits":trans.__flipAxisCheck__},
+    # "Simple Mosaic": {"function": simple_mosaic, "default":[], "example":[], "limits":trans.__simpleMosaicCheck__},
+    #"Sharpen": {"function": sharpen, "default": [5,6,7,8,9,10,11,12], "example":9, "limits":trans.__sharpenCheck__},
+    #"Rotation": {"function": rotation, "default": [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330], "example":60, "limits":trans.__rotationCheck__},
+    #"Color Inversion": {"function": invert, "default": [1], "example":1, "limits":trans.__invertCheck__},
+    #"Pincushion": {"function": pincushion, "default": [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.001, 0.002, 0.003, 0.004, 0.005, 0.01], "example":0.005, "limits":trans.__pincushionCheck__},
 }
 
 # horizontal line seperator:
@@ -114,6 +135,7 @@ class AugmentationPipeline():
     def __wrapper__(self):
         aug_pos = 0
         for pos, item in enumerate(self.__list__.items()):
+            #print(pos)
             if not "line" in item[1]:
                 _item = Augmentation( (item[0], item[1]["function"]), aug_pos, args=(item[1]["default"], item[1]["example"]), verbose=False, limit=item[1]['limits'])
                 self.__augList__.append(_item)
@@ -122,6 +144,9 @@ class AugmentationPipeline():
             else:
                 self.__line_pos__.append(pos)
                 self.__line_text__.append(item[1]['line'])
+            #print(self.__line_pos__)
+            #print(self.__line_text__)
+            #print("=====")
 
     def __len__(self):
         return len(self.__pipeline__)
@@ -334,7 +359,7 @@ class AugDialog(QDialog):
             if not _payload is None:
                 strArgs = [str(k) for k in augList[self.listWidget.item(i).text()]["default"]]
                 parameters = ",".join(strArgs)
-                if self.listWidget.item(i).text() != " ":
+                if self.listWidget.item(i).text() != " " and self.listWidget.item(i).text() != "  " and self.listWidget.item(i).text() != "   ":
                     _payload[1] = parameters
                     _payload[2] = str(augList[self.listWidget.item(i).text()]["example"])
                 self.listWidget.item(i).setData(Qt.UserRole, _payload)
@@ -405,6 +430,9 @@ class AugDialog(QDialog):
                 self.previewImage.setPixmap(qtImage)
                 self.lastRow = augIndex2
         
+        if currentItem == "Size":
+            self.info_label.setText("Size reduces the image dimension scale by 50% per each augmentation level.")
+		
         if currentItem == "Intensity":
             self.info_label.setText("Dims the intensity of the image by the given factor/range of factor.")
         
@@ -619,7 +647,8 @@ class AugDialog(QDialog):
     
     def hideCheckBox(self):
         for i in range(self.listWidget.count()):
-            if self.listWidget.item(i).text() == " ":
+            #print(i)
+            if self.listWidget.item(i).text() == " " or self.listWidget.item(i).text() == "  " or self.listWidget.item(i).text() == "   ":
                 row = i
                 self.listWidget.item(i).setFlags(Qt.NoItemFlags)
 
