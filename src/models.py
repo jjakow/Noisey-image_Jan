@@ -331,6 +331,9 @@ class YOLOv3(Model):
         return {"dst": np_img,
                 "listOfNames":detectedNames,
 				"classes": dict} #dict
+        np_img, detectedNames = detect._draw_and_return_output_image(img, pred, 416, self.classes)
+        return {"dst": np_img,
+                "listOfNames":detectedNames}
 
     def draw_single_class(self, pred, img, selected_class):
         np_img = detect._draw_and_return_output_image_single_class(img, pred, selected_class, self.classes)
@@ -709,6 +712,7 @@ class YOLOv3_Ultralytics(Model):
                 pred[:, :4] = scale_coords(im.shape[2:], pred[:, :4], imageShape).round()
                 #self.predictions = pred
                 #print(pred)
+                print(pred)
                 return pred
             else:
                 return []
@@ -751,6 +755,11 @@ class YOLOv3_Ultralytics(Model):
         return {"dst": im0,
                 "listOfNames":labels,
                 "classes": dict}
+        #cv2.imshow('test', im0)
+        #cv2.imwrite('test.png', im0)
+        #cv2.waitKey(-1)
+        return {"dst": im0,
+                "listOfNames":labels}
 
     def deinitialize(self):
         del self.model
@@ -909,6 +918,8 @@ class YOLOX(Model):
         dict["all"] = len(preds)
 
         return {"dst":im0, "listOfNames":labels, "classes": dict}
+
+        return {"dst":im0, "listOfNames":labels}
 
     def draw_single_class(self, preds, im0, selected_class):
         res = self.draw(preds, im0, class_filter=selected_class)
@@ -1377,6 +1388,7 @@ class YOLO_NAS_S(Model):
         if len(network_config) > 2: # if network_config[2] is not None:
             self.ckpt = network_config[2] # Checkpoint
             self.cls = network_config[3] # Num classes
+        self.weight, _yaml = network_config
         self.isCOCO91 = False
         with open(_yaml, 'r') as stream:
             self.YAML = yaml.safe_load(stream)
@@ -1429,6 +1441,7 @@ class YOLO_NAS_S(Model):
             self.net = models.get(Models.YOLO_NAS_S, num_classes=80, pretrained_weights="coco") # checkpoint_path="C:/Users/ajcmo/Desktop/WORK/Noisey-image/src/yolonas_tank/tank_v1-3_ckpt_latest.pth"
         else:
             self.net = models.get(Models.YOLO_NAS_S, num_classes=self.cls, checkpoint_path=self.ckpt)
+        self.net = models.get(Models.YOLO_NAS_S, pretrained_weights="coco")
         return 0
 
     def deinitialize(self):
@@ -1469,6 +1482,11 @@ class YOLO_NAS_S(Model):
         #    print(0)
         #else:
         #    print(sum(self.confidence) / len(self.confidence))
+        print(len(self.confidence))
+        if len(self.confidence) == 0:
+            print(0)
+        else:
+            print(sum(self.confidence) / len(self.confidence))
 
         if len(pred) > 0:
             annotator = Annotator(new_img, line_width=2)
@@ -1489,6 +1507,9 @@ class YOLO_NAS_S(Model):
         return {"dst": new_img,
                 "listOfNames": labels,
 				"classes": dict}
+		
+        return {"dst": new_img,
+                "listOfNames": labels}
 
     def draw_single_class(self, pred, img, selected_class):
         res = self.draw(pred, img, class_filter=selected_class)
@@ -1600,6 +1621,11 @@ class YOLO_NAS_M(Model):
         dict["all"] = len(self.confidence)
         print(dict)
         print("==========================")
+        print(len(self.confidence))
+        if len(self.confidence) == 0:
+            print(0)
+        else:
+            print(sum(self.confidence) / len(self.confidence))
 
         if len(pred) > 0:
             annotator = Annotator(new_img, line_width=2)
@@ -1620,6 +1646,7 @@ class YOLO_NAS_M(Model):
         return {"dst": new_img,
                 "listOfNames": labels,
 				"classes": dict}
+                "listOfNames": labels}
 
     def draw_single_class(self, pred, img, selected_class):
         res = self.draw(pred, img, class_filter=selected_class)
@@ -1732,6 +1759,11 @@ class YOLO_NAS_L(Model):
         dict["all"] = len(self.confidence)
         print(dict)
         print("==========================")
+        print(len(self.confidence))
+        if len(self.confidence) == 0:
+            print(0)
+        else:
+            print(sum(self.confidence) / len(self.confidence))
 
         if len(pred) > 0:
             annotator = Annotator(new_img, line_width=2)
@@ -1752,6 +1784,7 @@ class YOLO_NAS_L(Model):
         return {"dst": new_img,
                 "listOfNames": labels,
 				"classes": dict}
+                "listOfNames": labels}
 
     def draw_single_class(self, pred, img, selected_class):
         res = self.draw(pred, img, class_filter=selected_class)
@@ -1875,6 +1908,8 @@ _registry = {
         "./src/yolonas_tank/tank_comp_v1-2_ckpt_latest.pth",
 		1
 	)
+    #   os.path.join(currPath, "HERE")
+    )
 }
 
 
