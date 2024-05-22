@@ -1,17 +1,9 @@
 from PyQt5.QtWidgets import QDialog, QDesktopWidget
-
 from PyQt5 import uic, QtWidgets
 from PyQt5.QtCore import * #Qt, QObject, QThread, pyqtSignal, QSize
 from PyQt5.QtGui import * #QPixmap, QIcon, QFont
 from src.mplwidget import MplWidget
 from PyQt5.QtWidgets import * #QApplication, QMainWindow, QPushButton, QLabel, QCheckBox, QVBoxLayout, QWidget
-
-from PyQt5 import uic
-from PyQt5.QtCore import Qt, QObject, QThread, pyqtSignal, QSize
-from PyQt5.QtGui import QPixmap, QIcon
-from src.mplwidget import MplWidget
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
-
 
 from superqt import QLabeledDoubleRangeSlider
 
@@ -30,11 +22,11 @@ class TuningPanel(QMainWindow):
         self.imagePath = None
 		
 		# Create standard augmentation level matrix
-        self.matrixArgs = [[7.5,10.7,15.0,21.4,30.0],
+        self.matrixArgs = [[1.0,2.0,3.0,4.0,5.0],
 		                    [0.375,0.53,0.75,1.07,1.5],
-							[0.5,1.0,1.5,2.0,2.5],
-							[5.0,7.14,10.0,14.0,20.0],
-							[80.0,82.5,85.0,87.5,90.0]]
+							[1.0,2.0,3.0,4.0,5.0],
+							[1.0,2.0,3.0,4.0,5.0],
+							[1.0,2.0,3.0,4.0,5.0]]
 		
 		#[[10,15,20,25,30],
 		#[0.3,0.6,0.9,1.2,1.5],
@@ -89,8 +81,8 @@ class TuningPanel(QMainWindow):
         #self.blurLabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.blurLabel.setText("Gaussian Blur")
         self.blurSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        self.blurSlider.setRange(10.0, 60.0)
-        self.blurSlider.setValue((7.5,10.7,15.0,21.4,30.0))
+        self.blurSlider.setRange(1.0, 5.0)
+        self.blurSlider.setValue((1.0,2.0,3.0,4.0,5.0))
         self.blurSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.blurLabel)
         self.ui.sliderLayout.addWidget(self.blurSlider)
@@ -113,8 +105,8 @@ class TuningPanel(QMainWindow):
         self.contLabel.setAlignment(Qt.AlignCenter)
         self.contLabel.setText("Contrast")
         self.contSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        self.contSlider.setRange(0.0, 10.0)
-        self.contSlider.setValue((0.5,1.0,1.5,2.0,2.5))
+        self.contSlider.setRange(1.0, 5.0)
+        self.contSlider.setValue((1.0,2.0,3.0,4.0,5.0))
         self.contSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.contLabel)
         self.ui.sliderLayout.addWidget(self.contSlider)
@@ -125,8 +117,8 @@ class TuningPanel(QMainWindow):
         self.intLabel.setAlignment(Qt.AlignCenter)
         self.intLabel.setText("Intensity")
         self.intSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        self.intSlider.setRange(4.0, 16.0)
-        self.intSlider.setValue((5.0,7.14,10.0,14.0,20.0))
+        self.intSlider.setRange(1.0, 5.0)
+        self.intSlider.setValue((1.0,2.0,3.0,4.0,5.0))
         self.intSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.intLabel)
         self.ui.sliderLayout.addWidget(self.intSlider)
@@ -137,8 +129,8 @@ class TuningPanel(QMainWindow):
         self.compLabel.setAlignment(Qt.AlignCenter)
         self.compLabel.setText("JPG Compression")
         self.compSlider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        self.compSlider.setRange(80.0, 100.0)
-        self.compSlider.setValue((80.0,82.5,85.0,87.5,90.0))
+        self.compSlider.setRange(1.0, 5.0)
+        self.compSlider.setValue((1.0,2.0,3.0,4.0,5.0))
         self.compSlider.setDecimals(2)
         self.ui.sliderLayout.addWidget(self.compLabel)
         self.ui.sliderLayout.addWidget(self.compSlider)
@@ -157,7 +149,7 @@ class TuningPanel(QMainWindow):
 	# Re-generates the augmentation matrix
     def genImages(self):
         if self.imagePath is None:
-            self.imagePath = './imgs/default_imgs/tank_iso.jpg'
+            self.imagePath = './imgs/default_imgs/100FACES.jpg'
         img = cv2.imread(self.imagePath)
         qt_img = convert_cvimg_to_qimg(img)
         
@@ -241,52 +233,3 @@ class TuningPanel(QMainWindow):
         self.intSlider.setValue((5.0,7.14,10.0,14.0,20.0))
         self.compSlider.setValue((80.0,82.5,85.0,87.5,90.0))
         
-        self.genImages()
-		
-    def genImages(self):
-        #self.filepath = 'C:/Users/ajcmo/Desktop/WORK/Noisey-image/imgs/default_imgs/tank_iso.jpg'
-        #print(self.ui.width())
-        pm = QPixmap('C:/Users/ajcmo/Desktop/WORK/Noisey-image/imgs/default_imgs/tank_iso.jpg')
-        pm = pm.scaled(self.ui.width() / 6, self.ui.height() / 6, Qt.KeepAspectRatio, Qt.FastTransformation)
-        self.ui.original.setPixmap(pm)
-        #self.ui.original.resize(pm.width(),pm.height())
-		
-		# First row
-        self.ui.aug_11.setPixmap(pm)
-        self.ui.aug_12.setPixmap(pm)
-        self.ui.aug_13.setPixmap(pm)
-        self.ui.aug_14.setPixmap(pm)
-        self.ui.aug_15.setPixmap(pm)
-		
-		# Second row
-        self.ui.aug_21.setPixmap(pm)
-        self.ui.aug_22.setPixmap(pm)
-        self.ui.aug_23.setPixmap(pm)
-        self.ui.aug_24.setPixmap(pm)
-        self.ui.aug_25.setPixmap(pm)
-		
-		# Third row
-        self.ui.aug_31.setPixmap(pm)
-        self.ui.aug_32.setPixmap(pm)
-        self.ui.aug_33.setPixmap(pm)
-        self.ui.aug_34.setPixmap(pm)
-        self.ui.aug_35.setPixmap(pm)
-		
-		# Fourth row
-        self.ui.aug_41.setPixmap(pm)
-        self.ui.aug_42.setPixmap(pm)
-        self.ui.aug_43.setPixmap(pm)
-        self.ui.aug_44.setPixmap(pm)
-        self.ui.aug_45.setPixmap(pm)
-		
-		# Fifth row
-        self.ui.aug_51.setPixmap(pm)
-        self.ui.aug_52.setPixmap(pm)
-        self.ui.aug_53.setPixmap(pm)
-        self.ui.aug_54.setPixmap(pm)
-        self.ui.aug_55.setPixmap(pm)
-		
-        #self.ui.aug_1_slider = QLabeledDoubleRangeSlider(Qt.Orientation.Horizontal)
-        #self.ui.aug_1_slider.setRange(0.0, 10.0)
-        #self.ui.aug_1_slider.setValue((2.0, 8.0))
-        #self.ui.aug_1_slider.show()
